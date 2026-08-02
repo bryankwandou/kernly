@@ -1,0 +1,26 @@
+{
+  "name": "@kernly/core",
+  "version": "0.1.0",
+  "description": "Deterministic, dependency-free context compression for LLM agents. Cuts prompt tokens without a GPU, and emits a verifiable savings receipt.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node test/smoke.mjs"
+  },
+  "keywords": [
+    "llm", "prompt-compression", "context", "tokens", "agents", "green-ai", "solana"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

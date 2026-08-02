@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+/**
+ * Kernly design tokens.
+ *
+ * The palette is warm-neutral rather than the blue-violet default most AI
+ * products reach for, because the subject here is grain and thrift, not space
+ * and magic. Amber carries the brand, green is reserved exclusively for
+ * measured savings, and rust appears only when the router wants to escalate.
+ * Colour therefore means something everywhere it appears.
+ */
+:root {
+  --ink: #0b0d0c;
+  --paper: #faf9f6;
+  --kernel: #e8a33d;
+  --husk: #6b6459;
+  --shoot: #3fa66a;
+  --signal: #c9522f;
+
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: #77716a;
+  --line: #e4e0d8;
+  --panel: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0d0c;
+    --fg: #f2efe9;
+    --muted: #9b948a;
+    --line: #242725;
+    --panel: #121513;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0d0c;
+  --fg: #f2efe9;
+  --muted: #9b948a;
+  --line: #242725;
+  --panel: #121513;
+}
+
+:root[data-theme="light"] {
+  --bg: #faf9f6;
+  --fg: #0b0d0c;
+  --muted: #77716a;
+  --line: #e4e0d8;
+  --panel: #ffffff;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-kernel: var(--kernel);
+  --color-husk: var(--husk);
+  --color-shoot: var(--shoot);
+  --color-signal: var(--signal);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-panel: var(--panel);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures anywhere a number can change, so the layout never jitters
+   while the compressor recalculates. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* A faint grain field behind the hero. Two soft radial washes read as chaff
+   drifting in the background without costing an image request. */
+.field {
+  background-image:
+    radial-gradient(circle at 18% 10%, color-mix(in oklab, var(--kernel) 16%, transparent) 0%, transparent 45%),
+    radial-gradient(circle at 84% 72%, color-mix(in oklab, var(--shoot) 12%, transparent) 0%, transparent 48%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
