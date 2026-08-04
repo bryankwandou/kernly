@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kernly.vercel.app"),
+  metadataBase: new URL("https://getkernly.vercel.app"),
   title: {
-    default: "Kernly — keep the kernel, drop the chaff",
-    template: "%s · Kernly",
+    default: "Kernly â€” keep the kernel, drop the chaff",
+    template: "%s Â· Kernly",
   },
   description:
     "A deterministic context compressor for LLM agents. Cuts prompt tokens without a GPU, tells you when not to trust the result, and anchors every saving on Solana so the number is checkable rather than claimed.",
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     "verifiable savings",
   ],
   openGraph: {
-    title: "Kernly — keep the kernel, drop the chaff",
+    title: "Kernly â€” keep the kernel, drop the chaff",
     description:
       "Deterministic context compression for LLM agents, with savings anchored on Solana.",
-    url: "https://kernly.vercel.app",
+    url: "https://getkernly.vercel.app",
     siteName: "Kernly",
     type: "website",
   },
