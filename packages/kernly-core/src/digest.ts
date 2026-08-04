@@ -26,7 +26,9 @@ function toHex(buf: ArrayBuffer): string {
 
 export async function sha256(input: string): Promise<string> {
   const bytes = new TextEncoder().encode(input);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  // The DOM lib types BufferSource as ArrayBuffer-backed; TextEncoder output is
+  // widened to ArrayBufferLike, so the cast reconciles the two.
+  const digest = await crypto.subtle.digest("SHA-256", bytes as unknown as ArrayBuffer);
   return toHex(digest);
 }
 

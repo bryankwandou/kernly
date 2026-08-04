@@ -25,7 +25,7 @@ export function Header() {
             </Link>
           ))}
           <a
-            href="https://github.com/nayrbryangaming/kernly"
+            href="https://github.com/VincentiusBryanKwandou/kernly"
             target="_blank"
             rel="noreferrer"
             className="ml-2 rounded-md border border-[var(--line)] px-3 py-1.5 text-[13.5px] transition-colors hover:border-[var(--husk)]"
