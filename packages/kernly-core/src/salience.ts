@@ -38,6 +38,18 @@ const STRUCTURAL = [
   { re: /\b(TODO|FIXME|NOTE|WARNING)\b/, w: 1.2 },
 ];
 
+/**
+ * Terms are deliberately not stemmed.
+ *
+ * Suffix stripping is the obvious next idea here, on the reasoning that a
+ * question asking what "caused" an outage should match a document saying "root
+ * cause". It was implemented and measured against `scripts/eval.mjs`, and it
+ * made answer retention worse at every useful compression ratio: the recall it
+ * bought on question-to-statement matches was outweighed by distinct technical
+ * terms collapsing into one stem and flattening the rarity signal that finds
+ * them. The harness is in the repository so anyone can re-run that comparison
+ * rather than take this paragraph on faith.
+ */
 function terms(text: string): string[] {
   return (text.toLowerCase().match(/[a-z0-9_]{2,}/g) || []).filter((t) => !STOP.has(t));
 }
@@ -77,12 +89,20 @@ export function score(blocks: Block[], query?: string): Block[] {
         if (!f) continue;
         affinity += idf(q) * ((f * 2.2) / (f + 1.2 * (0.25 + 0.75 * (t.length / avgLen))));
       }
-      affinity = affinity / (affinity + 3); // squash into 0..1
+      affinity = affinity / (affinity + 1.5); // squash into 0..1
     }
 
     // 2. Positional prior — U-shaped, head weighted a little above tail.
+    //
+    // The prior exists to guess where the useful material sits when nothing
+    // better is known. Once a block demonstrably matches the query, that guess
+    // is not just redundant, it is harmful: answers live in the middle of
+    // documents at least as often as at the edges, and an undamped U-curve was
+    // measurably evicting them. The prior is therefore faded out in proportion
+    // to how strongly the block matched.
     const p = N === 1 ? 0 : i / (N - 1);
-    const positional = 0.55 + 0.45 * Math.pow(Math.abs(p - 0.45) / 0.55, 1.6);
+    const rawPositional = 0.55 + 0.45 * Math.pow(Math.abs(p - 0.45) / 0.55, 1.6);
+    const positional = 1 - (1 - rawPositional) * (1 - Math.min(1, affinity * 1.4));
 
     // 3. Information density.
     const unique = new Set(t).size;
@@ -95,8 +115,14 @@ export function score(blocks: Block[], query?: string): Block[] {
     for (const s of STRUCTURAL) if (s.re.test(b.text)) structural = Math.max(structural, s.w);
     if (b.kind === "heading") structural *= 1.2;
     if (b.kind === "log") structural *= 0.8; // logs are bulky and mostly noise
+    // Structure is a hint about importance, not a substitute for it. Left
+    // uncapped, a heading stacking two multipliers outranked the paragraph that
+    // actually answered the question.
+    structural = Math.min(structural, 1.6);
 
-    const base = qTerms && qTerms.size ? 0.55 * affinity + 0.45 * density : density;
+    // Query affinity leads when a query exists. Density is the fallback signal
+    // for the untargeted case and a tiebreaker otherwise, not a co-equal vote.
+    const base = qTerms && qTerms.size ? 0.75 * affinity + 0.25 * density : density;
     b.score = Math.min(1, base * positional * structural);
   });
 

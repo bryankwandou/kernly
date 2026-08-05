@@ -8,7 +8,9 @@
     "build": "npm run build --workspace @kernly/core && next build",
     "start": "next start",
     "lint": "eslint",
-    "test:core": "npm run test --workspace @kernly/core"
+    "test:core": "npm run test --workspace @kernly/core",
+    "eval": "node scripts/eval.mjs",
+    "proof": "node scripts/devnet-proof.mjs"
   },
   "dependencies": {
     "@kernly/core": "*",
@@ -27,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "bs58": "^6.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
