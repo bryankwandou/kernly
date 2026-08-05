@@ -35,10 +35,31 @@ export function allocate(blocks: Block[], budget: number): Allocation {
   let spent = pinned.reduce((s, b) => s + b.tokens, 0);
   const keptIds = new Set(pinned.map((b) => b.id));
 
-  // Density-first: value per token, not raw value.
-  const ranked = [...rest].sort((a, b) => b.score / Math.max(1, b.tokens) - a.score / Math.max(1, a.tokens));
+  // Density-first, but with the length normalisation softened.
+  //
+  // Strict value-per-token is the textbook approximation and it behaves badly on
+  // prose: a three-token heading beats a forty-token paragraph on density almost
+  // regardless of content, so a budget fills up with signposts pointing at
+  // material that was evicted. A sublinear exponent keeps the greedy ordering
+  // while stopping short blocks from winning purely for being short.
+  const LENGTH_EXPONENT = 0.65;
+  const density = (b: Block) => b.score / Math.pow(Math.max(1, b.tokens), LENGTH_EXPONENT);
+  const ranked = [...rest].sort((a, b) => density(b) - density(a));
+
+  // The single strongest block by absolute score is admitted first if it fits at
+  // all. Under a tight budget this is the difference between returning the
+  // answer and returning a well-ranked summary of everything around it.
+  const anchor = rest.reduce<Block | null>(
+    (best, b) => (!best || b.score > best.score ? b : best),
+    null,
+  );
+  if (anchor && spent + anchor.tokens <= budget) {
+    keptIds.add(anchor.id);
+    spent += anchor.tokens;
+  }
 
   for (const b of ranked) {
+    if (keptIds.has(b.id)) continue;
     if (spent + b.tokens > budget) continue; // skip, do not stop: a later smaller block may still fit
     keptIds.add(b.id);
     spent += b.tokens;
