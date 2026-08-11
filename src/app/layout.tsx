@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://getkernly.vercel.app"),
   title: {
-    default: "Kernly â€” keep the kernel, drop the chaff",
+    default: "Kernly — keep the kernel, drop the chaff",
     template: "%s Â· Kernly",
   },
   description:
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "verifiable savings",
   ],
   openGraph: {
-    title: "Kernly â€” keep the kernel, drop the chaff",
+    title: "Kernly — keep the kernel, drop the chaff",
     description:
       "Deterministic context compression for LLM agents, with savings anchored on Solana.",
     url: "https://getkernly.vercel.app",
