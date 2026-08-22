@@ -186,10 +186,23 @@ export function score(blocks: Block[], query?: string): Block[] {
   if (qTerms) for (const q of qTerms) wantedTerms.set(q, 1);
 
   if (qTerms && qTerms.size && N > FEEDBACK_BLOCKS) {
-    const firstPass = live
+    const scored = live
       .map((_, i) => ({ i, a: affinityOf(i, wantedTerms) }))
       .filter((x) => x.a > 0)
-      .sort((x, y) => y.a - x.a)
+      .sort((x, y) => y.a - x.a);
+
+    // Only blocks that matched comparably to the best one are allowed to
+    // contribute vocabulary. Taking the top three unconditionally lets a block
+    // that shares one common word with the question into the pool, and once its
+    // terms are recruited they score it again on the second pass — a feedback
+    // loop that promotes the block on the strength of its own contents. A short
+    // document has few blocks and is where this bites hardest: a billing
+    // paragraph matching only on "plans" was ending up ranked above the
+    // paragraph that stated the refund window.
+    const FEEDBACK_FLOOR = 0.5;
+    const best = scored[0]?.a ?? 0;
+    const firstPass = scored
+      .filter((x) => x.a >= best * FEEDBACK_FLOOR)
       .slice(0, FEEDBACK_BLOCKS);
 
     // Feedback only makes sense if the first pass found something to feed back.

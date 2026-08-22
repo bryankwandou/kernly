@@ -13,10 +13,26 @@ import { SAMPLES } from "@/lib/samples";
  * result is asking to be taken on faith, and this one should not need to be.
  */
 
-const MODELS = [
-  { key: "openai/gpt-oss-20b", label: "GPT-OSS 20B" },
-  { key: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B" },
-  { key: "openai/gpt-oss-120b", label: "GPT-OSS 120B" },
+/**
+ * Grouped by whether the weights are published, because that distinction is the
+ * whole reason both groups are here. The open ones let a sceptic download the
+ * model and confirm Kernly is not secretly doing the answering; the closed one
+ * is what most people actually deploy against, and a compression layer that
+ * only worked in front of inspectable models would be a much narrower tool.
+ */
+const MODEL_GROUPS = [
+  {
+    label: "Open weights — downloadable, via Groq",
+    models: [
+      { key: "openai/gpt-oss-20b", label: "GPT-OSS 20B" },
+      { key: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B" },
+      { key: "openai/gpt-oss-120b", label: "GPT-OSS 120B" },
+    ],
+  },
+  {
+    label: "Closed weights — via Google",
+    models: [{ key: "gemini-flash-latest", label: "Gemini Flash" }],
+  },
 ];
 
 type Reply = {
@@ -86,11 +102,20 @@ function overlap(a: string, b: string): number | null {
 }
 
 export function Chat() {
-  const [sampleId, setSampleId] = useState(SAMPLES[1].id);
-  const [context, setContext] = useState(SAMPLES[1].text);
-  const [question, setQuestion] = useState(SAMPLES[1].query);
-  const [ratio, setRatio] = useState(0.35);
-  const [model, setModel] = useState(MODELS[0].key);
+  // The postmortem opens by default because it is the only sample long enough
+  // for the comparison to mean anything. A 70-token transcript compressed to 35
+  // percent leaves 25 tokens, and no selection policy rescues that; the demo
+  // would be showing the budget running out rather than the compressor working.
+  const DEFAULT = SAMPLES.find((s) => s.id === "postmortem") ?? SAMPLES[0];
+
+  const [sampleId, setSampleId] = useState(DEFAULT.id);
+  const [context, setContext] = useState(DEFAULT.text);
+  const [question, setQuestion] = useState(DEFAULT.query);
+  // 40 percent sits inside the band the harness measured as safe. Defaulting
+  // lower would make the escalation warning the common case, which is honest
+  // about the setting and dishonest about the tool.
+  const [ratio, setRatio] = useState(0.4);
+  const [model, setModel] = useState(MODEL_GROUPS[0].models[0].key);
   const [showContext, setShowContext] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
@@ -194,10 +219,14 @@ export function Chat() {
               onChange={(e) => setModel(e.target.value)}
               className="w-full rounded-lg border border-[var(--line)] bg-[var(--bg)] px-2.5 py-2 text-[13.5px] outline-none focus:border-[var(--kernel)]"
             >
-              {MODELS.map((m) => (
-                <option key={m.key} value={m.key}>
-                  {m.label}
-                </option>
+              {MODEL_GROUPS.map((g) => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.models.map((m) => (
+                    <option key={m.key} value={m.key}>
+                      {m.label}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </label>

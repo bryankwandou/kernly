@@ -135,6 +135,24 @@ average 0.85 coverage and runs that lost it average 0.46, so the threshold does
 real work. False alarms fell from 34 to 12 while the catch rate held at four in
 five.
 
+## One the harness did not catch
+
+The eight fixtures are all long. Feedback was recruiting vocabulary from the
+three best blocks of the first pass without checking that those blocks had
+actually matched well, and on a long document that is harmless — the third-best
+block of a two thousand token postmortem is genuinely on topic. On a short one it
+is not. Probing the live deployment with a six-paragraph billing policy found a
+paragraph that shared exactly one common word with the question ("plans") sitting
+in the feedback pool, having its own terms recruited, and then being scored again
+on the strength of them. It ranked above the paragraph that stated the refund
+window. Feedback now admits only blocks that scored at least half as well as the
+best one, and the numbers in the table above are unchanged, because no fixture is
+short enough to have shown it.
+
+That is worth stating plainly: the harness is eight documents of one shape, and
+this defect lived through every run of it. Passing the table is not the same as
+being correct.
+
 A change was tried and rejected: light suffix stemming, so that a question about
 what "caused" an outage would match a document describing the "cause". It
 degraded retention at every useful ratio, because collapsing distinct technical
