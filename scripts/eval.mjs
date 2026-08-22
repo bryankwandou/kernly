@@ -22,7 +22,18 @@
  *   node scripts/eval.mjs
  */
 import { compress } from "@kernly/core";
-import { FIXTURES } from "./eval-fixtures.mjs";
+import { FIXTURES as SYNTHETIC } from "./eval-fixtures.mjs";
+import { DEMO_FIXTURES } from "./demo-fixtures.mjs";
+
+/**
+ * The synthetic fixtures plus the four documents the deployed demo ships.
+ *
+ * The two sets were separate until today, which meant the number quoted on the
+ * site was measured on documents no visitor ever sees, while the documents every
+ * visitor does see were measured on nothing. The postmortem sample the chat page
+ * opens with was losing its answer at the default ratio the whole time.
+ */
+const FIXTURES = [...SYNTHETIC, ...DEMO_FIXTURES];
 
 const RATIOS = [0.5, 0.4, 0.3, 0.25, 0.2, 0.15, 0.1];
 const RETENTION_THRESHOLD = 0.8;
@@ -37,14 +48,37 @@ function contentTokens(text) {
   );
 }
 
-/** Fraction of the answer span's content tokens still present in the output. */
-function spanRecovery(span, output) {
+/** Output blocks are joined with a blank line by the compressor. */
+const BLOCKS = /\n\n+/;
+
+
+function overlap(span, text) {
   const wanted = contentTokens(span);
   if (!wanted.length) return 1;
-  const have = new Set(contentTokens(output));
+  const have = new Set(contentTokens(text));
   let found = 0;
   for (const token of wanted) if (have.has(token)) found += 1;
   return found / wanted.length;
+}
+
+/**
+ * Recovery, measured against the best surviving block rather than the whole
+ * output.
+ *
+ * Counting matches across the entire output is a bag of words, and a bag of
+ * words cannot tell a surviving answer from its vocabulary scattered across
+ * paragraphs that each say something else. That is not hypothetical: the
+ * postmortem demo sample scored 0.82 by the old measure at the ratio where it
+ * had dropped the line naming the cause outright, because words like "timeout"
+ * and "provider" appear in the follow-up sections too. The harness reported a
+ * pass on a run that returned everything except the answer.
+ *
+ * Requiring the span to be recoverable from one block is stricter and closer to
+ * what a model reading the output can actually use. A fact assembled from
+ * fragments three paragraphs apart is not a fact the model has been given.
+ */
+function spanRecovery(span, output) {
+  return Math.max(0, ...output.split(BLOCKS).map((block) => overlap(span, block)));
 }
 
 const rows = [];
@@ -81,7 +115,11 @@ for (const ratio of RATIOS) {
 }
 
 const pct = (v) => (v * 100).toFixed(1).padStart(6) + "%";
-console.log(`Fixtures: ${FIXTURES.length}   retention threshold: ${RETENTION_THRESHOLD}\n`);
+console.log(
+  `Fixtures: ${FIXTURES.length} (${SYNTHETIC.length} synthetic, ${DEMO_FIXTURES.length} shipped in the demo)` +
+    `   retention threshold: ${RETENTION_THRESHOLD}` +
+    "\n",
+);
 console.log("target  achieved  answer kept  mean recovery  confidence  escalated");
 for (const r of rows) {
   console.log(

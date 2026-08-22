@@ -1,6 +1,8 @@
 ﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { THEME_SCRIPT } from "@/components/Theme";
+import { I18nProvider } from "@/components/I18n";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,11 +48,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // `lang` is a starting value, not the final one: I18nProvider negotiates the
+    // visitor's language on mount and rewrites this attribute along with `dir`.
+    // It has to be here for the server render, and it has to be allowed to
+    // change afterwards.
     <html
       lang="en"
+      dir="ltr"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <head>
+        {/* Applies the stored colour scheme before first paint. Without it a
+            reader on dark gets a white flash on every navigation. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="flex min-h-full flex-col">
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

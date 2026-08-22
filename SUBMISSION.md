@@ -130,14 +130,40 @@ percent, answer retention across the 30 to 50 percent band went from 75 to 87.5,
 silent failures fell from 15 to 4, and false alarms fell from 34 to 12.
 
 A ninth fixture was added after that measurement and the headline numbers fell
-with it, to 81.1 percent recovery and 77.8 percent retention. The fixture is
-line-oriented material — a timeline written one line per event — and adding it
-exposed that segmentation split only on blank lines, so a whole log tail arrived
-as one indivisible block and could be dropped whole. Segmentation now splits per
-record. The fixture is still a miss, because the question names the symptom and
-the answer names the mechanism with no word in common, and the gate escalates on
-it every time. The lower numbers are the honest ones: the harness had never
-tested the shape of material this tool is aimed at. EVAL.md carries the detail.
+with it. The fixture is line-oriented material, a timeline written one line per
+event, and adding it exposed that segmentation split only on blank lines, so a
+whole log tail arrived as one indivisible block and could be dropped whole.
+Segmentation now splits per record.
+
+Two further problems surfaced after that, both of them in the measuring rather
+than the compressing, and both worth stating because they were the kind that
+flatter a project until somebody looks.
+
+The first: the harness and the deployed site had no document in common. Nine
+synthetic fixtures were being measured; four different samples were being served;
+nobody had ever run the second set through the first. The postmortem sample the
+chat page opens with was dropping the paragraph that named the cause at the
+default ratio, reporting 0.80 confidence while it did so. Those four documents
+are now fixtures, read out of the source the site loads rather than copied from
+it.
+
+The second: recovery counted an answer's words anywhere in the output, which
+cannot distinguish a surviving answer from its vocabulary scattered across four
+paragraphs that each say something else. That is precisely how the postmortem
+failure scored 0.82 and passed. Recovery is now measured against the best single
+surviving block.
+
+Fixing what those two exposed meant lowering BM25's length normalisation from the
+textbook 0.75, which suits documents drawn from a corpus, to 0.4, which suits
+passages inside one document already known to be relevant. The value was swept
+across all thirteen fixtures and sits in the middle of a flat plateau rather than
+on a peak.
+
+Current figures, on thirteen fixtures under the stricter measure: 84.6 percent
+answer retention across the 30 to 50 percent band, 84.5 percent mean recovery,
+six silent failures out of ninety-one runs and twenty false alarms. These are
+lower-confidence numbers than the ones this file used to carry and they are the
+honest ones. EVAL.md carries the detail, including what remains overfitted.
 
 One idea — light suffix stemming so a question about what "caused" an outage
 matches a document describing the "cause" — was implemented, measured, found to
