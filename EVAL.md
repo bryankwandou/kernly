@@ -20,26 +20,91 @@ the query, and the output is checked for the answer span's content tokens. A run
 counts as retained at 0.8 recovery or above, which tolerates lexical compaction
 dropping grammatical filler but not the loss of a fact.
 
+Recovery is measured against the best surviving block, not against the whole
+output. That is stricter than it sounds and the change was forced rather than
+chosen — see "Counting matches in a bag of words" below.
+
 ## Results
+
+Thirteen fixtures: nine synthetic, plus the four documents the deployed demo
+actually ships.
 
 | Target | Achieved | Answer kept | Mean recovery | Confidence | Gate escalated |
 | --- | --- | --- | --- | --- | --- |
-| 50% | 51.4% | 77.8% | 81.1% | 78.2% | 22.2% |
-| 40% | 39.5% | 77.8% | 81.1% | 77.1% | 22.2% |
-| 30% | 27.5% | 77.8% | 79.9% | 70.8% | 22.2% |
-| 25% | 23.4% | 55.6% | 63.0% | 62.7% | 33.3% |
-| 20% | 17.5% | 44.4% | 50.0% | 43.9% | 66.7% |
-| 15% | 12.4% | 44.4% | 48.7% | 39.0% | 77.8% |
-| 10% | 7.8% | 33.3% | 36.9% | 26.0% | 88.9% |
+| 50% | 49.2% | 84.6% | 84.5% | 80.8% | 15.4% |
+| 40% | 38.7% | 84.6% | 84.5% | 80.4% | 15.4% |
+| 30% | 27.1% | 84.6% | 84.5% | 73.1% | 15.4% |
+| 25% | 22.8% | 61.5% | 64.3% | 63.4% | 30.8% |
+| 20% | 17.4% | 38.5% | 44.3% | 45.6% | 69.2% |
+| 15% | 12.7% | 46.2% | 49.5% | 34.8% | 84.6% |
+| 10% | 6.7% | 30.8% | 34.6% | 20.8% | 92.3% |
 
-Of the 63 runs, 26 lost the answer. The gate warned on 22 of those and missed 4.
-Of the 37 runs that kept it, the gate warned anyway on 12.
+Of the 91 runs, 35 lost the answer. The gate warned on 29 of those and missed 6.
+Of the 56 runs that kept it, the gate warned anyway on 20.
 
-These numbers are worse than the ones this file carried yesterday, and the
-reason is a ninth fixture rather than a regression. See "The ninth fixture"
-below: the harness had eight documents and all eight were written in blank-line
-paragraphs, so it had never once exercised the shape agent transcripts and log
-tails actually arrive in.
+The 20 per cent row scoring below the 15 per cent row is not a typo and not a
+result. Thirteen documents means one changing outcome moves the column by nearly
+eight points, and at those ratios the budget is small enough that which blocks
+happen to fit is close to arbitrary. Nothing below 25 per cent should be read as
+a measurement.
+
+## The four documents the site actually ships
+
+Until today the harness and the site had no fixture in common. The harness had
+nine synthetic documents; `src/lib/samples.ts` had four samples the demo loads;
+the two sets never met. So the retention figure quoted on the site was measured
+on documents no visitor sees, while the documents every visitor does see were
+measured on nothing at all.
+
+That was not a bookkeeping complaint. The postmortem sample is what the chat page
+opens with, at a default ratio of 40 per cent, and at 40 per cent it dropped the
+paragraph naming the cause and returned the four paragraphs discussing the
+aftermath. Confidence reported 0.80. The gate said nothing. The first thing a
+visitor saw was a silent failure, and no test knew.
+
+`scripts/demo-fixtures.mjs` now reads those four documents out of `samples.ts`
+rather than copying them, and asserts that each still contains its recorded
+answer span. Rewording a sample breaks the harness loudly instead of quietly
+measuring text the site no longer serves.
+
+## Counting matches in a bag of words
+
+The failure above was invisible for a second reason, and it was in the harness
+rather than the compressor. Recovery counted an answer span's content tokens
+anywhere in the output. On the postmortem sample that scored 0.82 — a pass —
+on a run that had dropped the answer outright, because words like "timeout",
+"provider" and "pool" all appear in the follow-up sections that survived. The
+harness was reporting a pass on a run that returned everything except the
+answer.
+
+Recovery is now measured against the best single surviving block. A fact
+assembled from fragments three paragraphs apart is not a fact the model has been
+given, and a metric that cannot tell those apart cannot be used to argue that
+compression is safe. Applying the stricter measure to the old nine fixtures
+alone moved retention from 58.2 to 56.0 per cent across all ratios, so the old
+number was flattering by about two points on top of everything else.
+
+## Passage length, and BM25's assumption about it
+
+The postmortem sample hid its cause in a 188-token paragraph. BM25 with the
+textbook `b = 0.75` scored that paragraph below a 33-token timeline line reading
+"error rate on POST /checkout reaches 12 percent", and the allocator then
+compounded it, since its density ranking divides by length a second time.
+
+The textbook value assumes documents retrieved from a corpus, where a long
+document is more likely to contain a query term by accident and deserves the
+penalty. Blocks here are passages inside one document already known to be
+relevant, and the assumption inverts: a long passage that matches the question is
+more likely to be the explanation than a short one mentioning it in passing.
+
+`b` was swept over all thirteen fixtures rather than picked. Retention sits flat
+at 61.5 per cent anywhere from 0.15 to 0.6 and falls off at both ends, so the
+chosen 0.4 is the middle of a plateau rather than a peak fitted to the one case
+that exposed the problem. It is worth being clear about what that buys: 61.5 per
+cent against 58.2 across all seven ratios, which is three runs out of ninety-one.
+The reason to make the change is the demo sample it fixes at the default ratio,
+not the aggregate, and the aggregate is quoted here so nobody has to take that on
+trust.
 
 That last line is reported because leaving it out would flatter the gate badly,
 and an earlier version of this document did exactly that. See below.
@@ -119,17 +184,27 @@ that knows "resolved" and "restored access" are the same event, which means
 embeddings, which means giving up the determinism the receipts depend on. The
 trade is recorded here rather than quietly taken.
 
-**The 15 percent row is noise, not a recovery.** Retention holding at 44.4
-percent between the 20 and 15 percent rows across nine fixtures is one document
-changing outcome. Nine fixtures cannot resolve differences that small, and
-presenting that flatness as a finding would be dishonest.
+**The 15 percent row is noise, not a recovery.** Retention rising from 38.5 to
+46.2 percent as the budget gets *tighter* is one document changing outcome across
+thirteen. A harness this size cannot resolve differences that small, and
+presenting that reversal as a finding would be dishonest.
 
-**Nine fixtures is a small harness and it has been tuned against.** The feedback
-parameters below were chosen by sweeping four settings and keeping the one that
-scored best on this table. That is overfitting, in the ordinary sense, and the
-numbers above should be read as an upper bound on what a fresh corpus would show.
-The settings that won were also the most conservative of the four, which is some
-comfort, but not evidence.
+**Thirteen fixtures is a small harness and it has been tuned against.** The
+feedback parameters below were chosen by sweeping four settings and keeping the
+one that scored best on this table, and the BM25 length exponent was chosen the
+same way. That is overfitting, in the ordinary sense, and the numbers above
+should be read as an upper bound on what a fresh corpus would show. Two things
+take a little of the sting out and neither is evidence: the settings that won
+were the most conservative of those tried, and `b` was picked from the middle of
+a flat plateau rather than from a peak, so it is not balanced on the one document
+that motivated it.
+
+**Four of the thirteen are now the same documents the demo ships**, which closes
+the gap between what is measured and what is served, and opens a smaller one:
+those four are no longer independent of the tuning. A parameter swept against a
+table that includes the demo samples will favour the demo samples. The nine
+synthetic fixtures are the only part of this table that was not, at some point,
+optimised for.
 
 **This is a floor, not a ceiling, on the real question.** Answer-span presence is
 necessary for a model to answer correctly; it is not sufficient. A model reading

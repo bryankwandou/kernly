@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { compress } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
+import { useI18n } from "./I18n";
 
 /**
  * The hero runs the real compressor on a real sample in the browser on mount.
@@ -15,6 +16,7 @@ import { SAMPLES } from "@/lib/samples";
 export function Hero() {
   const [stat, setStat] = useState<{ inTok: number; outTok: number; ms: number } | null>(null);
   const reduce = useReducedMotion();
+  const { t } = useI18n();
 
   useEffect(() => {
     let alive = true;
@@ -47,26 +49,23 @@ export function Hero() {
           {...rise(0)}
           className="text-[13px] font-medium uppercase tracking-[0.14em] text-[var(--husk)]"
         >
-          Context compression, verified
+          {t("hero.eyebrow")}
         </motion.p>
 
         <motion.h1
           {...rise(0.06)}
           className="mt-4 max-w-3xl text-[clamp(2.4rem,6vw,4.2rem)] font-semibold leading-[1.03] tracking-[-0.04em]"
         >
-          Keep the kernel.
+          {t("hero.title.a")}
           <br />
-          <span className="text-[var(--husk)]">Drop the chaff.</span>
+          <span className="text-[var(--husk)]">{t("hero.title.b")}</span>
         </motion.h1>
 
         <motion.p
           {...rise(0.12)}
           className="mt-6 max-w-xl text-[17px] leading-[1.6] text-[var(--muted)]"
         >
-          Most of what an agent sends to a model is packaging. Kernly strips it
-          out with a deterministic six-stage filter that runs in a browser tab,
-          costs nothing to operate, and writes a checkable receipt for every
-          token it saves.
+          {t("hero.lede")}
         </motion.p>
 
         <motion.div {...rise(0.18)} className="mt-9 flex flex-wrap items-center gap-3">
@@ -74,19 +73,19 @@ export function Hero() {
             href="/playground"
             className="rounded-lg bg-[var(--fg)] px-5 py-3 text-[14px] font-semibold text-[var(--bg)] transition-transform hover:-translate-y-0.5"
           >
-            Compress something
+            {t("hero.cta.playground")}
           </Link>
           <Link
             href="/chat"
             className="rounded-lg border border-[var(--line)] px-5 py-3 text-[14px] font-medium transition-colors hover:border-[var(--husk)]"
           >
-            Watch it answer both ways
+            {t("hero.cta.chat")}
           </Link>
           <Link
             href="/method"
             className="rounded-lg border border-[var(--line)] px-5 py-3 text-[14px] font-medium transition-colors hover:border-[var(--husk)]"
           >
-            Read the algorithm
+            {t("hero.cta.method")}
           </Link>
         </motion.div>
 
@@ -96,20 +95,24 @@ export function Hero() {
           className="mt-14 grid max-w-2xl grid-cols-3 gap-px overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--line)]"
         >
           <Stat
-            k="Tokens cut"
+            k={t("hero.stat.cut")}
             v={cut === null ? "—" : `${cut}%`}
-            note="on the sample transcript"
+            note={t("hero.stat.cut.note")}
           />
           <Stat
-            k="Compressor cost"
+            k={t("hero.stat.cost")}
             v={stat ? `${stat.ms.toFixed(0)} ms` : "—"}
-            note="no GPU, no API call"
+            note={t("hero.stat.cost.note")}
           />
-          <Stat k="Model needed" v="none" note="pure statistics" />
+          <Stat
+            k={t("hero.stat.model")}
+            v={t("hero.stat.model.value")}
+            note={t("hero.stat.model.note")}
+          />
         </motion.dl>
 
         <motion.p {...rise(0.32)} className="mt-3 text-[12px] text-[var(--muted)]">
-          Measured live in your browser when this page loaded, not pre-rendered.
+          {t("hero.measured")}
         </motion.p>
       </div>
     </section>

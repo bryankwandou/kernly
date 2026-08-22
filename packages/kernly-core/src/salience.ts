@@ -87,6 +87,31 @@ function isVariant(a: string, b: string): boolean {
   return a.length - shared <= VARIANT_MAX_SUFFIX && b.length - shared <= VARIANT_MAX_SUFFIX;
 }
 
+/**
+ * BM25 length normalisation, lowered from the textbook 0.75.
+ *
+ * The textbook value assumes documents retrieved from a corpus, where a long
+ * document is more likely to contain a query term by accident and deserves the
+ * penalty. Blocks here are passages inside one document that is already known to
+ * be relevant, and the assumption inverts: a long passage that matches the
+ * question is more likely to be the explanation than a short one that mentions
+ * it in passing.
+ *
+ * That was not reasoned out in advance, it was found. The postmortem sample the
+ * chat page opens with hid its cause in a 188-token paragraph, which BM25 at
+ * 0.75 scored below a 33-token timeline line reading "error rate reaches 12
+ * percent". The allocator then compounded it, since its density ranking divides
+ * by length a second time. At the default ratio of 40 per cent the deployed demo
+ * returned every paragraph around the answer and not the answer, and reported
+ * 0.80 confidence while doing it.
+ *
+ * The value was swept over all thirteen fixtures rather than picked. Retention
+ * sits flat at 61.5 per cent anywhere from 0.15 to 0.6 and falls off at both
+ * ends, so 0.4 is the middle of a plateau rather than a peak fitted to the case
+ * that exposed the problem.
+ */
+const BM25_B = 0.4;
+
 export function score(blocks: Block[], query?: string): Block[] {
   const live = blocks.filter((b) => b.duplicateOf === undefined);
   if (!live.length) return blocks;
@@ -152,7 +177,7 @@ export function score(blocks: Block[], query?: string): Block[] {
       }
 
       if (!f) continue;
-      sum += weight * idf(q) * ((f * 2.2) / (f + 1.2 * (0.25 + 0.75 * (t.length / avgLen))));
+      sum += weight * idf(q) * ((f * 2.2) / (f + 1.2 * (1 - BM25_B + BM25_B * (t.length / avgLen))));
     }
     return sum / (sum + 1.5); // squash into 0..1
   };

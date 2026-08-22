@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header, Footer } from "@/components/Chrome";
+import { EnglishOnlyNote } from "@/components/EnglishOnly";
 
 export const metadata: Metadata = {
   title: "Method",
@@ -20,6 +21,8 @@ export default function MethodPage() {
           This page is the whole design, including the parts that are weaker than
           the alternatives.
         </p>
+
+        <EnglishOnlyNote />
 
         <Prose>
           <H>Where the efficiency in modern models actually comes from</H>
