@@ -65,13 +65,21 @@ export const MODELS: Record<string, ModelSpec> = {
     params: null,
     reasoning: 0,
   },
-  // A pinned version alongside the floating alias. The alias points at whatever
-  // Google is currently promoting, which is also whatever is currently busiest;
-  // having a second entry gives a visitor somewhere to go when the first one is
-  // at capacity.
-  "gemini-2.5-flash": {
-    id: "gemini-2.5-flash",
-    label: "Gemini 2.5 Flash",
+  // A second Google entry, because the first one is whatever Google is
+  // currently promoting and therefore whatever is currently busiest. A visitor
+  // who hits capacity needs somewhere to go that is not "come back later".
+  //
+  // This slot held a pinned version, gemini-2.5-flash, until it started
+  // answering 404: "no longer available to new users". Pinning was the wrong
+  // instinct. A pinned id is stable right up to the day the provider retires it
+  // for new callers, and then it is dead with no warning and no fallback, which
+  // is a worse failure than an alias quietly moving under you. The maintained
+  // aliases are the ones Google commits to keeping resolvable, so both entries
+  // are aliases now and the second is a genuinely smaller model rather than a
+  // different label on the same capacity.
+  "gemini-flash-lite-latest": {
+    id: "gemini-flash-lite-latest",
+    label: "Gemini Flash Lite",
     provider: "google",
     params: null,
     reasoning: 0,

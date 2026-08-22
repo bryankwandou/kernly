@@ -217,4 +217,44 @@ Major release. New storage engine, new query planner, and a migration that runs 
 ## 3.9.0
 Final release in the 3.x line to receive features. Subsequent 3.x releases carried security fixes only, through to end of support.`,
   },
+  /**
+   * Line-oriented material, which the other eight fixtures do not contain.
+   *
+   * Every other context here is written in paragraphs separated by blank lines,
+   * so the harness never exercised the shape agent transcripts and log tails
+   * actually arrive in: one line per event, no blank lines anywhere. That gap
+   * hid a segmentation defect for the whole life of the harness — the entire
+   * run came through as a single atomic block and the allocator could only take
+   * it or leave it.
+   *
+   * The defect is fixed, and this fixture is still a miss at tight ratios. It
+   * is kept for that reason. The question is phrased in the vocabulary of the
+   * symptom ("checkout outage") and the answer is written in the vocabulary of
+   * the mechanism ("read timeout", "pool exhausts"), sharing no content word
+   * with the question at all. Two lines that merely restate the symptom
+   * outscore it, which is what lexical retrieval does and what no amount of
+   * tuning short of embeddings will change. The gate escalates on it, which is
+   * the honest outcome rather than a hidden one.
+   */
+  {
+    question: "what actually caused the checkout outage",
+    answerSpan:
+      "The read timeout on the shared HTTP client was raised from 8 seconds to 90 seconds in v412. Every downstream call in the pool now holds a connection for up to ninety seconds instead of failing fast, and the pool exhausts.",
+    context: `# Incident postmortem — checkout outage
+
+14:02 Deploy of payments-api v412 begins. Rollout is canary, ten percent.
+14:04 An alert fires on the search cluster. Unrelated, a known flapping probe.
+14:06 The on-call notes elevated latency on the recommendations service. It is
+      not in the checkout path but it shares a node pool, so it looked relevant.
+14:09 A config change lands on the CDN edge rules. Reviewed, unrelated.
+14:11 Checkout error rate crosses two percent. Paging escalates.
+14:13 The read timeout on the shared HTTP client was raised from 8 seconds to 90
+      seconds in v412. Every downstream call in the pool now holds a connection
+      for up to ninety seconds instead of failing fast, and the pool exhausts.
+14:15 Someone restarts the recommendations service. No effect, as expected.
+14:17 v412 is rolled back. Error rate returns to baseline within forty seconds.
+
+Follow-ups: the database team scheduled a vacuum for Thursday. The frontend team
+is migrating to the new checkout form in Q4. Neither is related to this incident.`,
+  },
 ];
