@@ -3,6 +3,7 @@ import { Wordmark } from "./Mark";
 
 const NAV = [
   { href: "/playground", label: "Playground" },
+  { href: "/chat", label: "Chat" },
   { href: "/method", label: "Method" },
   { href: "/verify", label: "Verify" },
 ];

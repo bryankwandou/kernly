@@ -71,6 +71,12 @@ export interface Receipt {
   tokensSaved: number;
   /** Fraction of the total salience mass that survived selection, 0..1. */
   salienceRetained: number;
+  /**
+   * Fraction of the query's rare terms still present in the output, 0..1, and
+   * null when the call carried no query for it to measure. This is the part of
+   * the receipt that is about the question rather than about the compression.
+   */
+  queryCoverage: number | null;
   /** 0..1 heuristic that the compressed context is still sufficient. */
   confidence: number;
   /** True when confidence fell under `escalateBelow`. */

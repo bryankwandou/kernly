@@ -77,9 +77,11 @@ until that program ships, the chain integration is shallower than it should be.
 
 1. **[EVAL.md](EVAL.md)** — does the answer survive compression? Eight long
    documents with labelled answer spans, swept across seven ratios. Published
-   with the failing rows intact: the safe range is about 2x to 2.5x, and below a
-   30 percent target the pipeline becomes unreliable. The confidence gate caught
-   22 of 28 failures and missed 6.
+   with the failing rows intact: the safe range is about 2x to 3.5x, and at a 25
+   percent target retention falls off a cliff. The confidence gate caught 15 of
+   19 failures, missed 4, and warned unnecessarily on 12 of the 37 healthy runs —
+   both error rates are printed, because a gate that fires on everything scores
+   perfectly on the first number alone.
 2. **[PROOF.md](PROOF.md)** — the on-chain loop, two signatures minutes apart
    producing an identical digest, with the reproduction command.
 3. **[AUDIT.md](AUDIT.md)** — an adversarial review written against the project.
@@ -107,14 +109,39 @@ content. Budgets were filling with signposts pointing at material that had
 already been discarded. Length normalisation is now sublinear and the
 highest-scoring block is admitted before greedy selection begins.
 
-Together: mean answer recovery at a 50 percent target went from 62.1 to 82.9
-percent, and silent failures across the sweep fell from 15 to 6.
+Later runs found three more. Exact term matching was too literal, so a question
+about a "refund" scored zero against a document that only wrote "refunds";
+matching now works on a shared prefix at a discount. One pass of BM25 can only
+find passages that reuse the question's words, so a second pass was added:
+harvest the rarest terms from the three best blocks of the first pass and re-rank
+with those included at reduced weight. That is Rocchio pseudo-relevance feedback,
+it needs no model, and it kept the pipeline deterministic.
 
-A third idea — light suffix stemming so a question about what "caused" an outage
+The third was the gate itself. Confidence had been built entirely from retained
+salience, achieved ratio and surviving block count — every one of those a
+statement about the compression rather than about the question. Since retained
+mass falls mechanically as the budget tightens, the gate was really just
+reporting the setting it had been handed: it warned on 34 of 37 healthy runs,
+which is indistinguishable from having no gate at all. The receipt now carries
+`queryCoverage` and confidence is led by it.
+
+Together: mean answer recovery at a 50 percent target went from 62.1 to 90.3
+percent, answer retention across the 30 to 50 percent band went from 75 to 87.5,
+silent failures fell from 15 to 4, and false alarms fell from 34 to 12.
+
+One idea — light suffix stemming so a question about what "caused" an outage
 matches a document describing the "cause" — was implemented, measured, found to
 make retention worse, and removed. The reasoning sits in a comment at the call
 site so the next person to have that idea checks the measurement instead of
 repeating the work.
+
+One failure is documented and not fixed. All four runs the gate still misses are
+the same fixture, where the question is asked in plain words and the answering
+passage is written in specific ones. Every question term appears in the output,
+so coverage reads 1.0 and the gate sees nothing wrong, while the paragraph that
+answers it was evicted. Closing that gap needs embeddings, and embeddings would
+cost the determinism the receipts are built on. The trade is written down rather
+than quietly taken.
 
 ## Why this is not another AI-plus-crypto wrapper
 

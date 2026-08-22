@@ -109,25 +109,30 @@ where it fails.
 
 **Say:** "Compression ratio is trivial to game — throw away everything and
 report ninety-nine percent. So we built a harness that asks the real question.
-Eight long documents, eight questions, the exact answer span labelled. At two to
-two-and-a-half times compression, three quarters of questions still have their
-answer. Below that it falls apart, and we're showing you that row rather than
-cropping it. Running this harness the first time found two bugs that no unit
+Eight long documents, eight questions, the exact answer span labelled. From two
+to three-and-a-half times compression, seven of eight questions still have their
+answer present. At four times it falls off a cliff, and we're showing you that
+row rather than cropping it. Running this harness found five bugs that no unit
 test would have caught, and fixing them moved recovery from sixty-two percent to
-eighty-three."
+ninety."
 
 ---
 
 ## 9. And the gate
 
-> It flagged 22 of the 28 failures. It missed 6.
+> It caught 15 of 19 failures. It missed 4. It also cried wolf on 12 good runs.
 
 **On screen:** the same table, escalation column highlighted.
 
 **Say:** "A compressor that fails silently is worse than one that compresses
-less. The gate exists to say 'do not trust this run'. It catches most failures
-and it is not perfect, and a six-in-fifty-six miss rate is a defect we are
-naming rather than burying."
+less. The gate exists to say 'do not trust this run'. Both of its error rates
+are on the slide, and the second one is there because the first version of this
+gate caught nearly every failure — by warning on almost every run, including the
+healthy ones. That scores perfectly on recall and is worth nothing. The version
+you're looking at catches four in five and cries wolf on one in three, and all
+four it misses are the same document, where the question and the answer simply
+share no vocabulary. Fixing that last case needs embeddings, and embeddings would
+break the determinism these receipts depend on. We'd rather name the limit."
 
 ---
 

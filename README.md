@@ -7,7 +7,10 @@
 A deterministic context compressor for LLM agents. No GPU, no API call, no model
 in the loop, and a receipt for every token it claims to save.
 
-[Live demo](https://getkernly.vercel.app) · [Method](https://getkernly.vercel.app/method) · [Playground](https://getkernly.vercel.app/playground)
+Kernly is not a language model and does not contain one. It is the layer that
+decides what a model gets to read.
+
+[Live demo](https://kernly.vercel.app) · [Chat](https://kernly.vercel.app/chat) · [Playground](https://kernly.vercel.app/playground) · [Method](https://kernly.vercel.app/method)
 
 </div>
 
@@ -59,9 +62,12 @@ trust, and all three are reproducible from this repository.
   position and the places the design is currently thin.
 
 The short version of the evaluation: the safe operating range is roughly 2x to
-2.5x compression, where three quarters of questions still have their answer
-present. Past that the pipeline becomes a gamble, and the gate is what tells you
-so.
+3.5x compression, where seven of eight questions still have their answer present
+and mean recovery sits near 90 percent. At 4x it falls off a cliff, and the gate
+is what tells you so — imperfectly. It catches four in five lost answers and
+warns unnecessarily on about a third of healthy runs. Both numbers are published,
+because a gate that fires on everything looks flawless if you only report the
+first one.
 
 ## Install
 

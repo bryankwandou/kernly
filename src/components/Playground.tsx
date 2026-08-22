@@ -195,6 +195,16 @@ export function Playground() {
           <dl className="mt-5 space-y-2.5 text-[13px]">
             <Row k="Salience retained" v={r ? `${Math.round(r.salienceRetained * 100)}%` : "—"} />
             <Row
+              k="Question coverage"
+              v={
+                !r
+                  ? "—"
+                  : r.queryCoverage === null
+                    ? "no query"
+                    : `${Math.round(r.queryCoverage * 100)}%`
+              }
+            />
+            <Row
               k="Router confidence"
               v={r ? r.confidence.toFixed(2) : "—"}
               tone={r?.escalate ? "signal" : "shoot"}

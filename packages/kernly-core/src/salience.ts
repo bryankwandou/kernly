@@ -39,19 +39,52 @@ const STRUCTURAL = [
 ];
 
 /**
- * Terms are deliberately not stemmed.
+ * Terms are deliberately not stemmed, and query matching is widened instead.
  *
- * Suffix stripping is the obvious next idea here, on the reasoning that a
- * question asking what "caused" an outage should match a document saying "root
- * cause". It was implemented and measured against `scripts/eval.mjs`, and it
- * made answer retention worse at every useful compression ratio: the recall it
- * bought on question-to-statement matches was outweighed by distinct technical
- * terms collapsing into one stem and flattening the rarity signal that finds
- * them. The harness is in the repository so anyone can re-run that comparison
- * rather than take this paragraph on faith.
+ * Full suffix stripping was implemented and measured against `scripts/eval.mjs`,
+ * and it made answer retention worse: the recall it bought was outweighed by
+ * distinct technical terms collapsing into a shared stem, which flattened the
+ * rarity signal that finds them in the first place.
+ *
+ * Dropping the idea entirely was the wrong conclusion. A question asking about
+ * the "refund" window will not match a document that says "refunds", and that
+ * single missed match was enough to rank the answer-bearing block below an
+ * irrelevant one on the retrieval fixture. The compromise implemented below
+ * keeps every term distinct in the index — so IDF, rarity and density are all
+ * computed on unstemmed terms exactly as before — and widens matching only at
+ * the point where a query term is compared against a block, where a near-miss
+ * scores at a discount rather than not at all.
  */
 function terms(text: string): string[] {
   return (text.toLowerCase().match(/[a-z0-9_]{2,}/g) || []).filter((t) => !STOP.has(t));
+}
+
+/**
+ * Whether two unstemmed terms are close enough to count as a discounted match.
+ *
+ * The rule is a shared-prefix test rather than a stem: the two terms must agree
+ * on a prefix long enough to carry meaning, and whatever each has left over
+ * afterwards must be short. That admits refund/refunds and plan/plans, where one
+ * word contains the other, and also identity/identities, where neither does —
+ * the case a strict prefix rule misses and the harness kept failing on, because
+ * a support thread will say "identity service" once and "duplicate identities"
+ * two paragraphs later.
+ *
+ * It stays a heuristic. It will occasionally pair identity with identify, which
+ * is precisely why matches found this way score below exact ones instead of
+ * equal to them.
+ */
+const VARIANT_MIN_PREFIX = 5;
+const VARIANT_MAX_SUFFIX = 3;
+const VARIANT_WEIGHT = 0.65;
+
+function isVariant(a: string, b: string): boolean {
+  if (a === b) return false;
+  const limit = Math.min(a.length, b.length);
+  let shared = 0;
+  while (shared < limit && a[shared] === b[shared]) shared += 1;
+  if (shared < VARIANT_MIN_PREFIX) return false;
+  return a.length - shared <= VARIANT_MAX_SUFFIX && b.length - shared <= VARIANT_MAX_SUFFIX;
 }
 
 export function score(blocks: Block[], query?: string): Block[] {
@@ -72,6 +105,111 @@ export function score(blocks: Block[], query?: string): Block[] {
   const qTerms = query ? new Set(terms(query)) : null;
   const avgLen = perBlock.reduce((s, t) => s + t.length, 0) / N || 1;
 
+  // For each query term, the vocabulary terms that count as a near match. The
+  // scan is over the corpus vocabulary once per query term, and a query is a
+  // handful of terms, so this stays well inside the millisecond budget the rest
+  // of the pipeline is held to.
+  const variants = new Map<string, string[]>();
+  if (qTerms) {
+    for (const q of qTerms) {
+      const near: string[] = [];
+      for (const v of df.keys()) if (isVariant(q, v)) near.push(v);
+      if (near.length) variants.set(q, near);
+    }
+  }
+
+  const tfs = perBlock.map((t) => {
+    const tf = new Map<string, number>();
+    for (const w of t) tf.set(w, (tf.get(w) || 0) + 1);
+    return tf;
+  });
+
+  /**
+   * BM25 affinity of one block against a weighted bag of terms, k1=1.2, b=0.75.
+   *
+   * The weight per term is what lets the same routine serve both passes below:
+   * the question's own terms enter at full strength, and terms recruited from
+   * the first pass enter at a discount.
+   */
+  const affinityOf = (i: number, wanted: Map<string, number>): number => {
+    const t = perBlock[i];
+    if (!t.length || !wanted.size) return 0;
+    const tf = tfs[i];
+    let sum = 0;
+    for (const [q, w0] of wanted) {
+      let f = tf.get(q) || 0;
+      let weight = w0;
+
+      // An exact hit always wins. Only when the term is absent from this block
+      // is the widened match consulted, so a block that uses the term verbatim
+      // is never outranked by one that merely inflects it.
+      if (!f) {
+        for (const v of variants.get(q) ?? []) {
+          const fv = tf.get(v) || 0;
+          if (fv > f) f = fv;
+        }
+        if (f) weight = w0 * VARIANT_WEIGHT;
+      }
+
+      if (!f) continue;
+      sum += weight * idf(q) * ((f * 2.2) / (f + 1.2 * (0.25 + 0.75 * (t.length / avgLen))));
+    }
+    return sum / (sum + 1.5); // squash into 0..1
+  };
+
+  /**
+   * Pseudo-relevance feedback.
+   *
+   * The harness kept finding one failure the variant rule could not touch: a
+   * question asked in ordinary words about a passage written in specific ones.
+   * "How was the login problem resolved" shares no rare term with "two
+   * identities after the SSO migration were merged", so BM25 scores the
+   * answering paragraph at zero and the selector evicts it while the receipt
+   * reports the compression went fine.
+   *
+   * The classical fix costs nothing and needs no model. Run the query once,
+   * assume the top handful of blocks are roughly on topic, harvest their rarest
+   * terms, and run again with those added at a discount. It is Rocchio feedback
+   * over an unstemmed index, entirely deterministic, and it recovers the
+   * vocabulary the question did not happen to use.
+   *
+   * The discount and the term count are both deliberately small. Feedback is a
+   * guess about what the question meant, and a guess given equal footing with
+   * what the question actually said drifts the ranking toward whatever the
+   * document talks about most.
+   */
+  const FEEDBACK_BLOCKS = 3;
+  const FEEDBACK_TERMS = 8;
+  const FEEDBACK_WEIGHT = 0.4;
+
+  const wantedTerms = new Map<string, number>();
+  if (qTerms) for (const q of qTerms) wantedTerms.set(q, 1);
+
+  if (qTerms && qTerms.size && N > FEEDBACK_BLOCKS) {
+    const firstPass = live
+      .map((_, i) => ({ i, a: affinityOf(i, wantedTerms) }))
+      .filter((x) => x.a > 0)
+      .sort((x, y) => y.a - x.a)
+      .slice(0, FEEDBACK_BLOCKS);
+
+    // Feedback only makes sense if the first pass found something to feed back.
+    // When nothing matched, expanding would recruit terms from an arbitrary
+    // corner of the document, which is worse than admitting the miss.
+    if (firstPass.length) {
+      const pool = new Map<string, number>();
+      for (const { i } of firstPass) {
+        for (const [term, f] of tfs[i]) {
+          if (qTerms.has(term)) continue;
+          pool.set(term, (pool.get(term) || 0) + f * idf(term));
+        }
+      }
+      const recruited = [...pool.entries()]
+        .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+        .slice(0, FEEDBACK_TERMS);
+      for (const [term] of recruited) wantedTerms.set(term, FEEDBACK_WEIGHT);
+    }
+  }
+
   live.forEach((b, i) => {
     const t = perBlock[i];
     if (!t.length) {
@@ -79,18 +217,8 @@ export function score(blocks: Block[], query?: string): Block[] {
       return;
     }
 
-    // 1. Query affinity, BM25 with k1=1.2, b=0.75.
-    let affinity = 0;
-    if (qTerms && qTerms.size) {
-      const tf = new Map<string, number>();
-      for (const w of t) tf.set(w, (tf.get(w) || 0) + 1);
-      for (const q of qTerms) {
-        const f = tf.get(q) || 0;
-        if (!f) continue;
-        affinity += idf(q) * ((f * 2.2) / (f + 1.2 * (0.25 + 0.75 * (t.length / avgLen))));
-      }
-      affinity = affinity / (affinity + 1.5); // squash into 0..1
-    }
+    // 1. Query affinity.
+    const affinity = qTerms && qTerms.size ? affinityOf(i, wantedTerms) : 0;
 
     // 2. Positional prior — U-shaped, head weighted a little above tail.
     //
@@ -128,4 +256,66 @@ export function score(blocks: Block[], query?: string): Block[] {
 
   for (const b of blocks) if (b.duplicateOf !== undefined) b.score = 0;
   return blocks;
+}
+
+/**
+ * How much of the question actually survived into the output, weighted by how
+ * rare each question term is in the source.
+ *
+ * The gate used to reason only about the shape of the output: how much scored
+ * mass was kept, how hard the ratio was pushed, how many blocks remained. That
+ * is a statement about the compression and not about the question, and the
+ * harness found the gap — runs where plenty of salient mass survived, none of it
+ * the part that answered what was asked, and the receipt reported high
+ * confidence anyway.
+ *
+ * Rarity weighting is what makes this worth computing. A question term that
+ * appears in half the document says nothing about whether the answer is present;
+ * one that appears in a single block is very nearly a pointer to it. Terms are
+ * matched exactly first and then by the same discounted variant rule the scorer
+ * uses, so refund/refunds does not read as a miss.
+ *
+ * Returns null when there is no query, or when none of its terms appear in the
+ * source at all. Both cases mean the same thing — there is no evidence here
+ * either way — and the gate falls back to its original shape-only reasoning
+ * rather than treating absence of evidence as a perfect score.
+ */
+export function queryCoverage(blocks: Block[], output: string, query?: string): number | null {
+  if (!query) return null;
+  const wanted = [...new Set(terms(query))];
+  if (!wanted.length) return null;
+
+  const live = blocks.filter((b) => b.duplicateOf === undefined);
+  const n = live.length || 1;
+  const df = new Map<string, number>();
+  for (const b of live) {
+    for (const t of new Set(terms(b.text))) df.set(t, (df.get(t) || 0) + 1);
+  }
+
+  const present = new Set(terms(output));
+  let weighted = 0;
+  let total = 0;
+
+  for (const q of wanted) {
+    // A question term absent from the source cannot be evidence either way, so
+    // it is left out of the denominator rather than counted as a failure.
+    const seen = df.get(q) ?? [...df.keys()].filter((v) => isVariant(q, v)).reduce((s, v) => s + (df.get(v) || 0), 0);
+    if (!seen) continue;
+
+    const weight = Math.log(1 + n / seen);
+    total += weight;
+
+    if (present.has(q)) {
+      weighted += weight;
+      continue;
+    }
+    for (const p of present) {
+      if (isVariant(q, p)) {
+        weighted += weight * VARIANT_WEIGHT;
+        break;
+      }
+    }
+  }
+
+  return total ? weighted / total : null;
 }

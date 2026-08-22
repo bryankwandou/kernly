@@ -98,23 +98,39 @@ for (const r of rows) {
 
 // The gate earns its place only if it flags the runs that lost the answer. A
 // pipeline that fails silently is worse than one that compresses less.
-let flaggedFailures = 0;
-let silentFailures = 0;
+//
+// Both error directions are counted, and the second one is the reason this
+// section reads the way it does. An earlier version of the gate caught almost
+// every lost answer and looked excellent by that number alone — while also
+// warning on 34 of the 37 runs that came through perfectly intact. A detector
+// that fires on everything has perfect recall and no value, so recall is never
+// reported here without the false alarm rate printed beside it.
+let caught = 0;
+let missed = 0;
+let falseAlarms = 0;
+let clean = 0;
+
 for (const ratio of RATIOS) {
   for (const fixture of FIXTURES) {
     const { output, receipt } = await compress(fixture.context, {
       ratio,
       query: fixture.question,
     });
-    if (spanRecovery(fixture.answerSpan, output) >= RETENTION_THRESHOLD) continue;
-    if (receipt.escalate || receipt.confidence < 0.7) flaggedFailures += 1;
-    else silentFailures += 1;
+    const kept = spanRecovery(fixture.answerSpan, output) >= RETENTION_THRESHOLD;
+    const warned = receipt.escalate || receipt.confidence < 0.7;
+    if (!kept && warned) caught += 1;
+    else if (!kept) missed += 1;
+    else if (warned) falseAlarms += 1;
+    else clean += 1;
   }
 }
-const totalFailures = flaggedFailures + silentFailures;
+
+const lost = caught + missed;
+const fine = falseAlarms + clean;
 console.log(
-  `\nRuns that lost the answer: ${totalFailures}` +
-    (totalFailures
-      ? `  (gate warned on ${flaggedFailures}, missed ${silentFailures})`
-      : ""),
+  `\nRuns that lost the answer: ${lost} of ${lost + fine}` +
+    (lost ? `  (gate warned on ${caught}, missed ${missed})` : ""),
+);
+console.log(
+  `Runs that kept it: ${fine}` + (fine ? `  (gate warned anyway on ${falseAlarms})` : ""),
 );
