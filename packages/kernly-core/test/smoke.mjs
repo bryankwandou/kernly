@@ -37,6 +37,16 @@ Some unrelated background about the company retreat in Bali last quarter, which 
 nice and had a large number of attendees, but has nothing whatsoever to do with sessions.
 `;
 
+const TIMELINE_FIXTURE = `14:02 Deploy begins. Rollout is canary, ten percent.
+14:06 The on-call notes elevated latency. It is not in the checkout path
+      but it shares a node pool, so it looked relevant.
+14:11 Checkout error rate crosses two percent.
+14:17 Rolled back. Error rate returns to baseline.`;
+
+const PROSE_FIXTURE = `The migration ran over three evenings and nobody had to be paged.
+2 of the shards needed a manual nudge, which we expected.
+Everything else came up on its own.`;
+
 console.log("kernly/core");
 
 await t("normalize collapses whitespace and strips zero-width", () => {
@@ -220,6 +230,37 @@ await t("gate is led by query coverage, not by ratio", async () => {
   assert.ok(gate(0.2, 0.05, 1, 40, null) < 0.55, "gutted run with no query should escalate");
   assert.ok(gate(0.95, 0.5, 8, 10, 0.95) > 0.55, "healthy run with good coverage should not");
   assert.ok(gate(0.95, 0.5, 8, 10, 0.2) < 0.55, "losing the question's terms should escalate");
+});
+
+/**
+ * Line-oriented material has to segment into records, not into one lump.
+ *
+ * Blank-line paragraphs were the only unit segmentation knew, so a log tail or
+ * an incident timeline — one line per event, no blank lines anywhere — arrived
+ * as a single block. A single block is atomic to every stage after it: scored
+ * as one lump, admitted or evicted as one lump. A seventeen-line timeline came
+ * through at 224 tokens against a 111-token budget, could not fit at any price,
+ * and was dropped whole while the budget went to a shorter paragraph of
+ * unrelated follow-ups.
+ *
+ * The two assertions pull in opposite directions on purpose. Splitting is the
+ * fix; splitting an ordinary hard-wrapped paragraph would be a worse bug than
+ * the one being fixed, so the second holds that line.
+ */
+await t("line-oriented runs segment per record, prose does not", () => {
+  const timeline = TIMELINE_FIXTURE;
+
+  const records = segment(timeline);
+  assert.equal(records.length, 4, "expected one block per timestamped event");
+  assert.ok(
+    records[1].text.includes("node pool"),
+    "a wrapped continuation must stay with the record above it: " + records[1].text,
+  );
+
+  // A hard-wrapped paragraph is one thought and must survive as one block, even
+  // though one of its lines opens with something a looser rule would read as a
+  // marker.
+  assert.equal(segment(PROSE_FIXTURE).length, 1, "hard-wrapped prose was fractured");
 });
 
 console.log(`\n${pass} passed`);

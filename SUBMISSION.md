@@ -129,6 +129,16 @@ Together: mean answer recovery at a 50 percent target went from 62.1 to 90.3
 percent, answer retention across the 30 to 50 percent band went from 75 to 87.5,
 silent failures fell from 15 to 4, and false alarms fell from 34 to 12.
 
+A ninth fixture was added after that measurement and the headline numbers fell
+with it, to 81.1 percent recovery and 77.8 percent retention. The fixture is
+line-oriented material — a timeline written one line per event — and adding it
+exposed that segmentation split only on blank lines, so a whole log tail arrived
+as one indivisible block and could be dropped whole. Segmentation now splits per
+record. The fixture is still a miss, because the question names the symptom and
+the answer names the mechanism with no word in common, and the gate escalates on
+it every time. The lower numbers are the honest ones: the harness had never
+tested the shape of material this tool is aimed at. EVAL.md carries the detail.
+
 One idea — light suffix stemming so a question about what "caused" an outage
 matches a document describing the "cause" — was implemented, measured, found to
 make retention worse, and removed. The reasoning sits in a comment at the call

@@ -24,26 +24,79 @@ dropping grammatical filler but not the loss of a fact.
 
 | Target | Achieved | Answer kept | Mean recovery | Confidence | Gate escalated |
 | --- | --- | --- | --- | --- | --- |
-| 50% | 51.4% | 87.5% | 90.3% | 85.4% | 12.5% |
-| 40% | 40.2% | 87.5% | 90.3% | 83.4% | 12.5% |
-| 30% | 27.5% | 87.5% | 88.9% | 76.6% | 12.5% |
-| 25% | 23.8% | 62.5% | 69.9% | 67.6% | 25.0% |
-| 20% | 18.1% | 50.0% | 56.2% | 46.1% | 62.5% |
-| 15% | 12.2% | 50.0% | 54.8% | 41.1% | 75.0% |
-| 10% | 8.0% | 37.5% | 41.5% | 26.6% | 87.5% |
+| 50% | 51.4% | 77.8% | 81.1% | 78.2% | 22.2% |
+| 40% | 39.5% | 77.8% | 81.1% | 77.1% | 22.2% |
+| 30% | 27.5% | 77.8% | 79.9% | 70.8% | 22.2% |
+| 25% | 23.4% | 55.6% | 63.0% | 62.7% | 33.3% |
+| 20% | 17.5% | 44.4% | 50.0% | 43.9% | 66.7% |
+| 15% | 12.4% | 44.4% | 48.7% | 39.0% | 77.8% |
+| 10% | 7.8% | 33.3% | 36.9% | 26.0% | 88.9% |
 
-Of the 56 runs, 19 lost the answer. The gate warned on 15 of those and missed 4.
+Of the 63 runs, 26 lost the answer. The gate warned on 22 of those and missed 4.
 Of the 37 runs that kept it, the gate warned anyway on 12.
+
+These numbers are worse than the ones this file carried yesterday, and the
+reason is a ninth fixture rather than a regression. See "The ninth fixture"
+below: the harness had eight documents and all eight were written in blank-line
+paragraphs, so it had never once exercised the shape agent transcripts and log
+tails actually arrive in.
 
 That last line is reported because leaving it out would flatter the gate badly,
 and an earlier version of this document did exactly that. See below.
 
+## The ninth fixture
+
+The eight documents this harness started with were all written the same way:
+paragraphs separated by blank lines. That is a fair description of a policy
+page or a design doc and a poor description of the material Kernly is aimed at.
+An agent transcript, a log tail and an incident timeline are written one line
+per event with no blank lines anywhere, and segmentation only ever split on
+blank lines and headings. So the whole run arrived as one block.
+
+One block is atomic to every stage after segmentation. It is scored as one
+lump and it is admitted or evicted as one lump. A seventeen-line outage
+timeline came through as a single 224-token block; against a 111-token budget
+it could not fit at any price, so the allocator skipped it and spent the budget
+on a 43-token paragraph of unrelated follow-ups. The compressor returned the red
+herrings, dropped the answer, and finished at 14 percent of the input against a
+requested 40 — most of the budget was never spent. Nothing was wrong in
+scoring or in allocation. The unit they had been handed was too coarse to choose
+within.
+
+This was not found by the harness. It was found by pasting a timeline into the
+deployed chat page and reading the output, which is a poor substitute for a test
+and is why the fixture and a segmentation regression test both exist now.
+
+Segmentation now splits a line-oriented run into one block per record, where a
+record opens with a bullet, a numbered item, a timestamp or a bare log level.
+It is reluctant on purpose: at least two lines have to open a record and record
+lines have to be at least half the run, so an ordinary hard-wrapped paragraph is
+left intact. Fracturing prose would be a worse bug than the one being fixed.
+
+The fixture is still a miss at every ratio, and it is kept for that reason. With
+the timeline split into ten blocks the allocator now has something to choose
+between and hits 34 percent against a 40 percent target, but it chooses wrong.
+The question is asked in the vocabulary of the symptom — "what actually caused
+the checkout outage" — and the answer is written in the vocabulary of the
+mechanism: a read timeout raised from 8 seconds to 90, a connection pool that
+exhausts. The answer line shares no content word with the question. Two lines
+that merely restate the symptom score above it, and the pseudo-relevance pass
+does not bridge the gap because the terms it recruits come from those same two
+lines. This is what lexical retrieval does. No threshold tuning fixes it;
+embeddings would, at the cost of a model dependency, a vector index and the
+determinism claim that the on-chain proof rests on.
+
+What the pipeline does do here is say so. Coverage comes back at 0.34, the gate
+escalates, and the receipt reports it before anybody reads the output. That is
+the case the gate exists for, and the seven runs this fixture adds to the "lost
+the answer" column are seven runs the gate caught — the misses stayed at four.
+
 ## Reading these numbers honestly
 
 **The safe operating range is roughly 2× to 3.5× compression.** From a 30 to 50
-percent target, seven of eight questions still have their answer present and mean
-recovery sits near 90 percent. At 25 percent retention falls off a cliff to
-62.5, and below 20 percent the pipeline is not a summariser, it is a gamble. The
+percent target, seven of nine questions still have their answer present and mean
+recovery sits near 80 percent. At 25 percent retention falls off a cliff to
+55.6, and below 20 percent the pipeline is not a summariser, it is a gamble. The
 table says so rather than stopping at the flattering rows.
 
 **The gate is a smoke alarm, not a proof.** It catches roughly four in five lost
@@ -66,12 +119,12 @@ that knows "resolved" and "restored access" are the same event, which means
 embeddings, which means giving up the determinism the receipts depend on. The
 trade is recorded here rather than quietly taken.
 
-**The 15 percent row is noise, not a recovery.** Retention holding at 50 percent
-between the 20 and 15 percent rows across eight fixtures is one document changing
-outcome. Eight fixtures cannot resolve differences that small, and presenting
-that flatness as a finding would be dishonest.
+**The 15 percent row is noise, not a recovery.** Retention holding at 44.4
+percent between the 20 and 15 percent rows across nine fixtures is one document
+changing outcome. Nine fixtures cannot resolve differences that small, and
+presenting that flatness as a finding would be dishonest.
 
-**Eight fixtures is a small harness and it has been tuned against.** The feedback
+**Nine fixtures is a small harness and it has been tuned against.** The feedback
 parameters below were chosen by sweeping four settings and keeping the one that
 scored best on this table. That is overfitting, in the ordinary sense, and the
 numbers above should be read as an upper bound on what a fresh corpus would show.

@@ -27,6 +27,54 @@ function classify(text: string): BlockKind {
   return "prose";
 }
 
+/**
+ * A line that opens a record: a bullet, a numbered item, a clock or calendar
+ * stamp, or a bare log level.
+ */
+const RECORD =
+  /^(?:\s*[-*+]\s|\s*\d+[.)]\s|\[?\d{1,2}:\d{2}(?::\d{2})?\b|\[?\d{4}-\d{2}-\d{2}\b|(?:ERROR|WARN|WARNING|INFO|DEBUG|TRACE|FATAL)\b)/;
+
+/**
+ * Split a line-oriented run into one block per record.
+ *
+ * Paragraph segmentation on blank lines alone is wrong for the material this
+ * library exists to handle. An agent transcript, a log tail and an incident
+ * timeline are all written one line per event with no blank lines anywhere, so
+ * the entire run arrives as a single block — and a single block is atomic to
+ * every stage downstream. It is scored as one lump and it is admitted or
+ * evicted as one lump.
+ *
+ * The failure that produced this function: a seventeen-line outage timeline
+ * with the cause on line thirteen came through as one 224-token block. Against
+ * a budget of 111 tokens it could not fit at any price, so the allocator
+ * skipped it and spent the budget on a 43-token paragraph of unrelated
+ * follow-ups. The compressor returned the red herrings, dropped the answer, and
+ * finished at 14 per cent of the input against a requested 40 — most of the
+ * budget was never spent. Nothing was wrong in scoring or allocation. The unit
+ * they were handed was simply too coarse to choose within.
+ *
+ * Splitting is deliberately reluctant, because fracturing an ordinary
+ * hard-wrapped paragraph would be a worse bug than the one being fixed. Two
+ * conditions have to hold together: at least two lines open a record, and
+ * record lines are at least half the run. Prose with one stray bullet at the
+ * end is left intact. A line that opens no record attaches to the record above
+ * it, which is what keeps a wrapped continuation with the event it belongs to.
+ */
+function records(text: string): string[] {
+  const lines = text.split("\n");
+  if (lines.length < 2) return [text];
+
+  const marks = lines.filter((l) => RECORD.test(l)).length;
+  if (marks < 2 || marks * 2 < lines.length) return [text];
+
+  const out: string[] = [];
+  for (const line of lines) {
+    if (RECORD.test(line) || !out.length) out.push(line);
+    else out[out.length - 1] += "\n" + line;
+  }
+  return out.map((r) => r.trim()).filter(Boolean);
+}
+
 export function normalize(input: string): string {
   return input
     .normalize("NFKC")
@@ -47,20 +95,35 @@ export function segment(input: string, pinPatterns: RegExp[] = []): Block[] {
   let inFence = false;
   let fenceLang = "";
 
-  const flush = (kindHint?: BlockKind) => {
-    const text = buf.join("\n").trim();
-    buf = [];
-    if (!text) return;
-    const kind = kindHint ?? classify(text);
+  const push = (text: string, kind: BlockKind, start: number) => {
     blocks.push({
       id: blocks.length,
       kind,
       text,
-      start: bufStart,
+      start,
       tokens: estimate(text),
       pinned: pinPatterns.some((r) => r.test(text)),
       score: 0,
     });
+  };
+
+  const flush = (kindHint?: BlockKind) => {
+    const text = buf.join("\n").trim();
+    buf = [];
+    if (!text) return;
+
+    // Fenced and heading blocks arrive with their kind already decided and are
+    // atomic by definition: a code fence split down the middle is not code.
+    if (kindHint) {
+      push(text, kindHint, bufStart);
+      return;
+    }
+
+    let offset = bufStart;
+    for (const record of records(text)) {
+      push(record, classify(record), offset);
+      offset += record.length + 1;
+    }
   };
 
   for (const line of lines) {

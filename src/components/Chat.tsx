@@ -33,7 +33,7 @@ const MODEL_GROUPS = [
     label: "Closed weights — via Google",
     models: [
       { key: "gemini-flash-latest", label: "Gemini Flash" },
-      { key: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+      { key: "gemini-flash-lite-latest", label: "Gemini Flash Lite" },
     ],
   },
 ];
