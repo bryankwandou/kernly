@@ -35,6 +35,23 @@ export function allocate(blocks: Block[], budget: number): Allocation {
   let spent = pinned.reduce((s, b) => s + b.tokens, 0);
   const keptIds = new Set(pinned.map((b) => b.id));
 
+  // A heading is a pointer to content, not content. Left to compete on its own
+  // it wins easily — it is short, and it repeats the section's strongest terms,
+  // so it scores high on both affinity and density. The budget then fills with
+  // signposts aimed at material that was evicted, which is worse than useless:
+  // the model is told the answer exists and not given it.
+  //
+  // Headings are therefore withdrawn from the competition and re-attached
+  // afterwards to whichever sections actually survived.
+  const introduces = new Map<number, number>();
+  for (let i = 0; i < rest.length; i += 1) {
+    if (rest[i].kind !== "heading") continue;
+    const body = rest.slice(i + 1).find((b) => b.kind !== "heading");
+    if (body) introduces.set(rest[i].id, body.id);
+  }
+
+  const candidates = rest.filter((b) => !introduces.has(b.id));
+
   // Density-first, but with the length normalisation softened.
   //
   // Strict value-per-token is the textbook approximation and it behaves badly on
@@ -44,12 +61,12 @@ export function allocate(blocks: Block[], budget: number): Allocation {
   // while stopping short blocks from winning purely for being short.
   const LENGTH_EXPONENT = 0.65;
   const density = (b: Block) => b.score / Math.pow(Math.max(1, b.tokens), LENGTH_EXPONENT);
-  const ranked = [...rest].sort((a, b) => density(b) - density(a));
+  const ranked = [...candidates].sort((a, b) => density(b) - density(a));
 
   // The single strongest block by absolute score is admitted first if it fits at
   // all. Under a tight budget this is the difference between returning the
   // answer and returning a well-ranked summary of everything around it.
-  const anchor = rest.reduce<Block | null>(
+  const anchor = candidates.reduce<Block | null>(
     (best, b) => (!best || b.score > best.score ? b : best),
     null,
   );
@@ -63,6 +80,18 @@ export function allocate(blocks: Block[], budget: number): Allocation {
     if (spent + b.tokens > budget) continue; // skip, do not stop: a later smaller block may still fit
     keptIds.add(b.id);
     spent += b.tokens;
+  }
+
+  // Headings are re-admitted last, and only where the section they introduce
+  // survived. Restoring them in document order means a budget that runs out
+  // part-way through leaves the earlier sections labelled rather than labelling
+  // sections at random.
+  for (const [headingId, bodyId] of introduces) {
+    if (!keptIds.has(bodyId)) continue;
+    const h = live.find((b) => b.id === headingId);
+    if (!h || spent + h.tokens > budget) continue;
+    keptIds.add(h.id);
+    spent += h.tokens;
   }
 
   // A budget smaller than the pinned set is unsatisfiable. Rather than silently

@@ -77,6 +77,12 @@ export function Hero() {
             Compress something
           </Link>
           <Link
+            href="/chat"
+            className="rounded-lg border border-[var(--line)] px-5 py-3 text-[14px] font-medium transition-colors hover:border-[var(--husk)]"
+          >
+            Watch it answer both ways
+          </Link>
+          <Link
             href="/method"
             className="rounded-lg border border-[var(--line)] px-5 py-3 text-[14px] font-medium transition-colors hover:border-[var(--husk)]"
           >

@@ -13,3 +13,4 @@ next-env.d.ts
 test-ledger/
 
 .vercel
+scratch/
