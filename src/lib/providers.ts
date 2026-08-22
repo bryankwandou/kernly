@@ -29,11 +29,15 @@ export interface ModelSpec {
    * It is pinned per model rather than passed through, because the providers do
    * not agree and the wrong word is a hard 400: Groq's GPT-OSS pair takes
    * "low", Groq's Qwen takes only "none" or "default", and Google takes a token
-   * count. It is kept minimal throughout on purpose — a long private chain of
-   * thought bills as output and would blur the token comparison this page
-   * exists to make.
+   * count — except on Flash Lite, which rejects the field outright. It is kept
+   * minimal wherever it is accepted, on purpose: a long private chain of thought
+   * bills as output and would blur the token comparison this page exists to
+   * make.
+   *
+   * null means the model does not take the parameter at all and it is omitted
+   * from the request, which is not the same as asking for zero.
    */
-  reasoning: string | number;
+  reasoning: string | number | null;
 }
 
 export const MODELS: Record<string, ModelSpec> = {
@@ -82,7 +86,11 @@ export const MODELS: Record<string, ModelSpec> = {
     label: "Gemini Flash Lite",
     provider: "google",
     params: null,
-    reasoning: 0,
+    // Flash Lite answers 400 INVALID_ARGUMENT if thinkingConfig is present at
+    // all, including a budget of zero. It does not think by default, so
+    // omitting the field asks for the same behaviour the other Google entry
+    // gets by setting it.
+    reasoning: null,
   },
 };
 
@@ -197,8 +205,11 @@ async function google(
       temperature: 0.2,
       maxOutputTokens: 800,
       // Flash thinks by default and bills it. Zero keeps the comparison about
-      // the prompt, which is the only part Kernly touches.
-      thinkingConfig: { thinkingBudget: model.reasoning as number },
+      // the prompt, which is the only part Kernly touches. Models that do not
+      // take the field are sent no field, rather than a zero they will reject.
+      ...(model.reasoning === null
+        ? {}
+        : { thinkingConfig: { thinkingBudget: model.reasoning as number } }),
     },
   });
 
