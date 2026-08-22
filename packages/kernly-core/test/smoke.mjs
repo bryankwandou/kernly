@@ -116,4 +116,110 @@ await t("savings accounting is internally consistent", async () => {
   assert.ok(Math.abs(r.receipt.wattHoursSaved - expectWh) < 1e-6);
 });
 
+/**
+ * The digest published in PROOF.md and written to Solana devnet on 5 August
+ * 2026, in transactions 4khmn679… and 2jNCWyHH….
+ *
+ * This is the only test here that guards a claim made outside the repository.
+ * The argument on the site is that a number on a public chain can be
+ * regenerated from open-source code by anyone who doubts it, and that argument
+ * dies quietly the first time a change to the scorer moves the output for this
+ * fixture. Nothing else would notice: every other test asserts a property, and
+ * a pipeline that selects different blocks still satisfies all of them.
+ *
+ * If this fails, the on-chain records are stale rather than wrong. Either the
+ * change is unintended and should be reverted, or it is intended and the proof
+ * must be re-run and PROOF.md updated before the claim is made again.
+ */
+await t("published on-chain digest still reproduces", async () => {
+  const input = `# Deployment runbook
+The service is deployed from the main branch. The service is deployed from the main branch.
+\`\`\`ts
+export function retry(fn: () => Promise<void>, times = 3) { /* keep */ }
+\`\`\`
+2026-08-05T10:00:01Z INFO worker started
+2026-08-05T10:00:02Z INFO worker started
+2026-08-05T10:00:03Z INFO worker started
+In order to be able to roll back, it is necessary that you should retain the previous build artifact.
+`;
+  const { receipt } = await compress(input, { budget: 120, query: "rollback deploy" });
+  assert.equal(
+    receipt.digest,
+    "191f39d9f7537c56dad2b7d46e5a42a4520d4427a8861f270e14512aa57c6d9a",
+    "digest no longer matches the one published on devnet — see PROOF.md",
+  );
+  assert.equal(receipt.tokensIn, 150);
+  assert.equal(receipt.tokensOut, 65);
+});
+
+/**
+ * Feedback must not promote a block on the strength of vocabulary it supplied
+ * itself.
+ *
+ * The second scoring pass recruits terms from the best blocks of the first. On
+ * a long document that is harmless, and eight long fixtures in the evaluation
+ * harness never caught what happens on a short one: a paragraph sharing a
+ * single ordinary word with the question gets into the feedback pool, has its
+ * own terms recruited, and is then re-scored using them. Here that put a
+ * paragraph about billing dates above the paragraph stating the refund window.
+ */
+await t("feedback does not promote a weak match over the answer", async () => {
+  const doc = `# Billing policy
+
+Monthly plans bill on the calendar day of signup. Failed charges retry three times over six days before the account is suspended.
+
+## Refunds
+
+Annual plans carry a 30 day refund window from the date of purchase. After that the term runs to completion. Monthly plans are not refundable but can be cancelled at any time.
+
+## Invoices
+
+Invoices are issued as PDFs and mailed to the billing contact on file.`;
+
+  const { blocks } = await compress(doc, {
+    ratio: 0.55,
+    query: "what is the refund window for annual plans",
+  });
+  const live = blocks.filter((b) => b.duplicateOf === undefined && b.kind !== "heading");
+  const answer = live.find((b) => b.text.includes("30 day refund window"));
+  const distractor = live.find((b) => b.text.startsWith("Monthly plans bill"));
+
+  assert.ok(answer && distractor, "fixture no longer segments as expected");
+  assert.ok(
+    answer.score > distractor.score,
+    `answer block scored ${answer.score.toFixed(3)}, distractor ${distractor.score.toFixed(3)}`,
+  );
+});
+
+/**
+ * The gate has to be about the question, not about the setting it was given.
+ *
+ * Confidence used to be assembled from retained salience, achieved ratio and
+ * surviving block count. All three fall as the budget tightens whether or not
+ * the answer survived, so the gate ended up reporting the ratio back to the
+ * caller: it warned on 34 of 37 healthy runs in the harness, which is the same
+ * as having no gate at all.
+ */
+await t("gate is led by query coverage, not by ratio", async () => {
+  const withQuery = await compress(AGENT_LOG, { ratio: 0.4, query: "session store migration" });
+  assert.ok(
+    withQuery.receipt.queryCoverage !== null,
+    "a query was supplied, so coverage should be measured",
+  );
+
+  const noQuery = await compress(AGENT_LOG, { ratio: 0.4 });
+  assert.equal(
+    noQuery.receipt.queryCoverage,
+    null,
+    "no query means no coverage evidence, which is not the same as perfect coverage",
+  );
+
+  // Absent coverage must fall back to the shape-only reasoning rather than
+  // treating the missing signal as a perfect score, which would make an
+  // untargeted compression incapable of ever escalating.
+  assert.ok(gate(0.2, 0.05, 1, 40, null) < 0.55, "gutted run with no query should escalate");
+  assert.ok(gate(0.95, 0.5, 8, 10, 0.95) > 0.55, "healthy run with good coverage should not");
+  assert.ok(gate(0.95, 0.5, 8, 10, 0.2) < 0.55, "losing the question's terms should escalate");
+});
+
 console.log(`\n${pass} passed`);

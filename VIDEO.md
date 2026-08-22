@@ -35,7 +35,7 @@ same system prompt block highlighted each turn it reappears.
 
 **0:18–0:30 — the pipeline**
 
-Cut to the playground at getkernly.vercel.app. Paste a long context. Hit
+Cut to the playground at kernly.vercel.app. Paste a long context. Hit
 compress. The six stage rows fill in with token counts falling down the right
 edge. Let the real timing show — it is milliseconds, and that is the point.
 
@@ -85,7 +85,7 @@ than hidden.
 
 Mark, wordmark, URL. First and only appearance of the logo.
 
-> "Send less. Prove it. getkernly.vercel.app."
+> "Send less. Prove it. kernly.vercel.app."
 
 ---
 

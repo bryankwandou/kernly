@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://getkernly.vercel.app"),
+  metadataBase: new URL("https://kernly.vercel.app"),
   title: {
     default: "Kernly — keep the kernel, drop the chaff",
     template: "%s Â· Kernly",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     title: "Kernly — keep the kernel, drop the chaff",
     description:
       "Deterministic context compression for LLM agents, with savings anchored on Solana.",
-    url: "https://getkernly.vercel.app",
+    url: "https://kernly.vercel.app",
     siteName: "Kernly",
     type: "website",
   },

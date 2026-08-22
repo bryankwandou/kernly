@@ -25,10 +25,10 @@ the savings claim instead of trusting a vendor dashboard.
 
 | What | Where |
 | --- | --- |
-| Live app | https://getkernly.vercel.app |
-| Playground (runs in your browser) | https://getkernly.vercel.app/playground |
-| Verifier | https://getkernly.vercel.app/verify |
-| Method write-up | https://getkernly.vercel.app/method |
+| Live app | https://kernly.vercel.app |
+| Playground (runs in your browser) | https://kernly.vercel.app/playground |
+| Verifier | https://kernly.vercel.app/verify |
+| Method write-up | https://kernly.vercel.app/method |
 | Source | https://github.com/bryankwandou/kernly |
 | Devnet transaction | https://explorer.solana.com/tx/2jNCWyHHA2nyPwCeQG7WLAePfwSN413kwP19w7XUYWeToP3SXCmirNF3H4s23EjmnGNPgakMbrumMJ9tHu6Pyamq?cluster=devnet |
 
