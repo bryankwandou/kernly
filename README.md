@@ -45,6 +45,13 @@ The ordering is load-bearing. Folding runs before scoring so duplicates cannot
 distort term rarity; compaction runs after selection because it changes token
 counts and would otherwise leave the allocator solving the wrong problem.
 
+Kernly is not a language model and does not contain one. It decides what a model
+reads and then hands that to somebody else's model. The hosted chat calls Groq
+for open-weights models and Google for Gemini Flash, and it works the same either
+way — that is the point of a layer. Set `GROQ_API_KEY`, `GEMINI_API_KEY`, or both
+to run it yourself; set neither and the compressor still works, because the
+compressor never needed a key.
+
 ## Evidence
 
 Three documents exist so that none of the claims above have to be taken on
