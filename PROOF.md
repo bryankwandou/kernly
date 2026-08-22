@@ -69,9 +69,42 @@ advisory; the blockchain's own slot time is the authoritative timestamp.
   cumulative per-signer totals. It changes where the data lives, not what is
   being asserted.
 
+## Re-checked on 22 August 2026
+
+Both transactions were fetched from devnet again seventeen days after they were
+written, and the digest was recomputed from the code as it stands today — after
+five changes to the scorer that had nothing to do with the chain.
+
+```
+recomputed today
+  digest : 191f39d9f7537c56dad2b7d46e5a42a4520d4427a8861f270e14512aa57c6d9a
+  tokens : 150 -> 65
+
+4khmn679…  slot 481333500  blockTime 2026-08-05T07:03:09Z
+  onchain d   : 191f39d9…a57c6d9a
+  MATCHES CODE: true
+
+2jNCWyHH…  slot 481334235  blockTime 2026-08-05T07:07:39Z
+  onchain d   : 191f39d9…a57c6d9a
+  MATCHES CODE: true
+```
+
+The block times are the chain's, not ours, and they place both records four and
+a half minutes apart on 5 August. The digest they carry is still what the
+current code produces from the same input.
+
+That check now runs in CI as well, as `published on-chain digest still
+reproduces` in the core test suite. It was missing until today, which was a real
+gap rather than an oversight worth glossing: every other test in that file
+asserts a property, and a pipeline that selects different blocks still satisfies
+all of them. A change to the scorer could have broken the only claim this project
+makes to anyone outside the repository, and nothing would have failed. If that
+test ever goes red the records are stale rather than false — the proof has to be
+re-run and this file updated before the claim is repeated.
+
 ## Verify a run yourself
 
-Open [/verify](https://getkernly.vercel.app/verify), paste a signature from the
+Open [/verify](https://kernly.vercel.app/verify), paste a signature from the
 table above, and paste the fixture input from `scripts/devnet-proof.mjs`. The
 page fetches the memo from devnet, recomputes the digest in your browser, and
 shows you both. No Kernly server sits in the middle of that check.

@@ -65,6 +65,17 @@ export const MODELS: Record<string, ModelSpec> = {
     params: null,
     reasoning: 0,
   },
+  // A pinned version alongside the floating alias. The alias points at whatever
+  // Google is currently promoting, which is also whatever is currently busiest;
+  // having a second entry gives a visitor somewhere to go when the first one is
+  // at capacity.
+  "gemini-2.5-flash": {
+    id: "gemini-2.5-flash",
+    label: "Gemini 2.5 Flash",
+    provider: "google",
+    params: null,
+    reasoning: 0,
+  },
 };
 
 export const DEFAULT_MODEL = "openai/gpt-oss-20b";
@@ -169,25 +180,40 @@ async function google(
     `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model.id)}` +
     ":generateContent";
 
-  let res: Response;
-  try {
-    res = await fetch(url, {
+  const body = JSON.stringify({
+    // Google keeps the system prompt in a field of its own rather than as a
+    // message with a role, so the two providers cannot share a body.
+    systemInstruction: { parts: [{ text: system }] },
+    contents: [{ role: "user", parts: [{ text: user }] }],
+    generationConfig: {
+      temperature: 0.2,
+      maxOutputTokens: 800,
+      // Flash thinks by default and bills it. Zero keeps the comparison about
+      // the prompt, which is the only part Kernly touches.
+      thinkingConfig: { thinkingBudget: model.reasoning as number },
+    },
+  });
+
+  const send = () =>
+    fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-goog-api-key": key },
-      body: JSON.stringify({
-        // Google keeps the system prompt in a field of its own rather than as a
-        // message with a role, so the two providers cannot share a body.
-        systemInstruction: { parts: [{ text: system }] },
-        contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 800,
-          // Flash thinks by default and bills it. Zero keeps the comparison
-          // about the prompt, which is the only part Kernly touches.
-          thinkingConfig: { thinkingBudget: model.reasoning as number },
-        },
-      }),
+      body,
     });
+
+  let res: Response;
+  try {
+    res = await send();
+    // Google answers 503 when the model is busy and says in the message that
+    // the spike is usually temporary. One more attempt is worth the second it
+    // costs: a visitor comparing two answers has no use for half a comparison,
+    // and without the retry the page intermittently looks broken for a reason
+    // that has nothing to do with compression. One retry only — past that the
+    // outage is real and should be reported as one.
+    if (res.status === 503) {
+      await new Promise((r) => setTimeout(r, 800));
+      res = await send();
+    }
   } catch {
     throw new ProviderError("Could not reach Google.", 502);
   }
@@ -218,6 +244,16 @@ async function upstream(name: string, res: Response): Promise<ProviderError> {
     return new ProviderError(
       `${name} is rate limiting the shared demo key. Try again shortly.`,
       429,
+    );
+  }
+  // Capacity, not configuration. Saying which keeps a visitor from concluding
+  // the compressor broke when the only thing that happened is somebody else's
+  // model being busy.
+  if (res.status === 503) {
+    return new ProviderError(
+      `${name} says this model is busy right now. That is upstream capacity and nothing to do ` +
+        `with the compression — pick another model, or try again in a moment.`,
+      503,
     );
   }
   return new ProviderError(`${name} returned ${res.status}. ${detail.slice(0, 300)}`, 502);

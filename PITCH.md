@@ -11,7 +11,7 @@ that is not reproducible from this repository.
 > **Kernly**
 > Keep the kernel. Drop the chaff.
 
-**On screen:** the mark, the line, and one URL — getkernly.vercel.app.
+**On screen:** the mark, the line, and one URL — kernly.vercel.app.
 
 **Say:** "Kernly is a context compressor for LLM agents. The interesting part
 isn't that it compresses. It's that you can prove what it did."
@@ -175,7 +175,7 @@ a real model in the loop, which is the stronger version of slide eight."
 
 **Say:** "Every efficiency claim in this industry is self-reported. We put ours
 on a public ledger and open-sourced the function that produces it, so you never
-have to take our word for anything. Try it at getkernly.vercel.app — the
+have to take our word for anything. Try it at kernly.vercel.app — the
 playground runs entirely in your browser."
 
 ---
