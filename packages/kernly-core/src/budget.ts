@@ -60,7 +60,29 @@ export function allocate(blocks: Block[], budget: number): Allocation {
   // material that was evicted. A sublinear exponent keeps the greedy ordering
   // while stopping short blocks from winning purely for being short.
   const LENGTH_EXPONENT = 0.65;
-  const density = (b: Block) => b.score / Math.pow(Math.max(1, b.tokens), LENGTH_EXPONENT);
+
+  // Below this, a block is charged as if it were this long.
+  //
+  // The sublinear exponent above stops short blocks winning purely for being
+  // short, and it is not enough at the very bottom of the range. A two-token
+  // fragment is divided by 1.6 while a sixty-token paragraph is divided by 14.7,
+  // so a fragment scoring 0.3 outranks a paragraph scoring 0.9 by three to one.
+  //
+  // That is not theoretical. Compressing the Wikipedia article on photosynthesis
+  // to a 500-token budget returned "starch", "ribosome", "Z scheme", "talk",
+  // "edit" and a column of "Main article:" lines — the page's own table of
+  // contents, every entry a rare noun with nothing around it to dilute the
+  // score — while the paragraph naming the experiment that answered the question
+  // was evicted. The model was handed a contents page and correctly reported
+  // that the answer was not in it.
+  //
+  // A floor rather than an exclusion, because short blocks are sometimes the
+  // whole point: a log line, a version number, a single line of a stack trace.
+  // Those still compete, they just stop getting a discount for brevity that has
+  // nothing to do with what they carry.
+  const LENGTH_FLOOR = 12;
+  const density = (b: Block) =>
+    b.score / Math.pow(Math.max(LENGTH_FLOOR, b.tokens), LENGTH_EXPONENT);
   const ranked = [...candidates].sort((a, b) => density(b) - density(a));
 
   // The single strongest block by absolute score is admitted first if it fits at

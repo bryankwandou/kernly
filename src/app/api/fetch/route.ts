@@ -77,9 +77,32 @@ function textFrom(html: string): string {
     .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1>/gi, "")
     .replace(/<(nav|header|footer|aside|form)\b[\s\S]*?<\/\1>/gi, "")
+    // Headings keep their rank as markdown rather than flattening into prose.
+    //
+    // This one substitution is worth more than everything else in this function.
+    // Kernly withdraws headings from the budget competition on purpose: a
+    // heading is short, it repeats its section's strongest terms, and left to
+    // compete it wins on density and fills the budget with signposts pointing at
+    // material that was evicted. Stripping <h2> down to bare text disabled that
+    // rule completely — every block on a fetched page arrived classified as
+    // prose, and the structural layer of the pipeline was simply not running.
+    //
+    // The result was exactly the failure the rule exists to prevent. Compressed
+    // to a 500-token budget, the photosynthesis article came back as
+    // "Experimental history", "Water photolysis", "In water", "Water" and a
+    // column of cross-reference lines, while the 61-token paragraph naming the
+    // experiment — the highest-scoring block in the whole document — ranked 43rd
+    // and was evicted.
+    .replace(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi, (_m, level: string, inner: string) => {
+      const text = inner
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return text ? `\n\n${"#".repeat(Number(level))} ${text}\n\n` : "\n\n";
+    })
     // Block-level tags become paragraph breaks, so the segmenter sees the
     // document's real shape instead of one enormous run-on line.
-    .replace(/<\/(p|div|section|article|li|tr|h[1-6]|blockquote|pre)>/gi, "\n\n")
+    .replace(/<\/(p|div|section|article|li|tr|blockquote|pre)>/gi, "\n\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
@@ -90,6 +113,24 @@ function textFrom(html: string): string {
     .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
     .replace(/[ \t]+/g, " ")
     .replace(/\n[ \t]+/g, "\n")
+    // Site furniture that survives tag stripping because it is ordinary text.
+    //
+    // Cross-reference lines, edit affordances and navbox arrows are each a
+    // handful of rare nouns with no sentence around them, which is precisely the
+    // shape the scorer rates highest per token. They are dropped here rather
+    // than compensated for downstream, because no amount of careful ranking
+    // makes the word "edit" worth a token of someone's context budget.
+    .split("\n")
+    .filter((line) => {
+      const l = line.trim();
+      if (!l) return true;
+      if (/^Main articles?:/i.test(l)) return false;
+      if (/^(edit|talk|v t e|show|hide|Retrieved from)$/i.test(l)) return false;
+      if (/^[←→]/.test(l)) return false;
+      if (/^\[\d+\]$/.test(l)) return false;
+      return true;
+    })
+    .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
