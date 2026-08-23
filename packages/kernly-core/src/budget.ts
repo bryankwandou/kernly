@@ -116,6 +116,30 @@ export function allocate(blocks: Block[], budget: number): Allocation {
     spent += h.tokens;
   }
 
+  // Nothing fit. Send the best block anyway.
+  //
+  // Every branch above skips a block that would overrun, which is right while
+  // some other block can still be chosen and catastrophic when none can. A
+  // 69-token paragraph against a 62-token budget matched no branch, and the
+  // compressor returned an empty string — not a short context, no context. The
+  // model then answered "not in the reference material", which was strictly
+  // true and read as the compressor having destroyed the document, because it
+  // had.
+  //
+  // Short pasted text hit this constantly: one paragraph is one block, and a
+  // single block that misses its budget by any margin leaves nothing behind.
+  // The ratio never mattered — the same paragraph vanished at 90% as at 40%,
+  // since the budget scales with the input that is overrunning it.
+  //
+  // Overshooting is the lesser fault and it is not concealed: tokensOut reports
+  // what was actually emitted, so a caller comparing it against the budget sees
+  // the overrun. An empty context is a silent failure and there is no budget
+  // discipline worth that.
+  if (keptIds.size === 0 && live.length > 0) {
+    const best = live.reduce((a, b) => (b.score > a.score ? b : a));
+    keptIds.add(best.id);
+  }
+
   // A budget smaller than the pinned set is unsatisfiable. Rather than silently
   // truncating something the caller declared non-negotiable, keep the pins and
   // let the receipt report the overrun so the caller can react.
