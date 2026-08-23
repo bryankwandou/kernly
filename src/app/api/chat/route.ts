@@ -95,10 +95,30 @@ export async function POST(req: Request) {
     };
   }
 
+  // The model is not fenced into the reference material, and the first version
+  // of this prompt was.
+  //
+  // "Answer using only the reference material" is the reflex instruction for a
+  // RAG demo and it was the wrong one here. Asked anything the four sample
+  // documents did not cover, both columns refused in unison, which tells a
+  // visitor nothing about compression and everything about a guardrail. Worse,
+  // it made the page look like the model had been lobotomised to hide something
+  // — the exact suspicion a tool built on "check it yourself" cannot afford.
+  //
+  // The comparison does not need the fence. Both columns get this identical
+  // prompt and the same question; the only variable is whether the material was
+  // compressed. What the fence bought was a guarantee that a correct answer
+  // proves retrieval worked, and that is bought more honestly by asking the
+  // model to say where its answer came from. A visitor can then see for
+  // themselves when the compressed column has fallen back on prior knowledge,
+  // which is a compression failure worth seeing rather than one worth hiding.
   const system = [
-    "Answer using only the reference material provided.",
-    "If the material does not contain the answer, say so plainly instead of guessing.",
-    "Be brief and concrete.",
+    "Answer the question directly and concretely.",
+    "Reference material may be supplied. When it answers the question, use it and prefer it over what you already know.",
+    "When it does not, open with the exact sentence [Not in the reference material.] and then still answer the question from your own knowledge.",
+    "That marker is a prefix, never the whole reply. If you genuinely do not know, say what you do not know and why, in a sentence of your own after it.",
+    "Never invent details and attribute them to the material.",
+    "Keep it short unless the question needs length.",
   ].join(" ");
 
   const user = sent
