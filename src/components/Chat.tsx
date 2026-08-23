@@ -183,7 +183,7 @@ async function fit(text: string, query: string | undefined, ceiling: number): Pr
 }
 
 export function Chat() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   // The postmortem opens by default because it is the only sample long enough
   // for the comparison to mean anything. A 70-token transcript compressed to 35
@@ -279,7 +279,9 @@ export function Chat() {
     setQuestion("");
     setBusy(true);
 
-    const payload = { question: q, context, model, ratio };
+    // The interface language rides along, so the answer comes back in the
+    // language the reader is already reading the page in.
+    const payload = { question: q, context, model, ratio, locale };
 
     // Both runs go out together. Sequencing them would make the compressed
     // side look faster purely because the provider had warmed up.

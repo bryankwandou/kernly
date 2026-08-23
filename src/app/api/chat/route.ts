@@ -25,7 +25,44 @@ type Body = {
   model?: unknown;
   ratio?: unknown;
   mode?: unknown;
+  locale?: unknown;
 };
+
+/**
+ * Endonyms, so the instruction names the language the way the language names
+ * itself. "Reply in Bahasa Indonesia" is followed more reliably than "reply in
+ * Indonesian", and the difference is larger on the smaller models here.
+ */
+const LANGUAGES: Record<string, string> = {
+  en: "English",
+  id: "Bahasa Indonesia",
+  es: "español",
+  pt: "português",
+  fr: "français",
+  de: "Deutsch",
+  it: "italiano",
+  nl: "Nederlands",
+  pl: "polski",
+  ru: "русский",
+  uk: "українська",
+  tr: "Türkçe",
+  vi: "tiếng Việt",
+  th: "ภาษาไทย",
+  hi: "हिन्दी",
+  ar: "العربية",
+  zh: "中文",
+  ja: "日本語",
+  ko: "한국어",
+};
+
+function languageRule(locale: string | null): string {
+  // Falling back to the question's own language rather than to English. A
+  // visitor who never touched the language picker but typed in Thai has told
+  // you what they read, and defaulting to English would ignore it.
+  return locale && LANGUAGES[locale]
+    ? `Reply in ${LANGUAGES[locale]}, regardless of what language the reference material is written in.`
+    : "Reply in the same language the question was asked in, regardless of what language the reference material is written in.";
+}
 
 function bad(message: string, status = 400) {
   return Response.json({ error: message }, { status });
@@ -70,6 +107,9 @@ export async function POST(req: Request) {
       503,
     );
   }
+
+  const locale =
+    typeof body.locale === "string" && body.locale in LANGUAGES ? body.locale : null;
 
   const rawRatio = typeof body.ratio === "number" ? body.ratio : 0.4;
   const ratio = Math.min(0.9, Math.max(0.05, rawRatio));
@@ -119,6 +159,21 @@ export async function POST(req: Request) {
     "That marker is a prefix, never the whole reply. If you genuinely do not know, say what you do not know and why, in a sentence of your own after it.",
     "Never invent details and attribute them to the material.",
     "Keep it short unless the question needs length.",
+    // The interface speaks nineteen languages and the model was answering all
+    // of them in English. Asked "siapa itu vinbryyt" through an Indonesian UI,
+    // both columns replied "I do not know who vinbryyt is" — which is a correct
+    // answer delivered as though the question had been an inconvenience.
+    //
+    // The reference material is frequently in a different language from the
+    // question, and that is the case this has to get right: an English
+    // Wikipedia article read by an Indonesian speaker should still produce an
+    // Indonesian answer. The material's language is not the reader's.
+    languageRule(locale),
+    // The marker stays English in every language, because the client matches on
+    // it to decide whether to show the badge, and a translated marker would be
+    // silently unrecognised. The badge the reader actually sees is drawn from
+    // the interface dictionary, so nobody reads the English.
+    "Write the [Not in the reference material.] marker in English exactly as given, whatever language the rest of the answer is in.",
   ].join(" ");
 
   const user = sent
