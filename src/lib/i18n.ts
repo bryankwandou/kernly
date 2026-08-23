@@ -180,6 +180,11 @@ const en = {
     "Too big for this model's free-tier minute budget uncompressed — only the compressed column will get through. That is the demonstration. Pick a Gemini model to see both.",
   "chat.ceiling.neither":
     "Too big for this model's free-tier minute budget even compressed. Lower the ratio, or pick a Gemini model.",
+
+  "chat.fitted.a":
+    "This page is bigger than the model's free-tier minute budget, so the ratio was tightened to",
+  "chat.fitted.b":
+    "which is small enough to send. That is the compressor doing its job rather than the demo moving to a roomier provider. Watch the gate: past a point it warns, and past a further point the answer is wrong.",
 };
 
 export type Key = keyof typeof en;
@@ -308,6 +313,11 @@ const id: Partial_ = {
     "Terlalu besar untuk jatah per menit tingkat gratis model ini bila tidak dimampatkan — hanya kolom yang dimampatkan yang akan lolos. Justru itu pembuktiannya. Pilih model Gemini untuk melihat keduanya.",
   "chat.ceiling.neither":
     "Terlalu besar untuk jatah per menit tingkat gratis model ini bahkan setelah dimampatkan. Turunkan rasionya, atau pilih model Gemini.",
+
+  "chat.fitted.a":
+    "Halaman ini lebih besar daripada jatah per menit tingkat gratis model ini, jadi rasionya dirapatkan menjadi",
+  "chat.fitted.b":
+    "yang sudah cukup kecil untuk dikirim. Itulah pemampat menjalankan tugasnya, bukan demo yang kabur ke penyedia berjatah lebih longgar. Perhatikan gerbangnya: lewat satu titik ia memperingatkan, dan lewat titik berikutnya jawabannya keliru.",
 };
 
 const es: Partial_ = {
@@ -432,6 +442,11 @@ const es: Partial_ = {
     "Demasiado grande sin comprimir para el presupuesto por minuto del nivel gratuito de este modelo: solo pasará la columna comprimida. Esa es la demostración. Elige un modelo Gemini para ver ambas.",
   "chat.ceiling.neither":
     "Demasiado grande para el presupuesto por minuto del nivel gratuito de este modelo incluso comprimido. Baja el ratio o elige un modelo Gemini.",
+
+  "chat.fitted.a":
+    "Esta página supera el presupuesto por minuto del nivel gratuito del modelo, así que el ratio se ajustó a",
+  "chat.fitted.b":
+    "que ya cabe. Eso es el compresor haciendo su trabajo, no la demo huyendo a un proveedor más holgado. Mira el guardián: pasado un punto avisa, y pasado otro la respuesta es falsa.",
 };
 
 const pt: Partial_ = {
@@ -556,6 +571,11 @@ const pt: Partial_ = {
     "Grande demais sem compressão para a cota por minuto do nível gratuito deste modelo — só a coluna comprimida vai passar. É justamente essa a demonstração. Escolha um modelo Gemini para ver as duas.",
   "chat.ceiling.neither":
     "Grande demais para a cota por minuto do nível gratuito deste modelo mesmo comprimido. Baixe a razão ou escolha um modelo Gemini.",
+
+  "chat.fitted.a":
+    "Esta página excede a cota por minuto do nível gratuito do modelo, então a razão foi apertada para",
+  "chat.fitted.b":
+    "que já cabe. É o compressor fazendo o seu trabalho, não a demonstração fugindo para um provedor mais folgado. Repare no portão: passado um ponto ele avisa, e passado outro a resposta é falsa.",
 };
 
 const fr: Partial_ = {
@@ -680,6 +700,11 @@ const fr: Partial_ = {
     "Trop volumineux non compressé pour le quota par minute de l’offre gratuite de ce modèle : seule la colonne compressée passera. C’est précisément la démonstration. Choisissez un modèle Gemini pour voir les deux.",
   "chat.ceiling.neither":
     "Trop volumineux pour le quota par minute de l’offre gratuite de ce modèle, même compressé. Baissez le taux ou choisissez un modèle Gemini.",
+
+  "chat.fitted.a":
+    "Cette page dépasse le quota par minute de l’offre gratuite du modèle, le taux a donc été resserré à",
+  "chat.fitted.b":
+    "ce qui passe. C’est le compresseur qui fait son travail, non la démo qui se réfugie chez un fournisseur plus large. Surveillez le garde-fou : au-delà d’un point il alerte, au-delà d’un autre la réponse est fausse.",
 };
 
 const de: Partial_ = {
@@ -804,6 +829,11 @@ const de: Partial_ = {
     "Unverdichtet zu groß für das Minutenbudget der Gratisstufe dieses Modells — nur die verdichtete Spalte kommt durch. Genau das ist die Demonstration. Wählen Sie ein Gemini-Modell, um beide zu sehen.",
   "chat.ceiling.neither":
     "Auch verdichtet zu groß für das Minutenbudget der Gratisstufe dieses Modells. Senken Sie die Quote oder wählen Sie ein Gemini-Modell.",
+
+  "chat.fitted.a":
+    "Diese Seite übersteigt das Minutenbudget der Gratisstufe des Modells, daher wurde die Quote verschärft auf",
+  "chat.fitted.b":
+    "was klein genug zum Senden ist. Das ist die Verdichtung bei der Arbeit, nicht die Demo auf der Flucht zu einem großzügigeren Anbieter. Achten Sie auf den Wächter: ab einem Punkt warnt er, ab einem weiteren ist die Antwort falsch.",
 };
 
 const it: Partial_ = {
@@ -928,6 +958,11 @@ const it: Partial_ = {
     "Troppo grande non compresso per il budget al minuto del piano gratuito di questo modello: passerà solo la colonna compressa. È proprio questa la dimostrazione. Scegli un modello Gemini per vederle entrambe.",
   "chat.ceiling.neither":
     "Troppo grande per il budget al minuto del piano gratuito di questo modello anche compresso. Abbassa il rapporto o scegli un modello Gemini.",
+
+  "chat.fitted.a":
+    "Questa pagina supera il budget al minuto del piano gratuito del modello, quindi il rapporto è stato stretto a",
+  "chat.fitted.b":
+    "che ci sta. È il compressore che fa il suo lavoro, non la demo che scappa da un fornitore più largo. Guarda il varco: oltre un punto avverte, oltre un altro la risposta è falsa.",
 };
 
 const nl: Partial_ = {
@@ -1052,6 +1087,11 @@ const nl: Partial_ = {
     "Ongecomprimeerd te groot voor het minuutbudget van de gratis laag van dit model — alleen de gecomprimeerde kolom komt erdoor. Dat is precies de demonstratie. Kies een Gemini-model om beide te zien.",
   "chat.ceiling.neither":
     "Zelfs gecomprimeerd te groot voor het minuutbudget van de gratis laag van dit model. Verlaag de verhouding of kies een Gemini-model.",
+
+  "chat.fitted.a":
+    "Deze pagina gaat over het minuutbudget van de gratis laag van dit model heen, dus is de verhouding aangescherpt naar",
+  "chat.fitted.b":
+    "wat wel past. Dat is de compressie die haar werk doet, niet de demo die uitwijkt naar een ruimere aanbieder. Let op de poort: voorbij een punt waarschuwt hij, voorbij een volgend punt klopt het antwoord niet.",
 };
 
 const pl: Partial_ = {
@@ -1176,6 +1216,11 @@ const pl: Partial_ = {
     "Nieskompresowane jest za duże na minutowy budżet darmowego progu tego modelu — przejdzie tylko kolumna skompresowana. I właśnie to jest dowód. Wybierz model Gemini, aby zobaczyć obie.",
   "chat.ceiling.neither":
     "Za duże na minutowy budżet darmowego progu tego modelu nawet po kompresji. Obniż stopień albo wybierz model Gemini.",
+
+  "chat.fitted.a":
+    "Ta strona przekracza minutowy budżet darmowego progu modelu, więc stopień zacieśniono do",
+  "chat.fitted.b":
+    "co już się mieści. To kompresor wykonuje swoją pracę, a nie demo uciekające do dostawcy z większym limitem. Patrz na bramkę: za pewnym punktem ostrzega, a za kolejnym odpowiedź jest zmyślona.",
 };
 
 const ru: Partial_ = {
@@ -1300,6 +1345,11 @@ const ru: Partial_ = {
     "В несжатом виде это больше минутного лимита бесплатного тарифа для этой модели — пройдёт только сжатая колонка. В этом и состоит доказательство. Выберите модель Gemini, чтобы увидеть обе.",
   "chat.ceiling.neither":
     "Больше минутного лимита бесплатного тарифа этой модели даже в сжатом виде. Снизьте долю или выберите модель Gemini.",
+
+  "chat.fitted.a":
+    "Эта страница превышает минутный лимит бесплатного тарифа модели, поэтому доля ужата до",
+  "chat.fitted.b":
+    "что уже проходит. Это сжатие делает свою работу, а не демонстрация убегает к провайдеру с лимитом побольше. Следите за затвором: за одной чертой он предупреждает, за другой ответ оказывается выдуманным.",
 };
 
 const uk: Partial_ = {
@@ -1424,6 +1474,11 @@ const uk: Partial_ = {
     "У нестиснутому вигляді це більше за хвилинний ліміт безкоштовного тарифу цієї моделі — пройде лише стиснута колонка. У цьому й полягає доказ. Оберіть модель Gemini, щоб побачити обидві.",
   "chat.ceiling.neither":
     "Більше за хвилинний ліміт безкоштовного тарифу цієї моделі навіть у стиснутому вигляді. Знизьте частку або оберіть модель Gemini.",
+
+  "chat.fitted.a":
+    "Ця сторінка перевищує хвилинний ліміт безкоштовного тарифу моделі, тож частку стиснуто до",
+  "chat.fitted.b":
+    "що вже проходить. Це стиснення робить свою роботу, а не демонстрація тікає до постачальника з більшим лімітом. Стежте за затвором: за однією межею він попереджає, за іншою відповідь виявляється вигаданою.",
 };
 
 const tr: Partial_ = {
@@ -1548,6 +1603,11 @@ const tr: Partial_ = {
     "Sıkıştırılmamış hâli bu modelin ücretsiz kademedeki dakika bütçesine sığmıyor — yalnızca sıkıştırılmış sütun geçecek. Gösterilmek istenen tam da bu. İkisini birden görmek için bir Gemini modeli seçin.",
   "chat.ceiling.neither":
     "Sıkıştırılmış hâliyle bile bu modelin ücretsiz kademedeki dakika bütçesine sığmıyor. Oranı düşürün ya da bir Gemini modeli seçin.",
+
+  "chat.fitted.a":
+    "Bu sayfa modelin ücretsiz kademedeki dakika bütçesini aşıyor, bu yüzden oran şuna sıkılaştırıldı:",
+  "chat.fitted.b":
+    "artık gönderilebilecek kadar küçük. Bu, sıkıştırıcının işini yapmasıdır; demonun daha bol kotalı bir sağlayıcıya kaçması değil. Kapıyı izleyin: bir noktadan sonra uyarır, bir başkasından sonra yanıt uydurmadır.",
 };
 
 const vi: Partial_ = {
@@ -1672,6 +1732,11 @@ const vi: Partial_ = {
     "Ở dạng chưa nén thì vượt hạn mức mỗi phút của gói miễn phí cho mô hình này — chỉ cột đã nén lọt qua được. Đó chính là điều cần chứng minh. Chọn một mô hình Gemini để xem cả hai.",
   "chat.ceiling.neither":
     "Vượt hạn mức mỗi phút của gói miễn phí cho mô hình này ngay cả khi đã nén. Hãy hạ tỉ lệ xuống, hoặc chọn một mô hình Gemini.",
+
+  "chat.fitted.a":
+    "Trang này vượt hạn mức mỗi phút của gói miễn phí cho mô hình, nên tỉ lệ đã siết xuống còn",
+  "chat.fitted.b":
+    "đủ nhỏ để gửi đi. Đó là bộ nén làm đúng việc của nó, chứ không phải bản trình diễn chạy sang nhà cung cấp rộng rãi hơn. Hãy để ý cổng chặn: quá một mức nó cảnh báo, quá mức nữa thì câu trả lời là bịa.",
 };
 
 const th: Partial_ = {
@@ -1795,6 +1860,11 @@ const th: Partial_ = {
     "ขนาดที่ยังไม่บีบอัดเกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ — จะมีแต่คอลัมน์ที่บีบอัดแล้วเท่านั้นที่ผ่านไปได้ นั่นแหละคือสิ่งที่ต้องการพิสูจน์ เลือกโมเดล Gemini หากอยากเห็นทั้งสองฝั่ง",
   "chat.ceiling.neither":
     "เกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ แม้จะบีบอัดแล้วก็ตาม ลองลดสัดส่วนลง หรือเลือกโมเดล Gemini",
+
+  "chat.fitted.a":
+    "หน้านี้เกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ จึงรัดสัดส่วนลงเหลือ",
+  "chat.fitted.b":
+    "ซึ่งเล็กพอจะส่งได้แล้ว นี่คือตัวบีบอัดทำงานของมัน ไม่ใช่การสาธิตหนีไปหาผู้ให้บริการที่โควตาใหญ่กว่า จับตาดูประตูกันไว้ พ้นจุดหนึ่งมันจะเตือน และพ้นอีกจุดคำตอบจะกลายเป็นเรื่องแต่ง",
 };
 
 const hi: Partial_ = {
@@ -1919,6 +1989,11 @@ const hi: Partial_ = {
     "बिना संपीड़न के यह इस मॉडल के नि:शुल्क स्तर की प्रति-मिनट सीमा से बड़ा है — केवल संपीड़ित स्तंभ ही भीतर जाएगा। यही तो दिखाना है। दोनों देखने हों तो कोई Gemini मॉडल चुनिए।",
   "chat.ceiling.neither":
     "संपीड़ित करने पर भी यह इस मॉडल के नि:शुल्क स्तर की प्रति-मिनट सीमा से बड़ा है। अनुपात घटाइए, या कोई Gemini मॉडल चुनिए।",
+
+  "chat.fitted.a":
+    "यह पृष्ठ मॉडल की नि:शुल्क स्तर वाली प्रति-मिनट सीमा से बड़ा है, इसलिए अनुपात कसकर कर दिया गया",
+  "chat.fitted.b":
+    "जो भेजने लायक छोटा है। यह संपीड़क का अपना काम करना है, न कि प्रदर्शन का किसी ढीली सीमा वाले प्रदाता के पास भाग जाना। द्वार पर नज़र रखिए: एक बिंदु के बाद वह चेताता है, और उससे आगे उत्तर गढ़ा हुआ निकलता है।",
 };
 
 const ar: Partial_ = {
@@ -2042,6 +2117,11 @@ const ar: Partial_ = {
     "غير مضغوط، يتجاوز هذا ميزانية الدقيقة في الطبقة المجانية لهذا النموذج — لن ينفذ سوى العمود المضغوط. وهذا بعينه هو البرهان. اختر نموذج Gemini لترى العمودين معًا.",
   "chat.ceiling.neither":
     "يتجاوز ميزانية الدقيقة في الطبقة المجانية لهذا النموذج حتى بعد الضغط. أنزل النسبة، أو اختر نموذج Gemini.",
+
+  "chat.fitted.a":
+    "هذه الصفحة تتجاوز ميزانية الدقيقة في الطبقة المجانية للنموذج، فشُدَّت النسبة إلى",
+  "chat.fitted.b":
+    "وهو قدر يسع الإرسال. هذا هو الضاغط يؤدي عمله، لا العرض يفرّ إلى مزوّد أوسع حصّة. راقب البوّاب: بعد حدّ ينذر، وبعد حدّ آخر يكون الجواب مختلقًا.",
 };
 
 const zh: Partial_ = {
@@ -2165,6 +2245,11 @@ const zh: Partial_ = {
     "未压缩的体量超出该模型免费档的每分钟额度——只有压缩那一栏进得去。要证明的正是这件事。想两栏都看，就换成 Gemini 模型。",
   "chat.ceiling.neither":
     "即便压缩过，也仍超出该模型免费档的每分钟额度。把比例调低，或者换成 Gemini 模型。",
+
+  "chat.fitted.a":
+    "这个页面超出该模型免费档的每分钟额度，因此比例已收紧到",
+  "chat.fitted.b":
+    "这就送得进去了。这是压缩器在干自己的活，而不是演示逃到额度更宽的服务方去。盯着闸门看：过了一个点它会示警，再过一个点答案就是编的。",
 };
 
 const ja: Partial_ = {
@@ -2288,6 +2373,11 @@ const ja: Partial_ = {
     "圧縮しない状態では、この模型の無料枠の毎分予算を超えます。通るのは圧縮した側だけです。示したいのはまさにそこです。両方を見るなら Gemini の模型を選んでください。",
   "chat.ceiling.neither":
     "圧縮しても、この模型の無料枠の毎分予算を超えます。比率を下げるか、Gemini の模型を選んでください。",
+
+  "chat.fitted.a":
+    "この頁は模型の無料枠の毎分予算を超えるため、比率を次まで詰めました:",
+  "chat.fitted.b":
+    "これなら送れます。圧縮側が仕事をしているのであって、余裕のある提供元へ逃げたのではありません。関門を見ていてください。ある点を越えると警告し、さらに越えると答えは作り話になります。",
 };
 
 const ko: Partial_ = {
@@ -2411,6 +2501,11 @@ const ko: Partial_ = {
     "압축하지 않은 크기는 이 모델 무료 등급의 분당 한도를 넘습니다 — 압축한 쪽만 통과합니다. 보여 주려는 것이 바로 그것입니다. 둘 다 보려면 Gemini 모델을 고르세요.",
   "chat.ceiling.neither":
     "압축해도 이 모델 무료 등급의 분당 한도를 넘습니다. 비율을 낮추거나 Gemini 모델을 고르세요.",
+
+  "chat.fitted.a":
+    "이 페이지는 모델 무료 등급의 분당 한도를 넘어서, 비율을 다음까지 조였습니다:",
+  "chat.fitted.b":
+    "이 정도면 보낼 수 있습니다. 압축기가 제 일을 한 것이지, 시연이 한도가 넉넉한 제공자로 달아난 것이 아닙니다. 관문을 지켜보세요. 어느 지점을 넘으면 경고하고, 더 넘으면 답이 지어낸 것이 됩니다.",
 };
 
 const DICT: Record<Locale, Partial_> = {

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { compress } from "@kernly/core";
+import { compress, estimate } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
 import { useI18n } from "./I18n";
 
@@ -155,6 +155,33 @@ function split(answer: string): { outside: boolean; body: string } {
   return body ? { outside: true, body } : { outside: false, body: trimmed };
 }
 
+
+/**
+ * The largest target ratio whose output still clears a provider's ceiling.
+ *
+ * Headroom is deliberate. The number compared here is Kernly's own estimate,
+ * and the provider counts differently — in practice its count has come in
+ * *below* the estimate, but a compressor that squeezes right up to a hard limit
+ * and is wrong in the other direction has failed at the one job it was given.
+ * Eighty per cent leaves room for the question, the system prompt and the
+ * reply, all of which are billed against the same minute.
+ *
+ * Returns null when even the tightest setting will not fit, rather than
+ * pretending a ratio exists. The caller shows the failure instead of a false
+ * reassurance.
+ */
+const FIT_STEPS = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2, 0.15, 0.1, 0.05];
+const FIT_HEADROOM = 0.8;
+
+async function fit(text: string, query: string | undefined, ceiling: number): Promise<number | null> {
+  const budget = ceiling * FIT_HEADROOM;
+  for (const ratio of FIT_STEPS) {
+    const { receipt } = await compress(text, { ratio, query });
+    if (receipt.tokensOut <= budget) return ratio;
+  }
+  return null;
+}
+
 export function Chat() {
   const { t } = useI18n();
 
@@ -180,6 +207,7 @@ export function Chat() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [source, setSource] = useState<string | null>(null);
+  const [switched, setSwitched] = useState<string | null>(null);
 
   const nextId = useRef(1);
 
@@ -210,6 +238,28 @@ export function Chat() {
       setSampleId("");
       setTurns([]);
       setUrl("");
+
+      // A long page against an 8,000-token minute budget is the case this whole
+      // project exists for, so the response is to compress harder rather than to
+      // move to a provider with a bigger allowance. Reaching for Gemini here
+      // would sidestep the only test that matters: the article is 20,000 tokens,
+      // the ceiling is 8,000, and either the compressor closes that gap or the
+      // claim is empty.
+      //
+      // The ratio is searched rather than calculated, because output size is not
+      // a smooth function of the target — blocks are admitted whole, so the
+      // achieved size steps. Compressing at each candidate is a few milliseconds
+      // locally and gives the true figure instead of an extrapolation.
+      const ceiling = ALL_MODELS.find((m) => m.key === model)?.ceiling ?? null;
+      if (ceiling !== null && estimate(json.text) > ceiling) {
+        const fitted = await fit(json.text, question || undefined, ceiling);
+        if (fitted) {
+          setRatio(fitted);
+          setSwitched(`${Math.round(fitted * 100)}%`);
+        }
+      } else {
+        setSwitched(null);
+      }
     } catch (e) {
       setLoadError(e instanceof Error ? e.message : "Could not load that page.");
     } finally {
@@ -368,6 +418,13 @@ export function Chat() {
               ))}
             </select>
           </label>
+
+          {switched && (
+            <p className="-mt-2 rounded-lg border border-[color-mix(in_oklab,var(--kernel)_40%,transparent)] bg-[color-mix(in_oklab,var(--kernel)_10%,transparent)] p-2.5 text-[11.5px] leading-relaxed">
+              {t("chat.fitted.a")} <strong className="tnum font-semibold">{switched}</strong>{" "}
+              {t("chat.fitted.b")}
+            </p>
+          )}
 
           <label className="block">
             <div className="mb-2 flex items-baseline justify-between">
