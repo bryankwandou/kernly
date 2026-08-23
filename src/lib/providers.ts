@@ -150,15 +150,69 @@ export function keyFor(provider: ProviderId): string | undefined {
   return provider === "groq" ? process.env.GROQ_API_KEY : process.env.GEMINI_API_KEY;
 }
 
+/**
+ * Transient upstream failures, retried rather than shown.
+ *
+ * A model being momentarily busy is not a fact about this project, but it
+ * arrives looking like one: the page says the request failed, next to a column
+ * of compression figures, and a reader draws the obvious wrong conclusion.
+ * Gemini Flash did exactly this once during testing and answered normally on
+ * the next attempt seconds later.
+ *
+ * Only 503 and 429 are retried, and only those. A 400 means the request was
+ * wrong and will be wrong again; a 413 means the context did not fit, which on
+ * this site is a result worth showing rather than a fault worth hiding. Both
+ * surface immediately.
+ *
+ * Two retries at 700ms and 1900ms. The budget is bounded by the route's 60s
+ * limit and by a visitor watching a spinner: past a couple of seconds, an
+ * honest error beats a longer wait.
+ */
+const RETRY_DELAYS_MS = [700, 1900];
+
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * A 429 is not one thing, and retrying it depends on which one it is.
+ *
+ * Groq's is the 8,000-token-per-minute ceiling on the free tier. That window
+ * clears in up to sixty seconds, so retrying inside three is guaranteed waste
+ * and merely delays an honest error by that much. Google's tends to be a short
+ * burst against a much larger quota, where a second is often enough.
+ *
+ * So 503 is retried for both — it is capacity everywhere — and 429 only for
+ * Google. Getting this wrong in the generous direction would have made every
+ * Groq ceiling demonstration on this site three seconds slower for nothing,
+ * which matters because that demonstration is the point of the page.
+ */
+function retryable(e: unknown, provider: ModelSpec["provider"]): boolean {
+  if (!(e instanceof ProviderError)) return false;
+  if (e.status === 503) return true;
+  return e.status === 429 && provider === "google";
+}
+
 export async function complete(
   model: ModelSpec,
   system: string,
   user: string,
   key: string,
 ): Promise<Completion> {
-  return model.provider === "groq"
-    ? groq(model, system, user, key)
-    : google(model, system, user, key);
+  const call = () =>
+    model.provider === "groq"
+      ? groq(model, system, user, key)
+      : google(model, system, user, key);
+
+  let last: unknown;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
+    try {
+      return await call();
+    } catch (e) {
+      last = e;
+      if (!retryable(e, model.provider) || attempt === RETRY_DELAYS_MS.length) break;
+      await pause(RETRY_DELAYS_MS[attempt]);
+    }
+  }
+  throw last;
 }
 
 /* -------------------------------------------------------------------- groq */
