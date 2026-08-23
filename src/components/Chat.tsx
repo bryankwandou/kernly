@@ -1,8 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { compress } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
+import { useI18n } from "./I18n";
 
 /**
  * The side-by-side chat.
@@ -54,12 +56,24 @@ type Reply = {
   elapsedMs: number;
 };
 
+/**
+ * Each side carries its own failure.
+ *
+ * The first version collapsed both into one `error` and hid both columns when
+ * either failed, which threw away the single most convincing thing this page
+ * can show. Send a 60,000-character article at a model with an 8,000-token
+ * minute budget and the uncompressed request is refused before it is read,
+ * while the compressed one goes through and answers. That is not an error to be
+ * swept up — it is the entire argument, and it needs to be visible in the column
+ * it happened to.
+ */
 type Turn = {
   id: number;
   question: string;
   full: Reply | null;
   kernly: Reply | null;
-  error: string | null;
+  fullError: string | null;
+  kernlyError: string | null;
   pending: boolean;
 };
 
@@ -104,14 +118,44 @@ function overlap(a: string, b: string): number | null {
   return shared / Math.min(A.size, B.size);
 }
 
+/**
+ * The marker the system prompt asks for when an answer did not come from the
+ * supplied material.
+ *
+ * The model is no longer fenced into the reference document, which makes the
+ * page useful for questions the samples never covered and introduces a way for
+ * the comparison to mislead: a compressed context that lost the answer, followed
+ * by the model smoothly supplying it from memory, reads as a success. Pulling
+ * the marker out of the reply and rendering it as a badge is what keeps that
+ * visible — it is most interesting precisely when it appears on one column and
+ * not the other.
+ */
+const OUTSIDE = "[Not in the reference material.]";
+
+function split(answer: string): { outside: boolean; body: string } {
+  const trimmed = answer.trimStart();
+  if (!trimmed.startsWith(OUTSIDE)) return { outside: false, body: answer };
+
+  const body = trimmed.slice(OUTSIDE.length).trimStart();
+
+  // A reply that is nothing but the marker has to keep the marker as its text.
+  // Asked about a person it has never heard of, the model answers with the
+  // marker and stops, which is a perfectly good answer — and stripping it into a
+  // badge left the column reading "No reply", as though the request had failed.
+  // It had not. Blanking a real answer is a worse fault than repeating a badge.
+  return body ? { outside: true, body } : { outside: false, body: trimmed };
+}
+
 export function Chat() {
+  const { t } = useI18n();
+
   // The postmortem opens by default because it is the only sample long enough
   // for the comparison to mean anything. A 70-token transcript compressed to 35
   // percent leaves 25 tokens, and no selection policy rescues that; the demo
   // would be showing the budget running out rather than the compressor working.
   const DEFAULT = SAMPLES.find((s) => s.id === "postmortem") ?? SAMPLES[0];
 
-  const [sampleId, setSampleId] = useState(DEFAULT.id);
+  const [sampleId, setSampleId] = useState<string>(DEFAULT.id);
   const [context, setContext] = useState(DEFAULT.text);
   const [question, setQuestion] = useState(DEFAULT.query);
   // 40 percent sits inside the band the harness measured as safe. Defaulting
@@ -122,6 +166,12 @@ export function Chat() {
   const [showContext, setShowContext] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [busy, setBusy] = useState(false);
+
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [source, setSource] = useState<string | null>(null);
+
   const nextId = useRef(1);
 
   const pickSample = (id: string) => {
@@ -129,7 +179,33 @@ export function Chat() {
     setSampleId(id);
     setContext(s.text);
     setQuestion(s.query);
+    setSource(null);
     setTurns([]);
+  };
+
+  const load = async () => {
+    const target = url.trim();
+    if (!target || loading) return;
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await fetch("/api/fetch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: target }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error ?? `Request failed (${res.status})`);
+      setContext(json.text);
+      setSource(json.title || json.url);
+      setSampleId("");
+      setTurns([]);
+      setUrl("");
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : "Could not load that page.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const send = async () => {
@@ -137,7 +213,10 @@ export function Chat() {
     if (!q || busy) return;
 
     const id = nextId.current++;
-    setTurns((t) => [...t, { id, question: q, full: null, kernly: null, error: null, pending: true }]);
+    setTurns((t) => [
+      ...t,
+      { id, question: q, full: null, kernly: null, fullError: null, kernlyError: null, pending: true },
+    ]);
     setQuestion("");
     setBusy(true);
 
@@ -159,12 +238,10 @@ export function Chat() {
               pending: false,
               full: full.status === "fulfilled" ? full.value : null,
               kernly: kern.status === "fulfilled" ? kern.value : null,
-              error:
-                full.status === "rejected"
-                  ? full.reason?.message ?? "Request failed"
-                  : kern.status === "rejected"
-                    ? kern.reason?.message ?? "Request failed"
-                    : null,
+              fullError:
+                full.status === "rejected" ? (full.reason?.message ?? "Request failed") : null,
+              kernlyError:
+                kern.status === "rejected" ? (kern.reason?.message ?? "Request failed") : null,
             },
       ),
     );
@@ -172,12 +249,12 @@ export function Chat() {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
+    <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
       {/* ------------------------------------------------------------ controls */}
       <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
         <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-5">
           <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
-            Reference material
+            {t("chat.material")}
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {SAMPLES.map((s) => (
@@ -195,19 +272,68 @@ export function Chat() {
             ))}
           </div>
 
+          {/* The samples are small enough that the compressor never has to make
+              an interesting decision on them. This is the way in for material
+              that does. */}
+          <div className="mt-4 border-t border-[var(--line)] pt-4">
+            <label className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+              {t("chat.url.title")}
+            </label>
+            <div className="mt-2 flex gap-1.5">
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void load();
+                  }
+                }}
+                placeholder="en.wikipedia.org/wiki/…"
+                spellCheck={false}
+                className="min-w-0 flex-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-2.5 py-1.5 text-[12.5px] outline-none focus:border-[var(--kernel)]"
+              />
+              <button
+                onClick={() => void load()}
+                disabled={loading || !url.trim()}
+                className="shrink-0 rounded-lg border border-[var(--line)] px-3 py-1.5 text-[12.5px] transition-colors hover:border-[var(--husk)] disabled:opacity-35"
+              >
+                {loading ? t("chat.url.loading") : t("chat.url.load")}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-[var(--muted)]">
+              {t("chat.url.note")}
+            </p>
+            {loadError && (
+              <p className="mt-2 rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] p-2 text-[11.5px] leading-relaxed">
+                {loadError}
+              </p>
+            )}
+            {source && (
+              <p className="mt-2 truncate text-[11.5px] text-[var(--shoot)]" title={source}>
+                {t("chat.url.loaded")} {source}
+              </p>
+            )}
+          </div>
+
           <button
             onClick={() => setShowContext((v) => !v)}
             className="mt-3 text-[12.5px] text-[var(--muted)] underline underline-offset-4 hover:text-[var(--fg)]"
           >
-            {showContext ? "Hide" : "Edit"} the {context.length.toLocaleString()} characters being sent
+            {showContext ? t("chat.hide") : t("chat.edit")} · {context.length.toLocaleString()}{" "}
+            {t("chat.chars")}
           </button>
 
           {showContext && (
             <textarea
               value={context}
-              onChange={(e) => setContext(e.target.value)}
+              onChange={(e) => {
+                setContext(e.target.value);
+                setSampleId("");
+                setSource(null);
+              }}
               spellCheck={false}
-              className="mt-3 h-56 w-full resize-none rounded-lg border border-[var(--line)] bg-[var(--bg)] p-2.5 font-mono text-[11.5px] leading-[1.6] outline-none focus:border-[var(--kernel)]"
+              className="mt-3 h-56 w-full resize-y rounded-lg border border-[var(--line)] bg-[var(--bg)] p-2.5 font-mono text-[11.5px] leading-[1.6] outline-none focus:border-[var(--kernel)]"
             />
           )}
         </div>
@@ -215,7 +341,7 @@ export function Chat() {
         <div className="space-y-5 rounded-xl border border-[var(--line)] bg-[var(--panel)] p-5">
           <label className="block">
             <span className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
-              Model
+              {t("chat.model")}
             </span>
             <select
               value={model}
@@ -237,7 +363,7 @@ export function Chat() {
           <label className="block">
             <div className="mb-2 flex items-baseline justify-between">
               <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
-                Target ratio
+                {t("chat.ratio")}
               </span>
               <span className="tnum text-[12.5px]">{Math.round(ratio * 100)}%</span>
             </div>
@@ -252,11 +378,9 @@ export function Chat() {
             />
           </label>
 
-          <p className="text-[12px] leading-relaxed text-[var(--muted)]">
-            Both columns hit the same model with the same question. Only the
-            reference material differs, so any gap in the answers is the
-            compression and nothing else.
-          </p>
+          <Preview context={context} question={question} ratio={ratio} />
+
+          <p className="text-[12px] leading-relaxed text-[var(--muted)]">{t("chat.note")}</p>
         </div>
       </aside>
 
@@ -264,10 +388,7 @@ export function Chat() {
       <div className="min-w-0 space-y-5">
         {turns.length === 0 && (
           <div className="rounded-xl border border-dashed border-[var(--line)] p-10 text-center">
-            <p className="text-[14px] text-[var(--muted)]">
-              Ask something the reference material can answer. Two requests go
-              out; you read both replies.
-            </p>
+            <p className="text-[14px] leading-relaxed text-[var(--muted)]">{t("chat.empty")}</p>
           </div>
         )}
 
@@ -284,23 +405,27 @@ export function Chat() {
                 {turn.question}
               </div>
 
-              {turn.error && (
-                <p className="rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] p-3 text-[13px]">
-                  {turn.error}
-                </p>
-              )}
-
               {turn.pending ? (
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Skeleton title="Full context" />
-                  <Skeleton title="Kernly compressed" accent />
+                  <Skeleton title={t("chat.full")} />
+                  <Skeleton title={t("chat.compressed")} accent />
                 </div>
               ) : (
                 <>
-                  <Verdict full={turn.full} kern={turn.kernly} />
+                  <Verdict
+                    full={turn.full}
+                    kern={turn.kernly}
+                    fullError={turn.fullError}
+                    kern1Ok={!!turn.kernly}
+                  />
                   <div className="grid gap-4 md:grid-cols-2">
-                    <Column title="Full context" reply={turn.full} />
-                    <Column title="Kernly compressed" reply={turn.kernly} accent />
+                    <Column title={t("chat.full")} reply={turn.full} error={turn.fullError} />
+                    <Column
+                      title={t("chat.compressed")}
+                      reply={turn.kernly}
+                      error={turn.kernlyError}
+                      accent
+                    />
                   </div>
                 </>
               )}
@@ -319,7 +444,7 @@ export function Chat() {
                 void send();
               }
             }}
-            placeholder="Ask about the reference material…"
+            placeholder={t("chat.placeholder")}
             className="min-w-0 flex-1 bg-transparent px-3 py-2 text-[14.5px] outline-none"
           />
           <button
@@ -327,7 +452,7 @@ export function Chat() {
             disabled={busy || !question.trim()}
             className="h-[38px] shrink-0 rounded-lg bg-[var(--kernel)] px-5 text-[13.5px] font-semibold text-[#1a1205] transition-opacity disabled:opacity-35"
           >
-            {busy ? "Asking…" : "Ask both"}
+            {busy ? t("chat.asking") : t("chat.ask")}
           </button>
         </div>
       </div>
@@ -337,29 +462,186 @@ export function Chat() {
 
 /* ------------------------------------------------------------------ pieces */
 
-function Verdict({ full, kern }: { full: Reply | null; kern: Reply | null }) {
+/**
+ * What the slider will do, before anything is sent.
+ *
+ * The compressor runs locally in single-digit milliseconds and the page was not
+ * using that. Dragging the ratio changed a percentage label and nothing else,
+ * so the only way to discover that 15 per cent destroys a document was to spend
+ * two API calls finding out. Running it on every change turns the slider into
+ * the instrument it should have been: the token count and the gate's own
+ * warning move under your hand.
+ */
+function Preview({
+  context,
+  question,
+  ratio,
+}: {
+  context: string;
+  question: string;
+  ratio: number;
+}) {
+  const { t } = useI18n();
+  const [stat, setStat] = useState<{
+    tokensIn: number;
+    tokensOut: number;
+    confidence: number;
+    escalate: boolean;
+    ms: number;
+  } | null>(null);
+
+  // Debounced, because a 60,000-character document is not free to segment and a
+  // slider drag fires this a dozen times a second. 120 ms is below the point a
+  // reader registers lag and well above the point this thrashes.
+  const key = useMemo(() => ({ context, question, ratio }), [context, question, ratio]);
+
+  useEffect(() => {
+    if (!key.context.trim()) {
+      setStat(null);
+      return;
+    }
+    let alive = true;
+    const timer = setTimeout(() => {
+      const t0 = performance.now();
+      compress(key.context, { ratio: key.ratio, query: key.question || undefined })
+        .then((r) => {
+          if (!alive) return;
+          setStat({
+            tokensIn: r.receipt.tokensIn,
+            tokensOut: r.receipt.tokensOut,
+            confidence: r.receipt.confidence,
+            escalate: r.receipt.escalate,
+            ms: performance.now() - t0,
+          });
+        })
+        .catch(() => alive && setStat(null));
+    }, 120);
+    return () => {
+      alive = false;
+      clearTimeout(timer);
+    };
+  }, [key]);
+
+  if (!stat) return null;
+
+  const cut = stat.tokensIn ? 1 - stat.tokensOut / stat.tokensIn : 0;
+
+  return (
+    <div className="rounded-lg border border-[var(--line)] bg-[var(--bg)] p-3">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+          {t("chat.preview")}
+        </span>
+        <span className="tnum text-[11px] text-[var(--muted)]">{stat.ms.toFixed(0)} ms</span>
+      </div>
+
+      {/* The bar is the compressed share of the original, drawn to scale. A
+          number alone makes 40 per cent and 15 per cent feel adjacent. */}
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--fg)_10%,transparent)]">
+        <motion.div
+          className="h-full rounded-full"
+          style={{
+            background: stat.escalate ? "var(--signal)" : "var(--shoot)",
+          }}
+          animate={{ width: `${Math.max(2, (1 - cut) * 100)}%` }}
+          transition={{ type: "spring", stiffness: 260, damping: 32 }}
+        />
+      </div>
+
+      <p className="tnum mt-2 text-[11.5px] text-[var(--muted)]">
+        {stat.tokensIn.toLocaleString()} → {stat.tokensOut.toLocaleString()} {t("chat.tokens")} ·{" "}
+        <strong className="font-semibold text-[var(--fg)]">{Math.round(cut * 100)}%</strong>{" "}
+        {t("chat.preview.cut")} · {t("chat.preview.confidence")} {stat.confidence.toFixed(2)}
+      </p>
+
+      {stat.escalate && (
+        <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--signal)]">
+          {t("chat.preview.escalate")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * `TOO_LARGE` is matched on the provider's own words rather than a status code,
+ * because the status arrives here flattened into a message string. Both Groq and
+ * Google phrase this failure plainly enough that a substring is reliable, and a
+ * miss costs a headline, not correctness — the column still shows the raw error.
+ */
+const TOO_LARGE = /too large|context length|maximum context|tokens per minute|reduce your message/i;
+
+function Verdict({
+  full,
+  kern,
+  fullError,
+  kern1Ok,
+}: {
+  full: Reply | null;
+  kern: Reply | null;
+  fullError?: string | null;
+  kern1Ok?: boolean;
+}) {
+  const { t } = useI18n();
+
+  // The uncompressed request did not fit and the compressed one did. There is
+  // no percentage to report here because the comparison is not one of degree:
+  // one request was answerable and the other was refused before it was read.
+  if (fullError && TOO_LARGE.test(fullError) && kern1Ok && kern) {
+    return (
+      <div className="rounded-lg border border-[color-mix(in_oklab,var(--shoot)_45%,transparent)] bg-[color-mix(in_oklab,var(--shoot)_10%,transparent)] px-4 py-3 text-[13px] leading-relaxed">
+        <strong className="font-semibold">{t("chat.verdict.didNotFit")}</strong>{" "}
+        <span className="text-[var(--muted)]">
+          {t("chat.verdict.didNotFit.note")}
+          {kern.receipt && (
+            <>
+              {" "}
+              <span className="tnum">
+                {kern.receipt.tokensIn.toLocaleString()} →{" "}
+                {kern.receipt.tokensOut.toLocaleString()}
+              </span>
+            </>
+          )}
+        </span>
+      </div>
+    );
+  }
+
   if (!full || !kern) return null;
   const a = full.promptTokens;
   const b = kern.promptTokens;
   const saved = a && b ? 1 - b / a : null;
   const sim = overlap(full.answer, kern.answer);
 
+  // The case worth calling out: the intact context answered from the document
+  // and the compressed one fell back on the model's own knowledge. The answers
+  // can look identical and one of them is a compression failure.
+  const drift = !split(full.answer).outside && split(kern.answer).outside;
+
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-[var(--line)] px-4 py-2.5 text-[12.5px]">
-      {saved !== null && (
-        <span>
-          <strong className="tnum text-[15px] font-semibold">{Math.round(saved * 100)}%</strong>{" "}
-          <span className="text-[var(--muted)]">
-            fewer prompt tokens billed ({a!.toLocaleString()} → {b!.toLocaleString()})
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-[var(--line)] px-4 py-2.5 text-[12.5px]">
+        {saved !== null && (
+          <span>
+            <strong className="tnum text-[15px] font-semibold">{Math.round(saved * 100)}%</strong>{" "}
+            <span className="text-[var(--muted)]">
+              {t("chat.verdict.saved")} ({a!.toLocaleString()} → {b!.toLocaleString()})
+            </span>
           </span>
-        </span>
-      )}
-      {sim !== null && (
-        <span className="text-[var(--muted)]">
-          Answers share{" "}
-          <strong className="tnum font-semibold text-[var(--fg)]">{Math.round(sim * 100)}%</strong>{" "}
-          of their content words — a word-level check, not a judgement of correctness. Read both.
-        </span>
+        )}
+        {sim !== null && (
+          <span className="text-[var(--muted)]">
+            {t("chat.verdict.share.a")}{" "}
+            <strong className="tnum font-semibold text-[var(--fg)]">{Math.round(sim * 100)}%</strong>{" "}
+            {t("chat.verdict.share.b")}
+          </span>
+        )}
+      </div>
+
+      {drift && (
+        <p className="rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] px-4 py-2.5 text-[12.5px] leading-relaxed">
+          {t("chat.verdict.drift")}
+        </p>
       )}
     </div>
   );
@@ -368,15 +650,20 @@ function Verdict({ full, kern }: { full: Reply | null; kern: Reply | null }) {
 function Column({
   title,
   reply,
+  error,
   accent,
 }: {
   title: string;
   reply: Reply | null;
+  error?: string | null;
   accent?: boolean;
 }) {
+  const { t } = useI18n();
+  const parsed = reply ? split(reply.answer) : null;
+
   return (
     <div
-      className={`min-w-0 rounded-xl border bg-[var(--panel)] p-4 ${
+      className={`min-w-0 rounded-xl border bg-[var(--panel)] p-4 transition-colors ${
         accent
           ? "border-[color-mix(in_oklab,var(--kernel)_45%,var(--line))]"
           : "border-[var(--line)]"
@@ -387,14 +674,26 @@ function Column({
           {title}
         </span>
         <span className="tnum shrink-0 text-[11.5px] text-[var(--muted)]">
-          {reply?.promptTokens?.toLocaleString() ?? "—"} tok in ·{" "}
+          {reply?.promptTokens?.toLocaleString() ?? "—"} {t("chat.tokIn")} ·{" "}
           {reply ? `${(reply.elapsedMs / 1000).toFixed(1)}s` : "—"}
         </span>
       </div>
 
-      <p className="whitespace-pre-wrap text-[14px] leading-[1.65]">
-        {reply?.answer || <span className="text-[var(--muted)]">No reply.</span>}
-      </p>
+      {parsed?.outside && (
+        <p className="mb-2 inline-block rounded-md border border-[var(--line)] bg-[color-mix(in_oklab,var(--husk)_12%,transparent)] px-2 py-1 text-[11px] text-[var(--muted)]">
+          {t("chat.outside")}
+        </p>
+      )}
+
+      {error ? (
+        <p className="rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] p-3 text-[12.5px] leading-relaxed">
+          {error}
+        </p>
+      ) : (
+        <p className="whitespace-pre-wrap text-[14px] leading-[1.65]">
+          {parsed?.body || <span className="text-[var(--muted)]">{t("chat.noreply")}</span>}
+        </p>
+      )}
 
       {reply?.receipt && (
         <div className="mt-3 border-t border-[var(--line)] pt-3">
@@ -402,20 +701,21 @@ function Column({
             {reply.receipt.digest}
           </code>
           <p className="mt-1.5 tnum text-[11.5px] text-[var(--muted)]">
-            confidence {reply.receipt.confidence.toFixed(2)}
+            {t("chat.preview.confidence")} {reply.receipt.confidence.toFixed(2)}
             {reply.receipt.queryCoverage !== null && (
-              <> · {Math.round(reply.receipt.queryCoverage * 100)}% of the question&apos;s rare terms survived</>
+              <>
+                {" "}
+                · {Math.round(reply.receipt.queryCoverage * 100)}% {t("chat.coverage")}
+              </>
             )}{" "}
-            · {reply.receipt.tokensIn} → {reply.receipt.tokensOut} by Kernly&apos;s own count
+            · {reply.receipt.tokensIn} → {reply.receipt.tokensOut} {t("chat.ownCount")}
           </p>
         </div>
       )}
 
       {reply?.escalate && (
         <p className="mt-3 rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] p-2.5 text-[12px] leading-relaxed">
-          Confidence fell below the gate on this run. Kernly is flagging the
-          compressed answer as untrustworthy before you read it — raise the ratio
-          or send the original.
+          {t("chat.escalated")}
         </p>
       )}
     </div>
