@@ -38,6 +38,22 @@ export interface ModelSpec {
    * from the request, which is not the same as asking for zero.
    */
   reasoning: string | number | null;
+  /**
+   * Prompt tokens this deployment can actually push at the model in one minute,
+   * or null where the ceiling is high enough not to matter for a demo.
+   *
+   * This is a property of the key, not of the model. Groq's on-demand tier meters
+   * tokens per minute rather than per request, and the shared key here sits on
+   * the free allowance: a 60,000-character article is refused with HTTP 413 and
+   * a message naming the number. That refusal is a good demonstration and a bad
+   * surprise, so the figure is declared here and the page warns before spending
+   * the call rather than after.
+   *
+   * 8,000 is measured, not assumed — it is the number Groq returned. The Google
+   * entries are null because their ceiling is far above anything this page will
+   * send, not because it is unlimited.
+   */
+  ceiling: number | null;
 }
 
 export const MODELS: Record<string, ModelSpec> = {
@@ -47,6 +63,7 @@ export const MODELS: Record<string, ModelSpec> = {
     provider: "groq",
     params: "20B",
     reasoning: "low",
+    ceiling: 8000,
   },
   "qwen/qwen3.6-27b": {
     id: "qwen/qwen3.6-27b",
@@ -54,6 +71,7 @@ export const MODELS: Record<string, ModelSpec> = {
     provider: "groq",
     params: "27B",
     reasoning: "none",
+    ceiling: 8000,
   },
   "openai/gpt-oss-120b": {
     id: "openai/gpt-oss-120b",
@@ -61,6 +79,7 @@ export const MODELS: Record<string, ModelSpec> = {
     provider: "groq",
     params: "120B",
     reasoning: "low",
+    ceiling: 8000,
   },
   "gemini-flash-latest": {
     id: "gemini-flash-latest",
@@ -68,6 +87,7 @@ export const MODELS: Record<string, ModelSpec> = {
     provider: "google",
     params: null,
     reasoning: 0,
+    ceiling: null,
   },
   // A second Google entry, because the first one is whatever Google is
   // currently promoting and therefore whatever is currently busiest. A visitor
@@ -91,6 +111,7 @@ export const MODELS: Record<string, ModelSpec> = {
     // omitting the field asks for the same behaviour the other Google entry
     // gets by setting it.
     reasoning: null,
+    ceiling: null,
   },
 };
 

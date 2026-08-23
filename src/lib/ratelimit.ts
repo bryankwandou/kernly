@@ -11,7 +11,10 @@
  */
 
 const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 8;
+// Each question in the chat costs two calls, one per column, so this is really
+// ten questions a minute rather than twenty. Eight was too tight for anyone
+// actually trying the thing: four questions and a demo stops mid-sentence.
+const MAX_PER_WINDOW = 20;
 
 type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();

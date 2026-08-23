@@ -22,23 +22,32 @@ import { useI18n } from "./I18n";
  * is what most people actually deploy against, and a compression layer that
  * only worked in front of inspectable models would be a much narrower tool.
  */
-const MODEL_GROUPS = [
+interface ModelChoice {
+  key: string;
+  label: string;
+  /** Prompt tokens this key can push in a minute, null where it is not a limit worth warning about. */
+  ceiling: number | null;
+}
+
+const MODEL_GROUPS: { label: string; models: ModelChoice[] }[] = [
   {
     label: "Open weights — downloadable, via Groq",
     models: [
-      { key: "openai/gpt-oss-20b", label: "GPT-OSS 20B" },
-      { key: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B" },
-      { key: "openai/gpt-oss-120b", label: "GPT-OSS 120B" },
+      { key: "openai/gpt-oss-20b", label: "GPT-OSS 20B", ceiling: 8000 },
+      { key: "qwen/qwen3.6-27b", label: "Qwen 3.6 27B", ceiling: 8000 },
+      { key: "openai/gpt-oss-120b", label: "GPT-OSS 120B", ceiling: 8000 },
     ],
   },
   {
     label: "Closed weights — via Google",
     models: [
-      { key: "gemini-flash-latest", label: "Gemini Flash" },
-      { key: "gemini-flash-lite-latest", label: "Gemini Flash Lite" },
+      { key: "gemini-flash-latest", label: "Gemini Flash", ceiling: null },
+      { key: "gemini-flash-lite-latest", label: "Gemini Flash Lite", ceiling: null },
     ],
   },
 ];
+
+const ALL_MODELS = MODEL_GROUPS.flatMap((g) => g.models);
 
 type Reply = {
   answer: string;
@@ -378,7 +387,12 @@ export function Chat() {
             />
           </label>
 
-          <Preview context={context} question={question} ratio={ratio} />
+          <Preview
+            context={context}
+            question={question}
+            ratio={ratio}
+            ceiling={ALL_MODELS.find((m) => m.key === model)?.ceiling ?? null}
+          />
 
           <p className="text-[12px] leading-relaxed text-[var(--muted)]">{t("chat.note")}</p>
         </div>
@@ -476,10 +490,12 @@ function Preview({
   context,
   question,
   ratio,
+  ceiling,
 }: {
   context: string;
   question: string;
   ratio: number;
+  ceiling: number | null;
 }) {
   const { t } = useI18n();
   const [stat, setStat] = useState<{
@@ -557,6 +573,20 @@ function Preview({
       {stat.escalate && (
         <p className="mt-2 text-[11.5px] leading-relaxed text-[var(--signal)]">
           {t("chat.preview.escalate")}
+        </p>
+      )}
+
+      {/* Kernly's estimate, not the provider's count, so this is a forecast and
+          is worded as one. It is compared against the key's per-minute ceiling
+          rather than a context window: on the free Groq tier the request is
+          rejected for the minute's budget long before any window is reached. */}
+      {ceiling !== null && stat.tokensIn > ceiling && (
+        <p className="mt-2 text-[11.5px] leading-relaxed">
+          {stat.tokensOut <= ceiling ? (
+            <span className="text-[var(--shoot)]">{t("chat.ceiling.only")}</span>
+          ) : (
+            <span className="text-[var(--signal)]">{t("chat.ceiling.neither")}</span>
+          )}
         </p>
       )}
     </div>
