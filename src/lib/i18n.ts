@@ -175,6 +175,11 @@ const en = {
     "The uncompressed request did not fit.",
   "chat.verdict.didNotFit.note":
     "The provider refused it before reading a word. The compressed one went through and answered.",
+
+  "chat.ceiling.only":
+    "Too big for this model's free-tier minute budget uncompressed — only the compressed column will get through. That is the demonstration. Pick a Gemini model to see both.",
+  "chat.ceiling.neither":
+    "Too big for this model's free-tier minute budget even compressed. Lower the ratio, or pick a Gemini model.",
 };
 
 export type Key = keyof typeof en;
@@ -298,6 +303,11 @@ const id: Partial_ = {
     "Permintaan tanpa pemampatan tidak muat.",
   "chat.verdict.didNotFit.note":
     "Penyedia menolaknya sebelum sempat membaca sepatah kata. Yang dimampatkan lolos dan menjawab.",
+
+  "chat.ceiling.only":
+    "Terlalu besar untuk jatah per menit tingkat gratis model ini bila tidak dimampatkan — hanya kolom yang dimampatkan yang akan lolos. Justru itu pembuktiannya. Pilih model Gemini untuk melihat keduanya.",
+  "chat.ceiling.neither":
+    "Terlalu besar untuk jatah per menit tingkat gratis model ini bahkan setelah dimampatkan. Turunkan rasionya, atau pilih model Gemini.",
 };
 
 const es: Partial_ = {
@@ -417,6 +427,11 @@ const es: Partial_ = {
     "La petición sin comprimir no cabía.",
   "chat.verdict.didNotFit.note":
     "El proveedor la rechazó antes de leer una palabra. La comprimida pasó y respondió.",
+
+  "chat.ceiling.only":
+    "Demasiado grande sin comprimir para el presupuesto por minuto del nivel gratuito de este modelo: solo pasará la columna comprimida. Esa es la demostración. Elige un modelo Gemini para ver ambas.",
+  "chat.ceiling.neither":
+    "Demasiado grande para el presupuesto por minuto del nivel gratuito de este modelo incluso comprimido. Baja el ratio o elige un modelo Gemini.",
 };
 
 const pt: Partial_ = {
@@ -536,6 +551,11 @@ const pt: Partial_ = {
     "O pedido sem compressão não coube.",
   "chat.verdict.didNotFit.note":
     "O provedor o recusou antes de ler uma palavra. O comprimido passou e respondeu.",
+
+  "chat.ceiling.only":
+    "Grande demais sem compressão para a cota por minuto do nível gratuito deste modelo — só a coluna comprimida vai passar. É justamente essa a demonstração. Escolha um modelo Gemini para ver as duas.",
+  "chat.ceiling.neither":
+    "Grande demais para a cota por minuto do nível gratuito deste modelo mesmo comprimido. Baixe a razão ou escolha um modelo Gemini.",
 };
 
 const fr: Partial_ = {
@@ -655,6 +675,11 @@ const fr: Partial_ = {
     "La requête non compressée n’entrait pas.",
   "chat.verdict.didNotFit.note":
     "Le fournisseur l’a refusée sans en lire un mot. La version compressée est passée et a répondu.",
+
+  "chat.ceiling.only":
+    "Trop volumineux non compressé pour le quota par minute de l’offre gratuite de ce modèle : seule la colonne compressée passera. C’est précisément la démonstration. Choisissez un modèle Gemini pour voir les deux.",
+  "chat.ceiling.neither":
+    "Trop volumineux pour le quota par minute de l’offre gratuite de ce modèle, même compressé. Baissez le taux ou choisissez un modèle Gemini.",
 };
 
 const de: Partial_ = {
@@ -774,6 +799,11 @@ const de: Partial_ = {
     "Die unverdichtete Anfrage passte nicht.",
   "chat.verdict.didNotFit.note":
     "Der Anbieter wies sie ab, bevor er ein Wort gelesen hatte. Die verdichtete ging durch und antwortete.",
+
+  "chat.ceiling.only":
+    "Unverdichtet zu groß für das Minutenbudget der Gratisstufe dieses Modells — nur die verdichtete Spalte kommt durch. Genau das ist die Demonstration. Wählen Sie ein Gemini-Modell, um beide zu sehen.",
+  "chat.ceiling.neither":
+    "Auch verdichtet zu groß für das Minutenbudget der Gratisstufe dieses Modells. Senken Sie die Quote oder wählen Sie ein Gemini-Modell.",
 };
 
 const it: Partial_ = {
@@ -893,6 +923,11 @@ const it: Partial_ = {
     "La richiesta non compressa non ci stava.",
   "chat.verdict.didNotFit.note":
     "Il fornitore l’ha rifiutata prima di leggerne una parola. Quella compressa è passata e ha risposto.",
+
+  "chat.ceiling.only":
+    "Troppo grande non compresso per il budget al minuto del piano gratuito di questo modello: passerà solo la colonna compressa. È proprio questa la dimostrazione. Scegli un modello Gemini per vederle entrambe.",
+  "chat.ceiling.neither":
+    "Troppo grande per il budget al minuto del piano gratuito di questo modello anche compresso. Abbassa il rapporto o scegli un modello Gemini.",
 };
 
 const nl: Partial_ = {
@@ -1012,6 +1047,11 @@ const nl: Partial_ = {
     "Het ongecomprimeerde verzoek paste niet.",
   "chat.verdict.didNotFit.note":
     "De aanbieder weigerde het voordat er een woord gelezen was. Het gecomprimeerde kwam erdoor en antwoordde.",
+
+  "chat.ceiling.only":
+    "Ongecomprimeerd te groot voor het minuutbudget van de gratis laag van dit model — alleen de gecomprimeerde kolom komt erdoor. Dat is precies de demonstratie. Kies een Gemini-model om beide te zien.",
+  "chat.ceiling.neither":
+    "Zelfs gecomprimeerd te groot voor het minuutbudget van de gratis laag van dit model. Verlaag de verhouding of kies een Gemini-model.",
 };
 
 const pl: Partial_ = {
@@ -1131,6 +1171,11 @@ const pl: Partial_ = {
     "Nieskompresowane żądanie się nie zmieściło.",
   "chat.verdict.didNotFit.note":
     "Dostawca odrzucił je, zanim przeczytał choć słowo. Skompresowane przeszło i odpowiedziało.",
+
+  "chat.ceiling.only":
+    "Nieskompresowane jest za duże na minutowy budżet darmowego progu tego modelu — przejdzie tylko kolumna skompresowana. I właśnie to jest dowód. Wybierz model Gemini, aby zobaczyć obie.",
+  "chat.ceiling.neither":
+    "Za duże na minutowy budżet darmowego progu tego modelu nawet po kompresji. Obniż stopień albo wybierz model Gemini.",
 };
 
 const ru: Partial_ = {
@@ -1250,6 +1295,11 @@ const ru: Partial_ = {
     "Несжатый запрос не поместился.",
   "chat.verdict.didNotFit.note":
     "Провайдер отклонил его, не прочитав ни слова. Сжатый прошёл и ответил.",
+
+  "chat.ceiling.only":
+    "В несжатом виде это больше минутного лимита бесплатного тарифа для этой модели — пройдёт только сжатая колонка. В этом и состоит доказательство. Выберите модель Gemini, чтобы увидеть обе.",
+  "chat.ceiling.neither":
+    "Больше минутного лимита бесплатного тарифа этой модели даже в сжатом виде. Снизьте долю или выберите модель Gemini.",
 };
 
 const uk: Partial_ = {
@@ -1369,6 +1419,11 @@ const uk: Partial_ = {
     "Нестиснутий запит не вмістився.",
   "chat.verdict.didNotFit.note":
     "Постачальник відхилив його, не прочитавши й слова. Стиснутий пройшов і відповів.",
+
+  "chat.ceiling.only":
+    "У нестиснутому вигляді це більше за хвилинний ліміт безкоштовного тарифу цієї моделі — пройде лише стиснута колонка. У цьому й полягає доказ. Оберіть модель Gemini, щоб побачити обидві.",
+  "chat.ceiling.neither":
+    "Більше за хвилинний ліміт безкоштовного тарифу цієї моделі навіть у стиснутому вигляді. Знизьте частку або оберіть модель Gemini.",
 };
 
 const tr: Partial_ = {
@@ -1488,6 +1543,11 @@ const tr: Partial_ = {
     "Sıkıştırılmamış istek sığmadı.",
   "chat.verdict.didNotFit.note":
     "Sağlayıcı tek kelime okumadan geri çevirdi. Sıkıştırılmış olan geçti ve yanıtladı.",
+
+  "chat.ceiling.only":
+    "Sıkıştırılmamış hâli bu modelin ücretsiz kademedeki dakika bütçesine sığmıyor — yalnızca sıkıştırılmış sütun geçecek. Gösterilmek istenen tam da bu. İkisini birden görmek için bir Gemini modeli seçin.",
+  "chat.ceiling.neither":
+    "Sıkıştırılmış hâliyle bile bu modelin ücretsiz kademedeki dakika bütçesine sığmıyor. Oranı düşürün ya da bir Gemini modeli seçin.",
 };
 
 const vi: Partial_ = {
@@ -1607,6 +1667,11 @@ const vi: Partial_ = {
     "Yêu cầu chưa nén không vừa.",
   "chat.verdict.didNotFit.note":
     "Nhà cung cấp từ chối trước khi đọc lấy một chữ. Bản đã nén thì lọt qua và trả lời được.",
+
+  "chat.ceiling.only":
+    "Ở dạng chưa nén thì vượt hạn mức mỗi phút của gói miễn phí cho mô hình này — chỉ cột đã nén lọt qua được. Đó chính là điều cần chứng minh. Chọn một mô hình Gemini để xem cả hai.",
+  "chat.ceiling.neither":
+    "Vượt hạn mức mỗi phút của gói miễn phí cho mô hình này ngay cả khi đã nén. Hãy hạ tỉ lệ xuống, hoặc chọn một mô hình Gemini.",
 };
 
 const th: Partial_ = {
@@ -1725,6 +1790,11 @@ const th: Partial_ = {
     "คำขอที่ยังไม่บีบอัดนั้นใหญ่เกินไป",
   "chat.verdict.didNotFit.note":
     "ผู้ให้บริการปฏิเสธก่อนจะได้อ่านสักคำ ส่วนฉบับที่บีบอัดแล้วผ่านเข้าไปและตอบได้",
+
+  "chat.ceiling.only":
+    "ขนาดที่ยังไม่บีบอัดเกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ — จะมีแต่คอลัมน์ที่บีบอัดแล้วเท่านั้นที่ผ่านไปได้ นั่นแหละคือสิ่งที่ต้องการพิสูจน์ เลือกโมเดล Gemini หากอยากเห็นทั้งสองฝั่ง",
+  "chat.ceiling.neither":
+    "เกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ แม้จะบีบอัดแล้วก็ตาม ลองลดสัดส่วนลง หรือเลือกโมเดล Gemini",
 };
 
 const hi: Partial_ = {
@@ -1844,6 +1914,11 @@ const hi: Partial_ = {
     "बिना संपीड़न वाला अनुरोध समा नहीं पाया।",
   "chat.verdict.didNotFit.note":
     "प्रदाता ने एक शब्द पढ़े बिना ही उसे लौटा दिया। संपीड़ित वाला भीतर गया और उत्तर दे आया।",
+
+  "chat.ceiling.only":
+    "बिना संपीड़न के यह इस मॉडल के नि:शुल्क स्तर की प्रति-मिनट सीमा से बड़ा है — केवल संपीड़ित स्तंभ ही भीतर जाएगा। यही तो दिखाना है। दोनों देखने हों तो कोई Gemini मॉडल चुनिए।",
+  "chat.ceiling.neither":
+    "संपीड़ित करने पर भी यह इस मॉडल के नि:शुल्क स्तर की प्रति-मिनट सीमा से बड़ा है। अनुपात घटाइए, या कोई Gemini मॉडल चुनिए।",
 };
 
 const ar: Partial_ = {
@@ -1962,6 +2037,11 @@ const ar: Partial_ = {
     "الطلب غير المضغوط لم يتّسع.",
   "chat.verdict.didNotFit.note":
     "ردّه المزوّد قبل أن يقرأ منه كلمة. أما المضغوط فنفذ وأجاب.",
+
+  "chat.ceiling.only":
+    "غير مضغوط، يتجاوز هذا ميزانية الدقيقة في الطبقة المجانية لهذا النموذج — لن ينفذ سوى العمود المضغوط. وهذا بعينه هو البرهان. اختر نموذج Gemini لترى العمودين معًا.",
+  "chat.ceiling.neither":
+    "يتجاوز ميزانية الدقيقة في الطبقة المجانية لهذا النموذج حتى بعد الضغط. أنزل النسبة، أو اختر نموذج Gemini.",
 };
 
 const zh: Partial_ = {
@@ -2080,6 +2160,11 @@ const zh: Partial_ = {
     "未压缩的那份请求塞不下。",
   "chat.verdict.didNotFit.note":
     "服务方一个字都没读就退了回来。压缩后的那份进去了，并且答上了。",
+
+  "chat.ceiling.only":
+    "未压缩的体量超出该模型免费档的每分钟额度——只有压缩那一栏进得去。要证明的正是这件事。想两栏都看，就换成 Gemini 模型。",
+  "chat.ceiling.neither":
+    "即便压缩过，也仍超出该模型免费档的每分钟额度。把比例调低，或者换成 Gemini 模型。",
 };
 
 const ja: Partial_ = {
@@ -2198,6 +2283,11 @@ const ja: Partial_ = {
     "圧縮していない要求は入りませんでした。",
   "chat.verdict.didNotFit.note":
     "提供側は一語も読まずに突き返しました。圧縮した側は通り、答えを返しています。",
+
+  "chat.ceiling.only":
+    "圧縮しない状態では、この模型の無料枠の毎分予算を超えます。通るのは圧縮した側だけです。示したいのはまさにそこです。両方を見るなら Gemini の模型を選んでください。",
+  "chat.ceiling.neither":
+    "圧縮しても、この模型の無料枠の毎分予算を超えます。比率を下げるか、Gemini の模型を選んでください。",
 };
 
 const ko: Partial_ = {
@@ -2316,6 +2406,11 @@ const ko: Partial_ = {
     "압축하지 않은 요청은 들어가지 못했습니다.",
   "chat.verdict.didNotFit.note":
     "제공자가 한 단어도 읽기 전에 되돌려보냈습니다. 압축한 쪽은 통과해 답했습니다.",
+
+  "chat.ceiling.only":
+    "압축하지 않은 크기는 이 모델 무료 등급의 분당 한도를 넘습니다 — 압축한 쪽만 통과합니다. 보여 주려는 것이 바로 그것입니다. 둘 다 보려면 Gemini 모델을 고르세요.",
+  "chat.ceiling.neither":
+    "압축해도 이 모델 무료 등급의 분당 한도를 넘습니다. 비율을 낮추거나 Gemini 모델을 고르세요.",
 };
 
 const DICT: Record<Locale, Partial_> = {
