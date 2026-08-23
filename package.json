@@ -2,7 +2,9 @@
   "name": "kernly",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "npm run build --workspace @kernly/core && next build",
@@ -10,7 +12,8 @@
     "lint": "eslint",
     "test:core": "npm run test --workspace @kernly/core",
     "eval": "node scripts/eval.mjs",
-    "proof": "node scripts/devnet-proof.mjs"
+    "proof": "node scripts/devnet-proof.mjs",
+    "proof:groq": "node scripts/groq-proof.mjs"
   },
   "dependencies": {
     "@kernly/core": "*",

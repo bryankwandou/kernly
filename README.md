@@ -54,8 +54,8 @@ compressor never needed a key.
 
 ## Evidence
 
-Three documents exist so that none of the claims above have to be taken on
-trust, and all three are reproducible from this repository.
+Four documents exist so that none of the claims above have to be taken on
+trust, and all four are reproducible from this repository.
 
 - **[EVAL.md](EVAL.md)** asks the only question that matters: does the answer
   survive? Eight long documents, eight questions, seven compression ratios.
@@ -64,6 +64,12 @@ trust, and all three are reproducible from this repository.
 - **[PROOF.md](PROOF.md)** is the on-chain loop demonstrated end to end on
   devnet, with two transaction signatures producing an identical digest minutes
   apart. Run it with `npm run proof`.
+- **[GROQ-PROOF.md](GROQ-PROOF.md)** takes three long Wikipedia articles to a
+  free-tier Groq key, which refuses all three uncompressed at 27,000 to 54,000
+  tokens against a limit of 8,000, and answers two of the three once Kernly has
+  cut them by 82 to 90 percent. The third is wrong, and the gate had already
+  flagged it. Run it with `npm run proof:groq`, or set `GROQ_API_KEY` to cut
+  this project out of the path entirely and call Groq yourself.
 - **[AUDIT.md](AUDIT.md)** is an adversarial review of the product written
   against it rather than for it, covering the business model, the competitive
   position and the places the design is currently thin.
