@@ -263,4 +263,42 @@ await t("line-oriented runs segment per record, prose does not", () => {
   assert.equal(segment(PROSE_FIXTURE).length, 1, "hard-wrapped prose was fractured");
 });
 
+
+/**
+ * The invariant that matters most, and it was missing.
+ *
+ * The allocator skipped any block that would overrun the budget, which is right
+ * while another block can still be chosen and destroys the document when none
+ * can. One paragraph is one block, and a 69-token paragraph against a 62-token
+ * budget matched no branch at all — so short pasted text came back as an empty
+ * string at every ratio, 90 percent included, because the budget scales with
+ * the very input that is overrunning it.
+ *
+ * The failure was invisible from outside. The model answered "not in the
+ * reference material", which was true of the empty context it had been handed,
+ * and read as the model refusing rather than the compressor deleting.
+ */
+await t("a non-empty input never compresses to nothing", async () => {
+  const one =
+    "Postmortem: the read timeout on the shared HTTP client was raised from 8s to 90s " +
+    "in release v412. Every downstream call now holds a connection for up to 90 seconds " +
+    "instead of failing fast. The pool exhausted at 14:02 and POST /checkout began returning 502.";
+
+  // Generous to brutal. The 0.9 case is the one that regressed hardest: a caller
+  // asking to keep nine tenths of a paragraph was given none of it.
+  for (const ratio of [0.9, 0.6, 0.4, 0.15, 0.05]) {
+    const { output, receipt } = await compress(one, { ratio, query: "what caused the incident" });
+    assert.ok(output.trim().length > 0, `ratio ${ratio} returned an empty context`);
+    assert.ok(receipt.tokensOut > 0, `ratio ${ratio} reported zero tokens out`);
+    assert.ok(
+      /timeout|90 seconds|v412/.test(output),
+      `ratio ${ratio} kept text but dropped the substance: ${output}`,
+    );
+  }
+
+  // A budget below any single block states the same situation directly.
+  const { output } = await compress(one, { budget: 5, query: "what caused the incident" });
+  assert.ok(output.trim().length > 0, "an impossible budget returned an empty context");
+});
+
 console.log(`\n${pass} passed`);
