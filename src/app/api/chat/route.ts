@@ -93,7 +93,16 @@ export async function POST(req: Request) {
   const context = typeof body.context === "string" ? body.context : "";
   if (!question) return bad("Ask a question.");
   if (question.length > 2000) return bad("Question is capped at 2000 characters.");
-  if (context.length > 60000) return bad("Context is capped at 60000 characters.");
+  // Matches what /api/fetch will hand back. The two caps have to move together:
+  // a fetcher that returns 400,000 characters into a chat route that refuses
+  // above 60,000 is a loader that silently produces unusable input.
+  //
+  // Sending this much uncompressed will be refused by every provider here, and
+  // that is not a reason to reject it locally. Watching the full column bounce
+  // while the compressed one answers is the comparison this page exists to
+  // show, and pre-empting it with our own error would replace the provider's
+  // verdict with our opinion of it.
+  if (context.length > 400_000) return bad("Context is capped at 400000 characters.");
 
   const modelKey =
     typeof body.model === "string" && body.model in MODELS ? body.model : DEFAULT_MODEL;
