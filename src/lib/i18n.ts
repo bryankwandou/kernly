@@ -185,6 +185,9 @@ const en = {
     "This page is bigger than the model's free-tier minute budget, so the ratio was tightened to",
   "chat.fitted.b":
     "which is small enough to send. That is the compressor doing its job rather than the demo moving to a roomier provider. Watch the gate: past a point it warns, and past a further point the answer is wrong.",
+
+  "chat.fellback":
+    "had no quota left, so this was answered by",
 };
 
 export type Key = keyof typeof en;
@@ -318,6 +321,9 @@ const id: Partial_ = {
     "Halaman ini lebih besar daripada jatah per menit tingkat gratis model ini, jadi rasionya dirapatkan menjadi",
   "chat.fitted.b":
     "yang sudah cukup kecil untuk dikirim. Itulah pemampat menjalankan tugasnya, bukan demo yang kabur ke penyedia berjatah lebih longgar. Perhatikan gerbangnya: lewat satu titik ia memperingatkan, dan lewat titik berikutnya jawabannya keliru.",
+
+  "chat.fellback":
+    "kehabisan kuota, jadi ini dijawab oleh",
 };
 
 const es: Partial_ = {
@@ -447,6 +453,9 @@ const es: Partial_ = {
     "Esta página supera el presupuesto por minuto del nivel gratuito del modelo, así que el ratio se ajustó a",
   "chat.fitted.b":
     "que ya cabe. Eso es el compresor haciendo su trabajo, no la demo huyendo a un proveedor más holgado. Mira el guardián: pasado un punto avisa, y pasado otro la respuesta es falsa.",
+
+  "chat.fellback":
+    "se quedó sin cuota, así que esto lo respondió",
 };
 
 const pt: Partial_ = {
@@ -576,6 +585,9 @@ const pt: Partial_ = {
     "Esta página excede a cota por minuto do nível gratuito do modelo, então a razão foi apertada para",
   "chat.fitted.b":
     "que já cabe. É o compressor fazendo o seu trabalho, não a demonstração fugindo para um provedor mais folgado. Repare no portão: passado um ponto ele avisa, e passado outro a resposta é falsa.",
+
+  "chat.fellback":
+    "ficou sem cota, então quem respondeu foi",
 };
 
 const fr: Partial_ = {
@@ -705,6 +717,9 @@ const fr: Partial_ = {
     "Cette page dépasse le quota par minute de l’offre gratuite du modèle, le taux a donc été resserré à",
   "chat.fitted.b":
     "ce qui passe. C’est le compresseur qui fait son travail, non la démo qui se réfugie chez un fournisseur plus large. Surveillez le garde-fou : au-delà d’un point il alerte, au-delà d’un autre la réponse est fausse.",
+
+  "chat.fellback":
+    "n’avait plus de quota, la réponse vient donc de",
 };
 
 const de: Partial_ = {
@@ -834,6 +849,9 @@ const de: Partial_ = {
     "Diese Seite übersteigt das Minutenbudget der Gratisstufe des Modells, daher wurde die Quote verschärft auf",
   "chat.fitted.b":
     "was klein genug zum Senden ist. Das ist die Verdichtung bei der Arbeit, nicht die Demo auf der Flucht zu einem großzügigeren Anbieter. Achten Sie auf den Wächter: ab einem Punkt warnt er, ab einem weiteren ist die Antwort falsch.",
+
+  "chat.fellback":
+    "hatte kein Kontingent mehr, geantwortet hat daher",
 };
 
 const it: Partial_ = {
@@ -963,6 +981,9 @@ const it: Partial_ = {
     "Questa pagina supera il budget al minuto del piano gratuito del modello, quindi il rapporto è stato stretto a",
   "chat.fitted.b":
     "che ci sta. È il compressore che fa il suo lavoro, non la demo che scappa da un fornitore più largo. Guarda il varco: oltre un punto avverte, oltre un altro la risposta è falsa.",
+
+  "chat.fellback":
+    "non aveva più quota, quindi ha risposto",
 };
 
 const nl: Partial_ = {
@@ -1092,6 +1113,9 @@ const nl: Partial_ = {
     "Deze pagina gaat over het minuutbudget van de gratis laag van dit model heen, dus is de verhouding aangescherpt naar",
   "chat.fitted.b":
     "wat wel past. Dat is de compressie die haar werk doet, niet de demo die uitwijkt naar een ruimere aanbieder. Let op de poort: voorbij een punt waarschuwt hij, voorbij een volgend punt klopt het antwoord niet.",
+
+  "chat.fellback":
+    "had geen quotum meer, dus dit is beantwoord door",
 };
 
 const pl: Partial_ = {
@@ -1221,6 +1245,9 @@ const pl: Partial_ = {
     "Ta strona przekracza minutowy budżet darmowego progu modelu, więc stopień zacieśniono do",
   "chat.fitted.b":
     "co już się mieści. To kompresor wykonuje swoją pracę, a nie demo uciekające do dostawcy z większym limitem. Patrz na bramkę: za pewnym punktem ostrzega, a za kolejnym odpowiedź jest zmyślona.",
+
+  "chat.fellback":
+    "wyczerpał limit, więc odpowiedzi udzielił",
 };
 
 const ru: Partial_ = {
@@ -1350,6 +1377,9 @@ const ru: Partial_ = {
     "Эта страница превышает минутный лимит бесплатного тарифа модели, поэтому доля ужата до",
   "chat.fitted.b":
     "что уже проходит. Это сжатие делает свою работу, а не демонстрация убегает к провайдеру с лимитом побольше. Следите за затвором: за одной чертой он предупреждает, за другой ответ оказывается выдуманным.",
+
+  "chat.fellback":
+    "исчерпала квоту, поэтому ответила",
 };
 
 const uk: Partial_ = {
@@ -1479,6 +1509,9 @@ const uk: Partial_ = {
     "Ця сторінка перевищує хвилинний ліміт безкоштовного тарифу моделі, тож частку стиснуто до",
   "chat.fitted.b":
     "що вже проходить. Це стиснення робить свою роботу, а не демонстрація тікає до постачальника з більшим лімітом. Стежте за затвором: за однією межею він попереджає, за іншою відповідь виявляється вигаданою.",
+
+  "chat.fellback":
+    "вичерпала квоту, тому відповіла",
 };
 
 const tr: Partial_ = {
@@ -1608,6 +1641,9 @@ const tr: Partial_ = {
     "Bu sayfa modelin ücretsiz kademedeki dakika bütçesini aşıyor, bu yüzden oran şuna sıkılaştırıldı:",
   "chat.fitted.b":
     "artık gönderilebilecek kadar küçük. Bu, sıkıştırıcının işini yapmasıdır; demonun daha bol kotalı bir sağlayıcıya kaçması değil. Kapıyı izleyin: bir noktadan sonra uyarır, bir başkasından sonra yanıt uydurmadır.",
+
+  "chat.fellback":
+    "kotası bitmişti, bu yüzden yanıtı veren:",
 };
 
 const vi: Partial_ = {
@@ -1737,6 +1773,9 @@ const vi: Partial_ = {
     "Trang này vượt hạn mức mỗi phút của gói miễn phí cho mô hình, nên tỉ lệ đã siết xuống còn",
   "chat.fitted.b":
     "đủ nhỏ để gửi đi. Đó là bộ nén làm đúng việc của nó, chứ không phải bản trình diễn chạy sang nhà cung cấp rộng rãi hơn. Hãy để ý cổng chặn: quá một mức nó cảnh báo, quá mức nữa thì câu trả lời là bịa.",
+
+  "chat.fellback":
+    "đã hết hạn mức, nên câu này do mô hình sau trả lời:",
 };
 
 const th: Partial_ = {
@@ -1865,6 +1904,9 @@ const th: Partial_ = {
     "หน้านี้เกินโควตาต่อนาทีของแพ็กเกจฟรีสำหรับโมเดลนี้ จึงรัดสัดส่วนลงเหลือ",
   "chat.fitted.b":
     "ซึ่งเล็กพอจะส่งได้แล้ว นี่คือตัวบีบอัดทำงานของมัน ไม่ใช่การสาธิตหนีไปหาผู้ให้บริการที่โควตาใหญ่กว่า จับตาดูประตูกันไว้ พ้นจุดหนึ่งมันจะเตือน และพ้นอีกจุดคำตอบจะกลายเป็นเรื่องแต่ง",
+
+  "chat.fellback":
+    "โควตาหมดแล้ว คำตอบนี้จึงมาจาก",
 };
 
 const hi: Partial_ = {
@@ -1994,6 +2036,9 @@ const hi: Partial_ = {
     "यह पृष्ठ मॉडल की नि:शुल्क स्तर वाली प्रति-मिनट सीमा से बड़ा है, इसलिए अनुपात कसकर कर दिया गया",
   "chat.fitted.b":
     "जो भेजने लायक छोटा है। यह संपीड़क का अपना काम करना है, न कि प्रदर्शन का किसी ढीली सीमा वाले प्रदाता के पास भाग जाना। द्वार पर नज़र रखिए: एक बिंदु के बाद वह चेताता है, और उससे आगे उत्तर गढ़ा हुआ निकलता है।",
+
+  "chat.fellback":
+    "का कोटा समाप्त था, इसलिए उत्तर दिया",
 };
 
 const ar: Partial_ = {
@@ -2122,6 +2167,9 @@ const ar: Partial_ = {
     "هذه الصفحة تتجاوز ميزانية الدقيقة في الطبقة المجانية للنموذج، فشُدَّت النسبة إلى",
   "chat.fitted.b":
     "وهو قدر يسع الإرسال. هذا هو الضاغط يؤدي عمله، لا العرض يفرّ إلى مزوّد أوسع حصّة. راقب البوّاب: بعد حدّ ينذر، وبعد حدّ آخر يكون الجواب مختلقًا.",
+
+  "chat.fellback":
+    "نفدت حصته، فأجاب عن هذا",
 };
 
 const zh: Partial_ = {
@@ -2250,6 +2298,9 @@ const zh: Partial_ = {
     "这个页面超出该模型免费档的每分钟额度，因此比例已收紧到",
   "chat.fitted.b":
     "这就送得进去了。这是压缩器在干自己的活，而不是演示逃到额度更宽的服务方去。盯着闸门看：过了一个点它会示警，再过一个点答案就是编的。",
+
+  "chat.fellback":
+    "额度已用尽，因此作答的是",
 };
 
 const ja: Partial_ = {
@@ -2378,6 +2429,9 @@ const ja: Partial_ = {
     "この頁は模型の無料枠の毎分予算を超えるため、比率を次まで詰めました:",
   "chat.fitted.b":
     "これなら送れます。圧縮側が仕事をしているのであって、余裕のある提供元へ逃げたのではありません。関門を見ていてください。ある点を越えると警告し、さらに越えると答えは作り話になります。",
+
+  "chat.fellback":
+    "の枠が尽きたため、答えたのは",
 };
 
 const ko: Partial_ = {
@@ -2506,6 +2560,9 @@ const ko: Partial_ = {
     "이 페이지는 모델 무료 등급의 분당 한도를 넘어서, 비율을 다음까지 조였습니다:",
   "chat.fitted.b":
     "이 정도면 보낼 수 있습니다. 압축기가 제 일을 한 것이지, 시연이 한도가 넉넉한 제공자로 달아난 것이 아닙니다. 관문을 지켜보세요. 어느 지점을 넘으면 경고하고, 더 넘으면 답이 지어낸 것이 됩니다.",
+
+  "chat.fellback":
+    "의 할당량이 떨어져, 답한 것은",
 };
 
 const DICT: Record<Locale, Partial_> = {

@@ -191,22 +191,57 @@ export async function POST(req: Request) {
 
   const started = Date.now();
 
+  // When the chosen model has nothing left, ask its declared substitute.
+  //
+  // Gemini Flash's free daily allowance runs out and then returns 429 for the
+  // rest of the day — six of six on one measurement, retries included, because
+  // retrying a spent daily quota only fails more slowly. Leaving that as an
+  // error means a model in the picker that simply cannot answer until tomorrow,
+  // which reads as the project being broken rather than the key being small.
+  //
+  // Only quota errors fall back. A 400 is a bad request and would be equally bad
+  // at the substitute; a 413 is the context not fitting, which on this site is
+  // the result being demonstrated rather than a fault to route around.
   let out;
+  let served = model;
+  let fellBackFrom: string | null = null;
+
   try {
     out = await complete(model, system, user, key);
   } catch (e) {
-    if (e instanceof ProviderError) return bad(e.message, e.status);
-    return bad("The inference request failed.", 502);
+    const quota = e instanceof ProviderError && (e.status === 429 || e.status === 503);
+    const alt = quota && model.fallback ? MODELS[model.fallback] : undefined;
+    const altKey = alt ? keyFor(alt.provider) : null;
+
+    if (!alt || !altKey) {
+      if (e instanceof ProviderError) return bad(e.message, e.status);
+      return bad("The inference request failed.", 502);
+    }
+
+    try {
+      out = await complete(alt, system, user, altKey);
+      served = alt;
+      fellBackFrom = model.label;
+    } catch (e2) {
+      // The substitute failed too. Report the original failure, since that is
+      // the model the caller asked for and the one they need to know about.
+      if (e instanceof ProviderError) return bad(e.message, e.status);
+      return bad("The inference request failed.", 502);
+    }
   }
 
   return Response.json({
     mode,
     model: {
-      key: modelKey,
-      label: model.label,
-      params: model.params,
-      provider: model.provider,
+      key: served.id,
+      label: served.label,
+      params: served.params,
+      provider: served.provider,
     },
+    // Names the model that was asked for when it is not the one that answered.
+    // The page renders this above the reply, because a comparison silently run
+    // against a different model is not the comparison the reader set up.
+    fellBackFrom,
     answer: out.answer,
     escalate,
     receipt,

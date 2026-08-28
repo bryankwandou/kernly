@@ -54,6 +54,22 @@ export interface ModelSpec {
    * send, not because it is unlimited.
    */
   ceiling: number | null;
+
+  /**
+   * Where to go when this model's own quota is spent.
+   *
+   * Not a preference. Gemini Flash sits on a small free daily allowance and,
+   * once it is gone, every request returns 429 for the rest of the day — six of
+   * six during one test, with retries already in place, because retrying an
+   * exhausted daily quota is just failing more slowly. A picker offering a model
+   * that cannot answer until tomorrow is a broken picker.
+   *
+   * The substitution is always disclosed: the response names the model that
+   * actually answered and the one that was asked for, and the page says so above
+   * the answer. Quietly swapping models on a page whose whole argument is "check
+   * this yourself" would be self-defeating.
+   */
+  fallback?: string;
 }
 
 export const MODELS: Record<string, ModelSpec> = {
@@ -88,6 +104,7 @@ export const MODELS: Record<string, ModelSpec> = {
     params: null,
     reasoning: 0,
     ceiling: null,
+    fallback: "gemini-flash-lite-latest",
   },
   // A second Google entry, because the first one is whatever Google is
   // currently promoting and therefore whatever is currently busiest. A visitor
@@ -336,7 +353,10 @@ async function upstream(name: string, res: Response): Promise<ProviderError> {
   // upstream dump.
   if (res.status === 429) {
     return new ProviderError(
-      `${name} is rate limiting the shared demo key. Try again shortly.`,
+      `${name} has no quota left on the shared demo key for this model. On Groq that is the ` +
+        `8,000-token minute window and clears within a minute; on Google it is usually the ` +
+        `daily allowance and clears tomorrow. Either way it is a quota on our key, not a ` +
+        `limit of the compression.`,
       429,
     );
   }

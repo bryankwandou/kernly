@@ -63,6 +63,9 @@ type Reply = {
   promptTokens: number | null;
   completionTokens: number | null;
   elapsedMs: number;
+  /** Set when the picked model was out of quota and its substitute answered. */
+  fellBackFrom?: string | null;
+  model?: { key: string; label: string } | null;
 };
 
 /**
@@ -771,6 +774,15 @@ function Column({
       {parsed?.outside && (
         <p className="mb-2 inline-block rounded-md border border-[var(--line)] bg-[color-mix(in_oklab,var(--husk)_12%,transparent)] px-2 py-1 text-[11px] text-[var(--muted)]">
           {t("chat.outside")}
+        </p>
+      )}
+
+      {/* A substitution changes what the two columns are comparing, so it is
+          stated before the answer rather than buried in a tooltip. */}
+      {reply?.fellBackFrom && reply.model && (
+        <p className="mb-2 rounded-lg border border-[color-mix(in_oklab,var(--kernel)_40%,transparent)] bg-[color-mix(in_oklab,var(--kernel)_9%,transparent)] px-2.5 py-1.5 text-[11.5px] leading-relaxed">
+          <strong className="font-semibold">{reply.fellBackFrom}</strong> {t("chat.fellback")}{" "}
+          <strong className="font-semibold">{reply.model.label}</strong>.
         </p>
       )}
 
