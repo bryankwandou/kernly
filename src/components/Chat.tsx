@@ -779,6 +779,28 @@ function Verdict({
   }
 
   if (!full || !kern) return null;
+
+  // Both answers came from the model's memory, so the comparison is empty.
+  //
+  // This is the single most common way to use the page and learn nothing from
+  // it, and until now the page let it pass in silence: a visitor asks the
+  // postmortem sample about a celebrity or a national statistic, both columns
+  // reply from prior knowledge, the percentages look healthy, and the honest
+  // conclusion is that nothing happened. It did not. With the answer absent
+  // from the material, both columns are the model talking, and they will agree
+  // however well or badly the compression performed.
+  //
+  // Saying so at the moment it happens is worth more than the same point made
+  // in the page's opening paragraph, which is where it already lives and where
+  // it was read past.
+  if (split(full.answer).outside && split(kern.answer).outside) {
+    return (
+      <div className="rounded-lg border border-[var(--line)] bg-[color-mix(in_oklab,var(--fg)_4%,transparent)] px-4 py-3 text-[13px] leading-relaxed">
+        <strong className="font-semibold">{t("chat.nothing.title")}</strong>{" "}
+        <span className="text-[var(--muted)]">{t("chat.nothing.body")}</span>
+      </div>
+    );
+  }
   const a = full.promptTokens;
   const b = kern.promptTokens;
   const saved = a && b ? 1 - b / a : null;
