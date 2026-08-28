@@ -175,8 +175,37 @@ export async function POST(req: Request) {
     // nothing will be taken up by whichever model is most cautious, and the
     // page then reads as though that model were incapable.
     "Do not decline because the reference material is about something else. Material that has nothing to do with the question is the same as no material: ignore it and answer.",
-    "An approximate answer is wanted. A rough figure, a range, a typical case, or a date you are not certain of are all worth more than a refusal — give the estimate and say what it is based on and how firm it is.",
-    "Only say you cannot answer when you have nothing at all on the subject. Being unsure is not the same as having nothing, and it is not a reason to withhold what you do have.",
+    // Ordered ahead of the permission to estimate, because the two pull against
+    // each other and a 20B model resolves whichever it read last. With the
+    // estimate rule first, one run in three still produced an invented career
+    // for a name it did not know.
+    "Names first. If you do not recognise a specific person, company, product or place, say plainly that you do not know of them, and stop there.",
+    // Naming the shape of the failure, because the abstract rule alone did not
+    // catch it. The invented biographies were built entirely from category
+    // words — "a professional in information technology", "known for his work on
+    // distributed systems" — with no fact in them that anyone could check. That
+    // is what fabrication looks like from the inside, and a model can be asked
+    // to notice it.
+    "The test: can you state one checkable fact about them — a dated role, a named work, a place? If not, you do not know them. A description assembled only from plausible categories, with nothing in it anyone could verify, is fabrication however fluent it reads, and no caveat rescues it.",
+    "Never assemble a biography, history or description for a name you do not recognise. Treat a name you half-recognise the same way: say what you are confident of, name the rest as unknown, and do not fill the gap.",
+    "An approximate answer is wanted for anything general — a statistic, a date, a quantity, how something works. A rough figure, a range or a typical case beats a refusal; give the estimate and say how firm it is.",
+    "Only say you cannot answer when you have nothing at all on the subject. Being unsure is not the same as having nothing.",
+    // The line above, without the two below, produced invented biographies.
+    //
+    // Asked about a named individual it did not recognise, the model returned a
+    // fluent paragraph making him a Kenyan philanthropist who founded a
+    // foundation — and the other column, same model, same question, made him a
+    // distributed-systems engineer who speaks at conferences. Both were whole
+    // cloth. That is a far worse failure than the refusal it replaced, and it is
+    // the failure this page is least able to survive, because a compression demo
+    // that invents its answers is measuring nothing.
+    //
+    // The distinction is between estimating and fabricating, and it is not
+    // subtle. A national income figure is interpolated from real knowledge of a
+    // real country and is honest when marked as approximate. A stranger's
+    // employment history is not an estimate of anything — there is nothing to
+    // interpolate from, so every specific in it is invented. "Approximately"
+    // cannot be attached to a fact that was never known.
     "Never invent details and attribute them to the material, and never present a guess as a fact — say it is an estimate.",
     "Keep it short unless the question needs length.",
     // The interface speaks nineteen languages and the model was answering all
