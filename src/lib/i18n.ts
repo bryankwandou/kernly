@@ -188,6 +188,11 @@ const en = {
 
   "chat.fellback":
     "had no quota left, so this was answered by",
+
+  "chat.demo.title":
+    "See it work",
+  "chat.demo.note":
+    "One click loads a real article of 100,000 characters or more and asks a question whose answer sits deep inside it. Too large to send uncompressed on the free tier.",
 };
 
 export type Key = keyof typeof en;
@@ -324,6 +329,11 @@ const id: Partial_ = {
 
   "chat.fellback":
     "kehabisan kuota, jadi ini dijawab oleh",
+
+  "chat.demo.title":
+    "Lihat cara kerjanya",
+  "chat.demo.note":
+    "Sekali klik memuat artikel sungguhan 100.000 karakter ke atas dan mengajukan pertanyaan yang jawabannya terkubur jauh di dalamnya. Terlalu besar untuk dikirim tanpa pemampatan di tingkat gratis.",
 };
 
 const es: Partial_ = {
@@ -456,6 +466,11 @@ const es: Partial_ = {
 
   "chat.fellback":
     "se quedó sin cuota, así que esto lo respondió",
+
+  "chat.demo.title":
+    "Míralo funcionar",
+  "chat.demo.note":
+    "Un clic carga un artículo real de 100.000 caracteres o más y hace una pregunta cuya respuesta está enterrada dentro. Demasiado grande para enviarlo sin comprimir en el nivel gratuito.",
 };
 
 const pt: Partial_ = {
@@ -588,6 +603,11 @@ const pt: Partial_ = {
 
   "chat.fellback":
     "ficou sem cota, então quem respondeu foi",
+
+  "chat.demo.title":
+    "Veja funcionando",
+  "chat.demo.note":
+    "Um clique carrega um artigo real de 100.000 caracteres ou mais e faz uma pergunta cuja resposta está lá no meio. Grande demais para enviar sem compressão no nível gratuito.",
 };
 
 const fr: Partial_ = {
@@ -720,6 +740,11 @@ const fr: Partial_ = {
 
   "chat.fellback":
     "n’avait plus de quota, la réponse vient donc de",
+
+  "chat.demo.title":
+    "Voyez-le à l’œuvre",
+  "chat.demo.note":
+    "Un clic charge un vrai article de 100 000 caractères ou plus et pose une question dont la réponse est enfouie dedans. Trop volumineux pour partir non compressé sur l’offre gratuite.",
 };
 
 const de: Partial_ = {
@@ -852,6 +877,11 @@ const de: Partial_ = {
 
   "chat.fellback":
     "hatte kein Kontingent mehr, geantwortet hat daher",
+
+  "chat.demo.title":
+    "Sehen Sie es arbeiten",
+  "chat.demo.note":
+    "Ein Klick lädt einen echten Artikel von 100.000 Zeichen oder mehr und stellt eine Frage, deren Antwort tief darin steckt. Zu groß, um unverdichtet auf der Gratisstufe zu gehen.",
 };
 
 const it: Partial_ = {
@@ -984,6 +1014,11 @@ const it: Partial_ = {
 
   "chat.fellback":
     "non aveva più quota, quindi ha risposto",
+
+  "chat.demo.title":
+    "Guardalo all’opera",
+  "chat.demo.note":
+    "Un clic carica un articolo vero da 100.000 caratteri o più e pone una domanda la cui risposta sta sepolta dentro. Troppo grande da inviare non compresso sul piano gratuito.",
 };
 
 const nl: Partial_ = {
@@ -1116,6 +1151,11 @@ const nl: Partial_ = {
 
   "chat.fellback":
     "had geen quotum meer, dus dit is beantwoord door",
+
+  "chat.demo.title":
+    "Zie het werken",
+  "chat.demo.note":
+    "Eén klik laadt een echt artikel van 100.000 tekens of meer en stelt een vraag waarvan het antwoord er diep in zit. Te groot om ongecomprimeerd te versturen op de gratis laag.",
 };
 
 const pl: Partial_ = {
@@ -1248,6 +1288,11 @@ const pl: Partial_ = {
 
   "chat.fellback":
     "wyczerpał limit, więc odpowiedzi udzielił",
+
+  "chat.demo.title":
+    "Zobacz, jak działa",
+  "chat.demo.note":
+    "Jedno kliknięcie wczytuje prawdziwy artykuł na 100 000 znaków lub więcej i zadaje pytanie, którego odpowiedź tkwi głęboko w środku. Za duży, by wysłać go nieskompresowanego na darmowym progu.",
 };
 
 const ru: Partial_ = {
@@ -1380,6 +1425,11 @@ const ru: Partial_ = {
 
   "chat.fellback":
     "исчерпала квоту, поэтому ответила",
+
+  "chat.demo.title":
+    "Посмотрите в деле",
+  "chat.demo.note":
+    "Один щелчок загружает настоящую статью на 100 000 знаков и больше и задаёт вопрос, ответ на который спрятан в её глубине. Слишком велика, чтобы уйти несжатой на бесплатном тарифе.",
 };
 
 const uk: Partial_ = {
@@ -1512,6 +1562,11 @@ const uk: Partial_ = {
 
   "chat.fellback":
     "вичерпала квоту, тому відповіла",
+
+  "chat.demo.title":
+    "Погляньте в дії",
+  "chat.demo.note":
+    "Один клац завантажує справжню статтю на 100 000 знаків і більше та ставить питання, відповідь на яке заховано в її глибині. Завелика, щоб піти нестиснутою на безкоштовному тарифі.",
 };
 
 const tr: Partial_ = {
@@ -1644,6 +1699,11 @@ const tr: Partial_ = {
 
   "chat.fellback":
     "kotası bitmişti, bu yüzden yanıtı veren:",
+
+  "chat.demo.title":
+    "İş başında görün",
+  "chat.demo.note":
+    "Tek tıkla 100.000 karakter ve üzeri gerçek bir makale yüklenir ve yanıtı içinde gömülü duran bir soru sorulur. Ücretsiz kademede sıkıştırılmadan gönderilemeyecek kadar büyük.",
 };
 
 const vi: Partial_ = {
@@ -1776,6 +1836,11 @@ const vi: Partial_ = {
 
   "chat.fellback":
     "đã hết hạn mức, nên câu này do mô hình sau trả lời:",
+
+  "chat.demo.title":
+    "Xem nó chạy",
+  "chat.demo.note":
+    "Một cú nhấp nạp một bài viết thật từ 100.000 ký tự trở lên và đặt câu hỏi có đáp án nằm sâu bên trong. Quá lớn để gửi đi khi chưa nén ở gói miễn phí.",
 };
 
 const th: Partial_ = {
@@ -1907,6 +1972,11 @@ const th: Partial_ = {
 
   "chat.fellback":
     "โควตาหมดแล้ว คำตอบนี้จึงมาจาก",
+
+  "chat.demo.title":
+    "ดูมันทำงาน",
+  "chat.demo.note":
+    "คลิกเดียวโหลดบทความจริงขนาดหนึ่งแสนอักขระขึ้นไป แล้วถามคำถามที่คำตอบฝังอยู่ลึกข้างใน ใหญ่เกินกว่าจะส่งแบบไม่บีบอัดในแพ็กเกจฟรี",
 };
 
 const hi: Partial_ = {
@@ -2039,6 +2109,11 @@ const hi: Partial_ = {
 
   "chat.fellback":
     "का कोटा समाप्त था, इसलिए उत्तर दिया",
+
+  "chat.demo.title":
+    "इसे काम करते देखिए",
+  "chat.demo.note":
+    "एक क्लिक में एक लाख या उससे अधिक अक्षरों का असली लेख आता है और ऐसा प्रश्न पूछा जाता है जिसका उत्तर उसके भीतर गहरे दबा है। नि:शुल्क स्तर पर बिना संपीड़न भेजने के लिए बहुत बड़ा।",
 };
 
 const ar: Partial_ = {
@@ -2170,6 +2245,11 @@ const ar: Partial_ = {
 
   "chat.fellback":
     "نفدت حصته، فأجاب عن هذا",
+
+  "chat.demo.title":
+    "شاهده وهو يعمل",
+  "chat.demo.note":
+    "نقرة واحدة تحمّل مقالًا حقيقيًا من مئة ألف حرف فأكثر وتطرح سؤالًا جوابه مدفون في عمقه. أكبر من أن يُرسَل غير مضغوط على الطبقة المجانية.",
 };
 
 const zh: Partial_ = {
@@ -2301,6 +2381,11 @@ const zh: Partial_ = {
 
   "chat.fellback":
     "额度已用尽，因此作答的是",
+
+  "chat.demo.title":
+    "看它怎么干活",
+  "chat.demo.note":
+    "一键载入一篇十万字符以上的真实文章，并提出一个答案埋在深处的问题。这个体量在免费档不压缩就送不进去。",
 };
 
 const ja: Partial_ = {
@@ -2432,6 +2517,11 @@ const ja: Partial_ = {
 
   "chat.fellback":
     "の枠が尽きたため、答えたのは",
+
+  "chat.demo.title":
+    "働くところを見る",
+  "chat.demo.note":
+    "一押しで十万字以上の実在の記事を読み込み、答えがその奥に埋もれている問いを立てます。無料枠では圧縮せずに送れない大きさです。",
 };
 
 const ko: Partial_ = {
@@ -2563,6 +2653,11 @@ const ko: Partial_ = {
 
   "chat.fellback":
     "의 할당량이 떨어져, 답한 것은",
+
+  "chat.demo.title":
+    "작동하는 모습 보기",
+  "chat.demo.note":
+    "한 번 누르면 십만 자 이상의 실제 기사를 불러오고, 답이 그 깊숙한 곳에 묻혀 있는 질문을 던집니다. 무료 등급에서는 압축하지 않고는 보낼 수 없는 크기입니다.",
 };
 
 const DICT: Record<Locale, Partial_> = {

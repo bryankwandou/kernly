@@ -49,6 +49,50 @@ const MODEL_GROUPS: { label: string; models: ModelChoice[] }[] = [
 
 const ALL_MODELS = MODEL_GROUPS.flatMap((g) => g.models);
 
+/**
+ * One click to the demonstration this page is for.
+ *
+ * The bundled samples top out at 1,676 tokens, small enough that the compressor
+ * never faces an interesting decision, and the route to seeing it work was to
+ * know to paste a long URL and then to invent a question whose answer sits
+ * somewhere in its middle. Watching people use the page settled whether that
+ * was too much to ask. They loaded a short sample, asked it something about
+ * Micronesia or a YouTuber, got "I don't know" in both columns, and concluded
+ * nothing had happened. They were right. Nothing had.
+ *
+ * Each entry pairs a real article of 100,000 characters or more with a question
+ * whose answer is a specific fact in its body — never its opening, since an
+ * answer in the first two hundred words survives any compressor and shows
+ * nothing about selection. All four are checkable by a sceptic in under a
+ * minute, which is the only kind of demonstration worth showing one.
+ */
+const PRESETS = [
+  {
+    id: "ww2",
+    label: "World War II",
+    url: "https://en.wikipedia.org/wiki/World_War_II",
+    question: "which conference agreed to divide Germany into occupation zones after the war",
+  },
+  {
+    id: "photo",
+    label: "Photosynthesis",
+    url: "https://en.wikipedia.org/wiki/Photosynthesis",
+    question: "which experiment showed the oxygen released comes from water rather than carbon dioxide",
+  },
+  {
+    id: "apollo",
+    label: "Apollo program",
+    url: "https://en.wikipedia.org/wiki/Apollo_program",
+    question: "what killed the three astronauts of the first crewed Apollo mission",
+  },
+  {
+    id: "indonesia",
+    label: "Sejarah Indonesia",
+    url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    question: "which agreement in 1949 transferred sovereignty from the Netherlands to Indonesia",
+  },
+];
+
 type Reply = {
   answer: string;
   escalate: boolean;
@@ -223,8 +267,18 @@ export function Chat() {
     setTurns([]);
   };
 
-  const load = async () => {
-    const target = url.trim();
+  const loadPreset = async (p: (typeof PRESETS)[number]) => {
+    setQuestion(p.question);
+    // Handed over rather than read back from state: setQuestion has not landed
+    // at this point, and the ratio search below scores blocks against the
+    // query. Reading state here would size the compression against whatever the
+    // previous question happened to be.
+    await load(p.url, p.question);
+  };
+
+  const load = async (urlOverride?: string, askedOverride?: string) => {
+    const target = (urlOverride ?? url).trim();
+    const asked = askedOverride ?? question;
     if (!target || loading) return;
     setLoading(true);
     setLoadError(null);
@@ -255,7 +309,7 @@ export function Chat() {
       // locally and gives the true figure instead of an extrapolation.
       const ceiling = ALL_MODELS.find((m) => m.key === model)?.ceiling ?? null;
       if (ceiling !== null && estimate(json.text) > ceiling) {
-        const fitted = await fit(json.text, question || undefined, ceiling);
+        const fitted = await fit(json.text, asked || undefined, ceiling);
         if (fitted) {
           setRatio(fitted);
           setSwitched(`${Math.round(fitted * 100)}%`);
@@ -317,7 +371,32 @@ export function Chat() {
       {/* ------------------------------------------------------------ controls */}
       <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
         <div className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-5">
+          {/* First, because it is the only path on this page that demonstrates
+              anything on its own. Everything below it requires the visitor to
+              already know what to try. */}
           <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            {t("chat.demo.title")}
+          </h2>
+          <p className="mt-1.5 text-[11.5px] leading-[1.5] text-[var(--muted)]">
+            {t("chat.demo.note")}
+          </p>
+          <div className="mt-2.5 flex flex-col gap-1.5">
+            {PRESETS.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => loadPreset(p)}
+                disabled={loading}
+                className="group flex items-center justify-between gap-2 rounded-lg border border-[var(--line)] px-3 py-2 text-left text-[12.5px] transition-colors hover:border-[var(--kernel)] hover:bg-[color-mix(in_oklab,var(--kernel)_8%,transparent)] disabled:opacity-40"
+              >
+                <span className="font-medium">{p.label}</span>
+                <span className="shrink-0 text-[11px] text-[var(--muted)] transition-colors group-hover:text-[var(--kernel)]">
+                  {loading ? "…" : "→"}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <h2 className="mt-5 border-t border-[var(--line)] pt-4 text-[12px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
             {t("chat.material")}
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
