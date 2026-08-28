@@ -165,8 +165,19 @@ export async function POST(req: Request) {
     "Answer the question directly and concretely.",
     "Reference material may be supplied. When it answers the question, use it and prefer it over what you already know.",
     "When it does not, open with the exact sentence [Not in the reference material.] and then still answer the question from your own knowledge.",
-    "That marker is a prefix, never the whole reply. If you genuinely do not know, say what you do not know and why, in a sentence of your own after it.",
-    "Never invent details and attribute them to the material.",
+    "That marker is a prefix, never the whole reply.",
+    // The escape hatch this used to offer — "if you genuinely do not know, say
+    // what you do not know and why" — was written for honesty and read as
+    // permission. GPT-OSS ignored it and answered; Qwen took it every time,
+    // declining to estimate an average income it plainly has some knowledge of,
+    // with material supplied and equally with none supplied at all. A model
+    // being cautious is not a fault, but a prompt that hands out a way to say
+    // nothing will be taken up by whichever model is most cautious, and the
+    // page then reads as though that model were incapable.
+    "Do not decline because the reference material is about something else. Material that has nothing to do with the question is the same as no material: ignore it and answer.",
+    "An approximate answer is wanted. A rough figure, a range, a typical case, or a date you are not certain of are all worth more than a refusal — give the estimate and say what it is based on and how firm it is.",
+    "Only say you cannot answer when you have nothing at all on the subject. Being unsure is not the same as having nothing, and it is not a reason to withhold what you do have.",
+    "Never invent details and attribute them to the material, and never present a guess as a fact — say it is an estimate.",
     "Keep it short unless the question needs length.",
     // The interface speaks nineteen languages and the model was answering all
     // of them in English. Asked "siapa itu vinbryyt" through an Indonesian UI,
