@@ -193,6 +193,11 @@ const en = {
     "See it work",
   "chat.demo.note":
     "One click loads a real article of 100,000 characters or more and asks a question whose answer sits deep inside it. Too large to send uncompressed on the free tier.",
+
+  "chat.nothing.title":
+    "Nothing was measured here.",
+  "chat.nothing.body":
+    "Both columns answered from the model's own knowledge, because the reference material had nothing on this. That is the model talking, not the compressor — the two columns will agree no matter what compression does. Load an article above and ask something it actually covers.",
 };
 
 export type Key = keyof typeof en;
@@ -334,6 +339,11 @@ const id: Partial_ = {
     "Lihat cara kerjanya",
   "chat.demo.note":
     "Sekali klik memuat artikel sungguhan 100.000 karakter ke atas dan mengajukan pertanyaan yang jawabannya terkubur jauh di dalamnya. Terlalu besar untuk dikirim tanpa pemampatan di tingkat gratis.",
+
+  "chat.nothing.title":
+    "Tidak ada yang terukur di sini.",
+  "chat.nothing.body":
+    "Kedua kolom menjawab dari ingatan modelnya sendiri, sebab bahan rujukannya memang tidak memuat soal ini. Itu modelnya yang bicara, bukan pemampatnya — kedua kolom akan tetap sama apa pun yang dilakukan pemampatan. Muat artikel di atas, lalu tanyakan hal yang memang dibahasnya.",
 };
 
 const es: Partial_ = {
@@ -471,6 +481,11 @@ const es: Partial_ = {
     "Míralo funcionar",
   "chat.demo.note":
     "Un clic carga un artículo real de 100.000 caracteres o más y hace una pregunta cuya respuesta está enterrada dentro. Demasiado grande para enviarlo sin comprimir en el nivel gratuito.",
+
+  "chat.nothing.title":
+    "Aquí no se midió nada.",
+  "chat.nothing.body":
+    "Ambas columnas respondieron desde el conocimiento del propio modelo, porque el material de referencia no traía nada sobre esto. Habla el modelo, no el compresor: las dos columnas coincidirán haga lo que haga la compresión. Carga un artículo arriba y pregunta algo que sí trate.",
 };
 
 const pt: Partial_ = {
@@ -608,6 +623,11 @@ const pt: Partial_ = {
     "Veja funcionando",
   "chat.demo.note":
     "Um clique carrega um artigo real de 100.000 caracteres ou mais e faz uma pergunta cuja resposta está lá no meio. Grande demais para enviar sem compressão no nível gratuito.",
+
+  "chat.nothing.title":
+    "Aqui não se mediu nada.",
+  "chat.nothing.body":
+    "As duas colunas responderam a partir do conhecimento do próprio modelo, porque o material de referência não tinha nada sobre isso. É o modelo falando, não o compressor — as colunas vão concordar faça o que fizer a compressão. Carregue um artigo acima e pergunte algo que ele cubra.",
 };
 
 const fr: Partial_ = {
@@ -745,6 +765,11 @@ const fr: Partial_ = {
     "Voyez-le à l’œuvre",
   "chat.demo.note":
     "Un clic charge un vrai article de 100 000 caractères ou plus et pose une question dont la réponse est enfouie dedans. Trop volumineux pour partir non compressé sur l’offre gratuite.",
+
+  "chat.nothing.title":
+    "Rien n’a été mesuré ici.",
+  "chat.nothing.body":
+    "Les deux colonnes ont répondu depuis la mémoire du modèle, le matériau de référence n’en disait rien. C’est le modèle qui parle, pas le compresseur : les deux colonnes s’accorderont quoi que fasse la compression. Chargez un article ci-dessus et posez une question qu’il traite vraiment.",
 };
 
 const de: Partial_ = {
@@ -882,6 +907,11 @@ const de: Partial_ = {
     "Sehen Sie es arbeiten",
   "chat.demo.note":
     "Ein Klick lädt einen echten Artikel von 100.000 Zeichen oder mehr und stellt eine Frage, deren Antwort tief darin steckt. Zu groß, um unverdichtet auf der Gratisstufe zu gehen.",
+
+  "chat.nothing.title":
+    "Hier wurde nichts gemessen.",
+  "chat.nothing.body":
+    "Beide Spalten antworteten aus dem eigenen Wissen des Modells, weil im Referenzmaterial dazu nichts stand. Da spricht das Modell, nicht die Verdichtung — die Spalten werden übereinstimmen, was die Verdichtung auch tut. Laden Sie oben einen Artikel und fragen Sie etwas, das darin vorkommt.",
 };
 
 const it: Partial_ = {
@@ -1019,6 +1049,11 @@ const it: Partial_ = {
     "Guardalo all’opera",
   "chat.demo.note":
     "Un clic carica un articolo vero da 100.000 caratteri o più e pone una domanda la cui risposta sta sepolta dentro. Troppo grande da inviare non compresso sul piano gratuito.",
+
+  "chat.nothing.title":
+    "Qui non è stato misurato nulla.",
+  "chat.nothing.body":
+    "Entrambe le colonne hanno risposto dalla conoscenza del modello, perché il materiale di riferimento non ne parlava. È il modello a parlare, non il compressore: le due colonne concorderanno qualunque cosa faccia la compressione. Carica un articolo sopra e chiedi qualcosa che tratti davvero.",
 };
 
 const nl: Partial_ = {
@@ -1156,6 +1191,11 @@ const nl: Partial_ = {
     "Zie het werken",
   "chat.demo.note":
     "Eén klik laadt een echt artikel van 100.000 tekens of meer en stelt een vraag waarvan het antwoord er diep in zit. Te groot om ongecomprimeerd te versturen op de gratis laag.",
+
+  "chat.nothing.title":
+    "Hier is niets gemeten.",
+  "chat.nothing.body":
+    "Beide kolommen antwoordden uit de eigen kennis van het model, want het referentiemateriaal zei hier niets over. Dat is het model, niet de compressie — de kolommen zullen het eens zijn wat de compressie ook doet. Laad hierboven een artikel en vraag iets wat het echt behandelt.",
 };
 
 const pl: Partial_ = {
@@ -1293,6 +1333,11 @@ const pl: Partial_ = {
     "Zobacz, jak działa",
   "chat.demo.note":
     "Jedno kliknięcie wczytuje prawdziwy artykuł na 100 000 znaków lub więcej i zadaje pytanie, którego odpowiedź tkwi głęboko w środku. Za duży, by wysłać go nieskompresowanego na darmowym progu.",
+
+  "chat.nothing.title":
+    "Tu niczego nie zmierzono.",
+  "chat.nothing.body":
+    "Obie kolumny odpowiedziały z własnej wiedzy modelu, bo materiał źródłowy nic o tym nie mówił. To mówi model, nie kompresor — kolumny będą zgodne cokolwiek zrobi kompresja. Wczytaj artykuł powyżej i zapytaj o coś, co faktycznie omawia.",
 };
 
 const ru: Partial_ = {
@@ -1430,6 +1475,11 @@ const ru: Partial_ = {
     "Посмотрите в деле",
   "chat.demo.note":
     "Один щелчок загружает настоящую статью на 100 000 знаков и больше и задаёт вопрос, ответ на который спрятан в её глубине. Слишком велика, чтобы уйти несжатой на бесплатном тарифе.",
+
+  "chat.nothing.title":
+    "Здесь ничего не измерено.",
+  "chat.nothing.body":
+    "Обе колонки ответили из собственных знаний модели, потому что в справочном материале об этом не было ничего. Говорит модель, а не сжатие: колонки совпадут, что бы сжатие ни делало. Загрузите статью выше и спросите о том, что в ней действительно есть.",
 };
 
 const uk: Partial_ = {
@@ -1567,6 +1617,11 @@ const uk: Partial_ = {
     "Погляньте в дії",
   "chat.demo.note":
     "Один клац завантажує справжню статтю на 100 000 знаків і більше та ставить питання, відповідь на яке заховано в її глибині. Завелика, щоб піти нестиснутою на безкоштовному тарифі.",
+
+  "chat.nothing.title":
+    "Тут нічого не виміряно.",
+  "chat.nothing.body":
+    "Обидві колонки відповіли з власних знань моделі, бо в довідковому матеріалі про це не було нічого. Говорить модель, а не стиснення: колонки збігатимуться, хоч би що стиснення робило. Завантажте статтю вище й запитайте про те, що в ній справді є.",
 };
 
 const tr: Partial_ = {
@@ -1704,6 +1759,11 @@ const tr: Partial_ = {
     "İş başında görün",
   "chat.demo.note":
     "Tek tıkla 100.000 karakter ve üzeri gerçek bir makale yüklenir ve yanıtı içinde gömülü duran bir soru sorulur. Ücretsiz kademede sıkıştırılmadan gönderilemeyecek kadar büyük.",
+
+  "chat.nothing.title":
+    "Burada hiçbir şey ölçülmedi.",
+  "chat.nothing.body":
+    "İki sütun da modelin kendi bilgisinden yanıtladı, çünkü kaynak metinde buna dair bir şey yoktu. Konuşan model, sıkıştırıcı değil — sıkıştırma ne yaparsa yapsın iki sütun aynı diyecek. Yukarıdan bir makale yükleyin ve gerçekten içinde geçen bir şeyi sorun.",
 };
 
 const vi: Partial_ = {
@@ -1841,6 +1901,11 @@ const vi: Partial_ = {
     "Xem nó chạy",
   "chat.demo.note":
     "Một cú nhấp nạp một bài viết thật từ 100.000 ký tự trở lên và đặt câu hỏi có đáp án nằm sâu bên trong. Quá lớn để gửi đi khi chưa nén ở gói miễn phí.",
+
+  "chat.nothing.title":
+    "Ở đây không đo được gì cả.",
+  "chat.nothing.body":
+    "Cả hai cột đều trả lời từ kiến thức sẵn có của mô hình, vì tài liệu tham chiếu không có gì về chuyện này. Đó là mô hình đang nói, không phải bộ nén — hai cột sẽ giống nhau dù việc nén làm gì đi nữa. Hãy nạp một bài ở trên rồi hỏi điều mà bài đó thật sự bàn tới.",
 };
 
 const th: Partial_ = {
@@ -1977,6 +2042,11 @@ const th: Partial_ = {
     "ดูมันทำงาน",
   "chat.demo.note":
     "คลิกเดียวโหลดบทความจริงขนาดหนึ่งแสนอักขระขึ้นไป แล้วถามคำถามที่คำตอบฝังอยู่ลึกข้างใน ใหญ่เกินกว่าจะส่งแบบไม่บีบอัดในแพ็กเกจฟรี",
+
+  "chat.nothing.title":
+    "ตรงนี้ไม่ได้วัดอะไรเลย",
+  "chat.nothing.body":
+    "ทั้งสองคอลัมน์ตอบจากความรู้เดิมของโมเดลเอง เพราะเอกสารอ้างอิงไม่มีเรื่องนี้อยู่ นั่นคือโมเดลพูด ไม่ใช่ตัวบีบอัด สองคอลัมน์จะตรงกันไม่ว่าการบีบอัดจะทำอะไร ลองโหลดบทความข้างบนแล้วถามสิ่งที่บทความนั้นพูดถึงจริง ๆ",
 };
 
 const hi: Partial_ = {
@@ -2114,6 +2184,11 @@ const hi: Partial_ = {
     "इसे काम करते देखिए",
   "chat.demo.note":
     "एक क्लिक में एक लाख या उससे अधिक अक्षरों का असली लेख आता है और ऐसा प्रश्न पूछा जाता है जिसका उत्तर उसके भीतर गहरे दबा है। नि:शुल्क स्तर पर बिना संपीड़न भेजने के लिए बहुत बड़ा।",
+
+  "chat.nothing.title":
+    "यहाँ कुछ भी नहीं मापा गया।",
+  "chat.nothing.body":
+    "दोनों स्तंभों ने मॉडल के अपने ज्ञान से उत्तर दिया, क्योंकि संदर्भ सामग्री में इस बारे में कुछ था ही नहीं। यह मॉडल बोल रहा है, संपीड़क नहीं — संपीड़न कुछ भी करे, दोनों स्तंभ सहमत ही रहेंगे। ऊपर से कोई लेख लाइए और वही पूछिए जो उसमें सचमुच है।",
 };
 
 const ar: Partial_ = {
@@ -2250,6 +2325,11 @@ const ar: Partial_ = {
     "شاهده وهو يعمل",
   "chat.demo.note":
     "نقرة واحدة تحمّل مقالًا حقيقيًا من مئة ألف حرف فأكثر وتطرح سؤالًا جوابه مدفون في عمقه. أكبر من أن يُرسَل غير مضغوط على الطبقة المجانية.",
+
+  "chat.nothing.title":
+    "لم يُقَس هنا شيء.",
+  "chat.nothing.body":
+    "أجاب العمودان من معرفة النموذج نفسه، لأن المادة المرجعية لا تتضمّن شيئًا عن هذا. المتكلّم هو النموذج لا الضاغط — وسيتفق العمودان مهما فعل الضغط. حمّل مقالًا في الأعلى واسأل عمّا يتناوله فعلًا.",
 };
 
 const zh: Partial_ = {
@@ -2386,6 +2466,11 @@ const zh: Partial_ = {
     "看它怎么干活",
   "chat.demo.note":
     "一键载入一篇十万字符以上的真实文章，并提出一个答案埋在深处的问题。这个体量在免费档不压缩就送不进去。",
+
+  "chat.nothing.title":
+    "这里什么都没量到。",
+  "chat.nothing.body":
+    "两栏都是凭模型自己的知识作答的，因为参考材料里根本没有这件事。说话的是模型，不是压缩器——无论压缩做了什么，两栏都会一致。到上面载入一篇文章，再问它真正讲到的东西。",
 };
 
 const ja: Partial_ = {
@@ -2522,6 +2607,11 @@ const ja: Partial_ = {
     "働くところを見る",
   "chat.demo.note":
     "一押しで十万字以上の実在の記事を読み込み、答えがその奥に埋もれている問いを立てます。無料枠では圧縮せずに送れない大きさです。",
+
+  "chat.nothing.title":
+    "ここでは何も測れていません。",
+  "chat.nothing.body":
+    "どちらの欄も模型自身の知識から答えました。参照資料にこの件が無いからです。話しているのは模型であって圧縮ではなく、圧縮が何をしようと 二つの欄は一致します。上から記事を読み込み、そこに実際に書かれていることを尋ねてください。",
 };
 
 const ko: Partial_ = {
@@ -2658,6 +2748,11 @@ const ko: Partial_ = {
     "작동하는 모습 보기",
   "chat.demo.note":
     "한 번 누르면 십만 자 이상의 실제 기사를 불러오고, 답이 그 깊숙한 곳에 묻혀 있는 질문을 던집니다. 무료 등급에서는 압축하지 않고는 보낼 수 없는 크기입니다.",
+
+  "chat.nothing.title":
+    "여기서는 아무것도 측정되지 않았습니다.",
+  "chat.nothing.body":
+    "두 칸 모두 모델 자신의 지식에서 답했습니다. 참고 자료에 이 이야기가 없기 때문입니다. 말하고 있는 것은 모델이지 압축기가 아니며, 압축이 무엇을 하든 두 칸은 일치합니다. 위에서 글을 불러오고, 그 글이 실제로 다루는 것을 물어보세요.",
 };
 
 const DICT: Record<Locale, Partial_> = {
