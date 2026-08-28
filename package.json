@@ -13,7 +13,8 @@
     "test:core": "npm run test --workspace @kernly/core",
     "eval": "node scripts/eval.mjs",
     "proof": "node scripts/devnet-proof.mjs",
-    "proof:groq": "node scripts/groq-proof.mjs"
+    "proof:groq": "node scripts/groq-proof.mjs",
+    "qualify:presets": "node scripts/qualify-presets.mjs"
   },
   "dependencies": {
     "@kernly/core": "*",

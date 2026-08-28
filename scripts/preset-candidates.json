@@ -1,0 +1,68 @@
+[
+  {
+    "id": "apollo-employment",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "how many people did the Apollo program employ at its peak, and how many industrial firms and universities supported it",
+    "expect": "400,?000"
+  },
+  {
+    "id": "apollo-sic-thrust",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "what was the rated thrust of the Saturn V S-IC first stage in pounds-force, before it was upgraded",
+    "expect": "7,?500,?000"
+  },
+  {
+    "id": "apollo-elm-weight",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "how much did the extended lunar module weigh in pounds",
+    "expect": "36,?200"
+  },
+  {
+    "id": "apollo-lm-hours",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "how many hours of lunar surface stay did the initial lunar module model allow",
+    "expect": "\b34\b"
+  },
+  {
+    "id": "apollo-vacuum-chamber",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "up to what altitude in feet could the Apollo vacuum chambers simulate atmospheric pressure",
+    "expect": "250,?000"
+  },
+  {
+    "id": "apollo-saturn-ib-payload",
+    "url": "https://en.wikipedia.org/wiki/Apollo_program",
+    "question": "how many pounds could the Saturn IB send into low Earth orbit",
+    "expect": "40,?000"
+  },
+  {
+    "id": "photo-chloroplast-density",
+    "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+    "question": "how many chloroplasts can the mesophyll contain per square millimetre of leaf",
+    "expect": "450,?000"
+  },
+  {
+    "id": "photo-carbon-tons",
+    "url": "https://en.wikipedia.org/wiki/Photosynthesis",
+    "question": "how many billion tons of carbon do photosynthetic organisms convert into biomass each year",
+    "expect": "100.{0,4}115|91.{0,4}104"
+  },
+  {
+    "id": "indonesia-leang-tedongnge",
+    "url": "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    "question": "the cave art found at Leang Tedongnge is estimated to be at least how many years old",
+    "expect": "45,?500"
+  },
+  {
+    "id": "indonesia-maros-pangkep",
+    "url": "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    "question": "how old is the wild boar hunt cave painting in the Maros-Pangkep karst of Sulawesi",
+    "expect": "43,?900"
+  },
+  {
+    "id": "indonesia-hand-stencil",
+    "url": "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    "question": "what is the minimum age of the painted hand stencil from Leang Timpuseng",
+    "expect": "39,?900"
+  }
+]

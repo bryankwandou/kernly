@@ -50,46 +50,46 @@ const MODEL_GROUPS: { label: string; models: ModelChoice[] }[] = [
 const ALL_MODELS = MODEL_GROUPS.flatMap((g) => g.models);
 
 /**
- * One click to the demonstration this page is for.
+ * One click to the demonstration, using questions that have been qualified.
  *
- * The bundled samples top out at 1,676 tokens, small enough that the compressor
- * never faces an interesting decision, and the route to seeing it work was to
- * know to paste a long URL and then to invent a question whose answer sits
- * somewhere in its middle. Watching people use the page settled whether that
- * was too much to ask. They loaded a short sample, asked it something about
- * Micronesia or a YouTuber, got "I don't know" in both columns, and concluded
- * nothing had happened. They were right. Nothing had.
+ * The first four presets shipped here were chosen by hand and every one of them
+ * was worthless. The Yalta conference, the Apollo 1 fire, the Round Table
+ * Conference — the model answers all of those with no document in front of it
+ * at all, so a correct reply demonstrated only that it had read Wikipedia during
+ * training. On the Indonesia article at a tenth, the compressor dropped the
+ * relevant passage entirely and the reply still came back correct, carrying the
+ * marker that says it came from memory. A demo that cannot fail is not evidence.
  *
- * Each entry pairs a real article of 100,000 characters or more with a question
- * whose answer is a specific fact in its body — never its opening, since an
- * answer in the first two hundred words survives any compressor and shows
- * nothing about selection. All four are checkable by a sceptic in under a
- * minute, which is the only kind of demonstration worth showing one.
+ * These three were selected by scripts/qualify-presets.mjs, which keeps only
+ * questions that fail one test and pass another: the model must NOT answer it
+ * cold, and MUST answer it from the compressed material. Nine candidates were
+ * measured and six were thrown out — four because the fact did not survive the
+ * cut, two because the model produced it from memory anyway.
+ *
+ * Three is what qualified, so three is what ships. Padding this list back to
+ * four with a question that failed would be the original mistake again.
  */
 const PRESETS = [
-  {
-    id: "ww2",
-    label: "World War II",
-    url: "https://en.wikipedia.org/wiki/World_War_II",
-    question: "which conference agreed to divide Germany into occupation zones after the war",
-  },
-  {
-    id: "photo",
-    label: "Photosynthesis",
-    url: "https://en.wikipedia.org/wiki/Photosynthesis",
-    question: "which experiment showed the oxygen released comes from water rather than carbon dioxide",
-  },
   {
     id: "apollo",
     label: "Apollo program",
     url: "https://en.wikipedia.org/wiki/Apollo_program",
-    question: "what killed the three astronauts of the first crewed Apollo mission",
+    question:
+      "how many people did the Apollo program employ at its peak, and how many industrial firms and universities supported it",
   },
   {
-    id: "indonesia",
+    id: "maros",
     label: "Sejarah Indonesia",
     url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
-    question: "which agreement in 1949 transferred sovereignty from the Netherlands to Indonesia",
+    question:
+      "how old is the wild boar hunt cave painting in the Maros-Pangkep karst of Sulawesi",
+  },
+  {
+    id: "timpuseng",
+    label: "Leang Timpuseng",
+    url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    question:
+      "what is the minimum age of the painted hand stencil from Leang Timpuseng",
   },
 ];
 
