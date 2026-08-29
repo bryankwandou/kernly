@@ -198,6 +198,9 @@ const en = {
     "Nothing was measured here.",
   "chat.nothing.body":
     "Both columns answered from the model's own knowledge, because the reference material had nothing on this. That is the model talking, not the compressor — the two columns will agree no matter what compression does. Load an article above and ask something it actually covers.",
+
+  "chat.nothing.cta":
+    "Try one that does",
 };
 
 export type Key = keyof typeof en;
@@ -344,6 +347,9 @@ const id: Partial_ = {
     "Tidak ada yang terukur di sini.",
   "chat.nothing.body":
     "Kedua kolom menjawab dari ingatan modelnya sendiri, sebab bahan rujukannya memang tidak memuat soal ini. Itu modelnya yang bicara, bukan pemampatnya — kedua kolom akan tetap sama apa pun yang dilakukan pemampatan. Muat artikel di atas, lalu tanyakan hal yang memang dibahasnya.",
+
+  "chat.nothing.cta":
+    "Coba yang memang membuktikan",
 };
 
 const es: Partial_ = {
@@ -486,6 +492,9 @@ const es: Partial_ = {
     "Aquí no se midió nada.",
   "chat.nothing.body":
     "Ambas columnas respondieron desde el conocimiento del propio modelo, porque el material de referencia no traía nada sobre esto. Habla el modelo, no el compresor: las dos columnas coincidirán haga lo que haga la compresión. Carga un artículo arriba y pregunta algo que sí trate.",
+
+  "chat.nothing.cta":
+    "Prueba una que sí lo haga",
 };
 
 const pt: Partial_ = {
@@ -628,6 +637,9 @@ const pt: Partial_ = {
     "Aqui não se mediu nada.",
   "chat.nothing.body":
     "As duas colunas responderam a partir do conhecimento do próprio modelo, porque o material de referência não tinha nada sobre isso. É o modelo falando, não o compressor — as colunas vão concordar faça o que fizer a compressão. Carregue um artigo acima e pergunte algo que ele cubra.",
+
+  "chat.nothing.cta":
+    "Experimente uma que prove",
 };
 
 const fr: Partial_ = {
@@ -770,6 +782,9 @@ const fr: Partial_ = {
     "Rien n’a été mesuré ici.",
   "chat.nothing.body":
     "Les deux colonnes ont répondu depuis la mémoire du modèle, le matériau de référence n’en disait rien. C’est le modèle qui parle, pas le compresseur : les deux colonnes s’accorderont quoi que fasse la compression. Chargez un article ci-dessus et posez une question qu’il traite vraiment.",
+
+  "chat.nothing.cta":
+    "Essayer une qui le fait",
 };
 
 const de: Partial_ = {
@@ -912,6 +927,9 @@ const de: Partial_ = {
     "Hier wurde nichts gemessen.",
   "chat.nothing.body":
     "Beide Spalten antworteten aus dem eigenen Wissen des Modells, weil im Referenzmaterial dazu nichts stand. Da spricht das Modell, nicht die Verdichtung — die Spalten werden übereinstimmen, was die Verdichtung auch tut. Laden Sie oben einen Artikel und fragen Sie etwas, das darin vorkommt.",
+
+  "chat.nothing.cta":
+    "Eine nehmen, die es zeigt",
 };
 
 const it: Partial_ = {
@@ -1054,6 +1072,9 @@ const it: Partial_ = {
     "Qui non è stato misurato nulla.",
   "chat.nothing.body":
     "Entrambe le colonne hanno risposto dalla conoscenza del modello, perché il materiale di riferimento non ne parlava. È il modello a parlare, non il compressore: le due colonne concorderanno qualunque cosa faccia la compressione. Carica un articolo sopra e chiedi qualcosa che tratti davvero.",
+
+  "chat.nothing.cta":
+    "Provane una che lo dimostri",
 };
 
 const nl: Partial_ = {
@@ -1196,6 +1217,9 @@ const nl: Partial_ = {
     "Hier is niets gemeten.",
   "chat.nothing.body":
     "Beide kolommen antwoordden uit de eigen kennis van het model, want het referentiemateriaal zei hier niets over. Dat is het model, niet de compressie — de kolommen zullen het eens zijn wat de compressie ook doet. Laad hierboven een artikel en vraag iets wat het echt behandelt.",
+
+  "chat.nothing.cta":
+    "Probeer er een die dat wel doet",
 };
 
 const pl: Partial_ = {
@@ -1338,6 +1362,9 @@ const pl: Partial_ = {
     "Tu niczego nie zmierzono.",
   "chat.nothing.body":
     "Obie kolumny odpowiedziały z własnej wiedzy modelu, bo materiał źródłowy nic o tym nie mówił. To mówi model, nie kompresor — kolumny będą zgodne cokolwiek zrobi kompresja. Wczytaj artykuł powyżej i zapytaj o coś, co faktycznie omawia.",
+
+  "chat.nothing.cta":
+    "Spróbuj takiego, który to pokaże",
 };
 
 const ru: Partial_ = {
@@ -1480,6 +1507,9 @@ const ru: Partial_ = {
     "Здесь ничего не измерено.",
   "chat.nothing.body":
     "Обе колонки ответили из собственных знаний модели, потому что в справочном материале об этом не было ничего. Говорит модель, а не сжатие: колонки совпадут, что бы сжатие ни делало. Загрузите статью выше и спросите о том, что в ней действительно есть.",
+
+  "chat.nothing.cta":
+    "Попробуйте тот, где видно",
 };
 
 const uk: Partial_ = {
@@ -1622,6 +1652,9 @@ const uk: Partial_ = {
     "Тут нічого не виміряно.",
   "chat.nothing.body":
     "Обидві колонки відповіли з власних знань моделі, бо в довідковому матеріалі про це не було нічого. Говорить модель, а не стиснення: колонки збігатимуться, хоч би що стиснення робило. Завантажте статтю вище й запитайте про те, що в ній справді є.",
+
+  "chat.nothing.cta":
+    "Спробуйте той, де видно",
 };
 
 const tr: Partial_ = {
@@ -1764,6 +1797,9 @@ const tr: Partial_ = {
     "Burada hiçbir şey ölçülmedi.",
   "chat.nothing.body":
     "İki sütun da modelin kendi bilgisinden yanıtladı, çünkü kaynak metinde buna dair bir şey yoktu. Konuşan model, sıkıştırıcı değil — sıkıştırma ne yaparsa yapsın iki sütun aynı diyecek. Yukarıdan bir makale yükleyin ve gerçekten içinde geçen bir şeyi sorun.",
+
+  "chat.nothing.cta":
+    "Bunu gösteren birini deneyin",
 };
 
 const vi: Partial_ = {
@@ -1906,6 +1942,9 @@ const vi: Partial_ = {
     "Ở đây không đo được gì cả.",
   "chat.nothing.body":
     "Cả hai cột đều trả lời từ kiến thức sẵn có của mô hình, vì tài liệu tham chiếu không có gì về chuyện này. Đó là mô hình đang nói, không phải bộ nén — hai cột sẽ giống nhau dù việc nén làm gì đi nữa. Hãy nạp một bài ở trên rồi hỏi điều mà bài đó thật sự bàn tới.",
+
+  "chat.nothing.cta":
+    "Thử một câu chứng minh được",
 };
 
 const th: Partial_ = {
@@ -2047,6 +2086,9 @@ const th: Partial_ = {
     "ตรงนี้ไม่ได้วัดอะไรเลย",
   "chat.nothing.body":
     "ทั้งสองคอลัมน์ตอบจากความรู้เดิมของโมเดลเอง เพราะเอกสารอ้างอิงไม่มีเรื่องนี้อยู่ นั่นคือโมเดลพูด ไม่ใช่ตัวบีบอัด สองคอลัมน์จะตรงกันไม่ว่าการบีบอัดจะทำอะไร ลองโหลดบทความข้างบนแล้วถามสิ่งที่บทความนั้นพูดถึงจริง ๆ",
+
+  "chat.nothing.cta":
+    "ลองอันที่พิสูจน์ได้",
 };
 
 const hi: Partial_ = {
@@ -2189,6 +2231,9 @@ const hi: Partial_ = {
     "यहाँ कुछ भी नहीं मापा गया।",
   "chat.nothing.body":
     "दोनों स्तंभों ने मॉडल के अपने ज्ञान से उत्तर दिया, क्योंकि संदर्भ सामग्री में इस बारे में कुछ था ही नहीं। यह मॉडल बोल रहा है, संपीड़क नहीं — संपीड़न कुछ भी करे, दोनों स्तंभ सहमत ही रहेंगे। ऊपर से कोई लेख लाइए और वही पूछिए जो उसमें सचमुच है।",
+
+  "chat.nothing.cta":
+    "ऐसा एक आज़माइए जो दिखाए",
 };
 
 const ar: Partial_ = {
@@ -2330,6 +2375,9 @@ const ar: Partial_ = {
     "لم يُقَس هنا شيء.",
   "chat.nothing.body":
     "أجاب العمودان من معرفة النموذج نفسه، لأن المادة المرجعية لا تتضمّن شيئًا عن هذا. المتكلّم هو النموذج لا الضاغط — وسيتفق العمودان مهما فعل الضغط. حمّل مقالًا في الأعلى واسأل عمّا يتناوله فعلًا.",
+
+  "chat.nothing.cta":
+    "جرّب سؤالًا يُظهر ذلك",
 };
 
 const zh: Partial_ = {
@@ -2471,6 +2519,9 @@ const zh: Partial_ = {
     "这里什么都没量到。",
   "chat.nothing.body":
     "两栏都是凭模型自己的知识作答的，因为参考材料里根本没有这件事。说话的是模型，不是压缩器——无论压缩做了什么，两栏都会一致。到上面载入一篇文章，再问它真正讲到的东西。",
+
+  "chat.nothing.cta":
+    "试一个能证明的",
 };
 
 const ja: Partial_ = {
@@ -2612,6 +2663,9 @@ const ja: Partial_ = {
     "ここでは何も測れていません。",
   "chat.nothing.body":
     "どちらの欄も模型自身の知識から答えました。参照資料にこの件が無いからです。話しているのは模型であって圧縮ではなく、圧縮が何をしようと 二つの欄は一致します。上から記事を読み込み、そこに実際に書かれていることを尋ねてください。",
+
+  "chat.nothing.cta":
+    "証明できるものを試す",
 };
 
 const ko: Partial_ = {
@@ -2753,6 +2807,9 @@ const ko: Partial_ = {
     "여기서는 아무것도 측정되지 않았습니다.",
   "chat.nothing.body":
     "두 칸 모두 모델 자신의 지식에서 답했습니다. 참고 자료에 이 이야기가 없기 때문입니다. 말하고 있는 것은 모델이지 압축기가 아니며, 압축이 무엇을 하든 두 칸은 일치합니다. 위에서 글을 불러오고, 그 글이 실제로 다루는 것을 물어보세요.",
+
+  "chat.nothing.cta":
+    "증명되는 것으로 시도",
 };
 
 const DICT: Record<Locale, Partial_> = {

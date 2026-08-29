@@ -572,6 +572,7 @@ export function Chat() {
                     kern={turn.kernly}
                     fullError={turn.fullError}
                     kern1Ok={!!turn.kernly}
+                    onTryPreset={() => loadPreset(PRESETS[0])}
                   />
                   <div className="grid gap-4 md:grid-cols-2">
                     <Column title={t("chat.full")} reply={turn.full} error={turn.fullError} />
@@ -747,11 +748,13 @@ function Verdict({
   kern,
   fullError,
   kern1Ok,
+  onTryPreset,
 }: {
   full: Reply | null;
   kern: Reply | null;
   fullError?: string | null;
   kern1Ok?: boolean;
+  onTryPreset?: () => void;
 }) {
   const { t } = useI18n();
 
@@ -798,6 +801,18 @@ function Verdict({
       <div className="rounded-lg border border-[var(--line)] bg-[color-mix(in_oklab,var(--fg)_4%,transparent)] px-4 py-3 text-[13px] leading-relaxed">
         <strong className="font-semibold">{t("chat.nothing.title")}</strong>{" "}
         <span className="text-[var(--muted)]">{t("chat.nothing.body")}</span>
+        {/* The notice ends by telling the reader to load an article and ask
+            something it covers. A button that does exactly that is a click away
+            at the top of the page, so it is repeated here rather than described
+            — the advice and the means to follow it belong in the same place. */}
+        {onTryPreset && (
+          <button
+            onClick={onTryPreset}
+            className="ml-1.5 whitespace-nowrap rounded-md border border-[var(--kernel)] px-2 py-0.5 text-[12px] font-medium transition-colors hover:bg-[color-mix(in_oklab,var(--kernel)_12%,transparent)]"
+          >
+            {t("chat.nothing.cta")} →
+          </button>
+        )}
       </div>
     );
   }
