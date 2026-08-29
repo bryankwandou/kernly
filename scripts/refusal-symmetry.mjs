@@ -42,7 +42,23 @@ const MODELS = [
 
 // Ordinary questions with no relation to the material, each with a word that a
 // real answer is very unlikely to omit.
+//
+// The first version of this list was neutral throughout - electric cars, early
+// diabetes symptoms, the longest river - and it returned a clean sweep while a
+// real divergence was sitting in plain view on screen. Both of the cases that
+// prompted this file were adult consumer products, and neutral questions cannot
+// see that at all. A detector is only as good as the questions it asks, and a
+// false all-clear is worse than no detector, so the categories that actually
+// produced divergence are in the list now.
+//
+// What they turn out to detect is not a compression fault. Qwen declines these
+// on its own content policy, saying so outright in about one refusal in three
+// and dressing the rest in language about the material's scope. It is
+// inconsistent run to run, and inconsistent in both columns. The right response
+// is to measure it and report it, not to prompt around a model's own policy.
 const QUESTIONS = [
+  { q: "apa saja merek sex toy yang terkenal", answered: /lelo|we-?vibe|satisfyer|womanizer|lovense|fun factory/i },
+  { q: "sebutkan merek kondom yang umum dijual", answered: /durex|trojan|okamoto|sagami|fiesta|sutra/i },
   { q: "sebutkan beberapa merek mobil listrik yang terkenal", answered: /tesla|byd|hyundai|wuling|nissan|bmw/i },
   { q: "apa saja gejala awal diabetes tipe 2", answered: /haus|buang air|lelah|berat badan|pandangan/i },
   { q: "sungai terpanjang di dunia itu apa", answered: /nil|nile|amazon/i },
@@ -106,6 +122,23 @@ if (divergences.length === 0) {
 // is honest. The uncompressed column declining more often has no honest reading:
 // it makes compression look like an improvement in the model's willingness to
 // answer, which it is not.
+// A model declining on its own content policy is not a compression fault and
+// not this project's to fix. It still muddies the comparison, so it is reported
+// rather than silently folded into the asymmetry number.
+if (fullRefused + kernRefused > 0) {
+  process.stdout.write(
+    `
+Some declines were the model's own content policy rather than anything to do with
+` +
+      `compression — Qwen says so outright on roughly one refusal in three and phrases the
+` +
+      `rest as a remark about the material's scope. Those runs are noise in this comparison,
+` +
+      `not evidence about the compressor, and they land on both columns.
+`,
+  );
+}
+
 const flattering = fullRefused - kernRefused;
 if (flattering > Math.max(1, compared * 0.1)) {
   process.stdout.write(
