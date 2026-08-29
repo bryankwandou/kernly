@@ -201,6 +201,11 @@ const en = {
 
   "chat.nothing.cta":
     "Try one that does",
+
+  "chat.lopsided.title":
+    "One side declined and the other answered.",
+  "chat.lopsided.body":
+    "Neither answer came from the reference material, so this is not the compression. The same model asked the same question twice simply answered once and declined once — it varies run to run, and asking again will often swap which side does which. To compare compression, load an article and ask something it covers.",
 };
 
 export type Key = keyof typeof en;
@@ -350,6 +355,11 @@ const id: Partial_ = {
 
   "chat.nothing.cta":
     "Coba yang memang membuktikan",
+
+  "chat.lopsided.title":
+    "Satu sisi menolak, satu sisi menjawab.",
+  "chat.lopsided.body":
+    "Kedua jawaban sama-sama bukan dari bahan rujukan, jadi ini bukan soal pemampatan. Model yang sama, pertanyaan yang sama, kebetulan menjawab sekali dan menolak sekali — ia berubah-ubah tiap percobaan, dan bila ditanya ulang sering kali sisinya bertukar. Untuk membandingkan pemampatan, muat artikel lalu tanyakan hal yang dibahasnya.",
 };
 
 const es: Partial_ = {
@@ -495,6 +505,11 @@ const es: Partial_ = {
 
   "chat.nothing.cta":
     "Prueba una que sí lo haga",
+
+  "chat.lopsided.title":
+    "Un lado declinó y el otro respondió.",
+  "chat.lopsided.body":
+    "Ninguna respuesta salió del material de referencia, así que esto no es la compresión. El mismo modelo, con la misma pregunta, respondió una vez y declinó otra — varía entre ejecuciones, y al repetir suele cambiar de lado. Para comparar la compresión, carga un artículo y pregunta algo que trate.",
 };
 
 const pt: Partial_ = {
@@ -640,6 +655,11 @@ const pt: Partial_ = {
 
   "chat.nothing.cta":
     "Experimente uma que prove",
+
+  "chat.lopsided.title":
+    "Um lado recusou e o outro respondeu.",
+  "chat.lopsided.body":
+    "Nenhuma resposta veio do material de referência, então isto não é a compressão. O mesmo modelo, a mesma pergunta, respondeu uma vez e recusou noutra — varia a cada execução, e repetir costuma trocar os lados. Para comparar a compressão, carregue um artigo e pergunte algo que ele cubra.",
 };
 
 const fr: Partial_ = {
@@ -785,6 +805,11 @@ const fr: Partial_ = {
 
   "chat.nothing.cta":
     "Essayer une qui le fait",
+
+  "chat.lopsided.title":
+    "Un côté a refusé, l’autre a répondu.",
+  "chat.lopsided.body":
+    "Aucune des deux réponses ne vient du matériau de référence : ce n’est donc pas la compression. Le même modèle, la même question, a répondu une fois et refusé une fois — cela varie d’un essai à l’autre, et relancer inverse souvent les côtés. Pour comparer la compression, chargez un article et posez une question qu’il traite.",
 };
 
 const de: Partial_ = {
@@ -930,6 +955,11 @@ const de: Partial_ = {
 
   "chat.nothing.cta":
     "Eine nehmen, die es zeigt",
+
+  "chat.lopsided.title":
+    "Eine Seite lehnte ab, die andere antwortete.",
+  "chat.lopsided.body":
+    "Keine der beiden Antworten stammt aus dem Referenzmaterial, das ist also nicht die Verdichtung. Dasselbe Modell hat bei derselben Frage einmal geantwortet und einmal abgelehnt — das schwankt von Lauf zu Lauf, und ein erneuter Versuch vertauscht die Seiten oft. Zum Vergleichen einen Artikel laden und etwas fragen, das darin steht.",
 };
 
 const it: Partial_ = {
@@ -1075,6 +1105,11 @@ const it: Partial_ = {
 
   "chat.nothing.cta":
     "Provane una che lo dimostri",
+
+  "chat.lopsided.title":
+    "Un lato ha rifiutato, l’altro ha risposto.",
+  "chat.lopsided.body":
+    "Nessuna delle due risposte viene dal materiale di riferimento, quindi non è la compressione. Lo stesso modello, stessa domanda, ha risposto una volta e rifiutato l’altra — varia da un tentativo all’altro e spesso i lati si invertono. Per confrontare la compressione, carica un articolo e chiedi qualcosa che tratti.",
 };
 
 const nl: Partial_ = {
@@ -1220,6 +1255,11 @@ const nl: Partial_ = {
 
   "chat.nothing.cta":
     "Probeer er een die dat wel doet",
+
+  "chat.lopsided.title":
+    "De ene kant weigerde, de andere antwoordde.",
+  "chat.lopsided.body":
+    "Geen van beide antwoorden komt uit het referentiemateriaal, dus dit is niet de compressie. Hetzelfde model gaf op dezelfde vraag één keer antwoord en weigerde één keer — dat wisselt per keer, en opnieuw vragen wisselt vaak de kanten om. Laad een artikel en vraag iets dat erin staat.",
 };
 
 const pl: Partial_ = {
@@ -1365,6 +1405,11 @@ const pl: Partial_ = {
 
   "chat.nothing.cta":
     "Spróbuj takiego, który to pokaże",
+
+  "chat.lopsided.title":
+    "Jedna strona odmówiła, druga odpowiedziała.",
+  "chat.lopsided.body":
+    "Żadna odpowiedź nie pochodzi z materiału źródłowego, więc to nie kompresja. Ten sam model przy tym samym pytaniu raz odpowiedział, a raz odmówił — bywa różnie i przy powtórzeniu strony często się zamieniają. Aby porównać kompresję, wczytaj artykuł i zapytaj o to, co omawia.",
 };
 
 const ru: Partial_ = {
@@ -1510,6 +1555,11 @@ const ru: Partial_ = {
 
   "chat.nothing.cta":
     "Попробуйте тот, где видно",
+
+  "chat.lopsided.title":
+    "Одна сторона отказалась, другая ответила.",
+  "chat.lopsided.body":
+    "Ни один ответ не взят из справочного материала, так что дело не в сжатии. Одна и та же модель на один и тот же вопрос однажды ответила и однажды отказалась — это меняется от запуска к запуску, и при повторе стороны часто меняются местами. Чтобы сравнить сжатие, загрузите статью и спросите о том, что в ней есть.",
 };
 
 const uk: Partial_ = {
@@ -1655,6 +1705,11 @@ const uk: Partial_ = {
 
   "chat.nothing.cta":
     "Спробуйте той, де видно",
+
+  "chat.lopsided.title":
+    "Один бік відмовився, другий відповів.",
+  "chat.lopsided.body":
+    "Жодна відповідь не походить із довідкового матеріалу, тож річ не у стисненні. Та сама модель на те саме питання раз відповіла, а раз відмовилася — це різниться від запуску до запуску, і при повторі боки часто міняються. Щоб порівняти стиснення, завантажте статтю й запитайте про те, що в ній є.",
 };
 
 const tr: Partial_ = {
@@ -1800,6 +1855,11 @@ const tr: Partial_ = {
 
   "chat.nothing.cta":
     "Bunu gösteren birini deneyin",
+
+  "chat.lopsided.title":
+    "Bir taraf reddetti, diğeri yanıtladı.",
+  "chat.lopsided.body":
+    "İki yanıt da kaynak metinden gelmiyor, yani mesele sıkıştırma değil. Aynı model aynı soruya bir kez yanıt verdi, bir kez reddetti — bu denemeden denemeye değişir ve tekrar sorunca taraflar sıklıkla yer değiştirir. Sıkıştırmayı karşılaştırmak için bir makale yükleyin ve içinde geçen bir şeyi sorun.",
 };
 
 const vi: Partial_ = {
@@ -1945,6 +2005,11 @@ const vi: Partial_ = {
 
   "chat.nothing.cta":
     "Thử một câu chứng minh được",
+
+  "chat.lopsided.title":
+    "Một bên từ chối, bên kia trả lời.",
+  "chat.lopsided.body":
+    "Không câu nào lấy từ tài liệu tham chiếu, nên đây không phải chuyện nén. Cùng một mô hình, cùng câu hỏi, lần trả lời lần từ chối — nó thay đổi theo từng lượt, hỏi lại thường đổi bên. Muốn so sánh việc nén, hãy nạp một bài và hỏi điều bài đó có bàn.",
 };
 
 const th: Partial_ = {
@@ -2089,6 +2154,11 @@ const th: Partial_ = {
 
   "chat.nothing.cta":
     "ลองอันที่พิสูจน์ได้",
+
+  "chat.lopsided.title":
+    "ฝั่งหนึ่งปฏิเสธ อีกฝั่งตอบ",
+  "chat.lopsided.body":
+    "ทั้งสองคำตอบไม่ได้มาจากเอกสารอ้างอิง เรื่องนี้จึงไม่ใช่การบีบอัด โมเดลเดียวกันกับคำถามเดียวกัน ตอบครั้งหนึ่งและปฏิเสธอีกครั้งหนึ่ง มันแปรผันในแต่ละรอบ และถามใหม่มักสลับฝั่งกัน หากต้องการเทียบการบีบอัด ให้โหลดบทความแล้วถามสิ่งที่บทความนั้นพูดถึง",
 };
 
 const hi: Partial_ = {
@@ -2234,6 +2304,11 @@ const hi: Partial_ = {
 
   "chat.nothing.cta":
     "ऐसा एक आज़माइए जो दिखाए",
+
+  "chat.lopsided.title":
+    "एक पक्ष ने मना किया, दूसरे ने उत्तर दिया।",
+  "chat.lopsided.body":
+    "दोनों उत्तर संदर्भ सामग्री से नहीं आए, इसलिए यह संपीड़न का मामला नहीं है। एक ही मॉडल ने एक ही प्रश्न पर एक बार उत्तर दिया और एक बार मना किया — यह हर बार बदलता है, और दोबारा पूछने पर अक्सर पक्ष बदल जाते हैं। संपीड़न की तुलना के लिए कोई लेख लाइए और वही पूछिए जो उसमें है।",
 };
 
 const ar: Partial_ = {
@@ -2378,6 +2453,11 @@ const ar: Partial_ = {
 
   "chat.nothing.cta":
     "جرّب سؤالًا يُظهر ذلك",
+
+  "chat.lopsided.title":
+    "جانب امتنع وجانب أجاب.",
+  "chat.lopsided.body":
+    "لم تأتِ أي من الإجابتين من المادة المرجعية، فالأمر ليس متعلقًا بالضغط. النموذج نفسه، والسؤال نفسه، أجاب مرة وامتنع مرة — يتغيّر ذلك بين محاولة وأخرى، وإعادة السؤال كثيرًا ما تبدّل الجانبين. لمقارنة الضغط، حمّل مقالًا واسأل عمّا يتناوله.",
 };
 
 const zh: Partial_ = {
@@ -2522,6 +2602,11 @@ const zh: Partial_ = {
 
   "chat.nothing.cta":
     "试一个能证明的",
+
+  "chat.lopsided.title":
+    "一边拒答，一边作答。",
+  "chat.lopsided.body":
+    "两个回答都不是来自参考材料，所以这与压缩无关。同一个模型、同一个问题，一次作答一次拒答——每次运行都可能不同，再问一遍两边常会调换。要比较压缩，请载入一篇文章，问它真正讲到的内容。",
 };
 
 const ja: Partial_ = {
@@ -2666,6 +2751,11 @@ const ja: Partial_ = {
 
   "chat.nothing.cta":
     "証明できるものを試す",
+
+  "chat.lopsided.title":
+    "片方は断り、片方は答えました。",
+  "chat.lopsided.body":
+    "どちらの答えも参照資料から出ていないので、これは圧縮の話ではありません。同じ模型が同じ問いに、一度は答え一度は断った——実行ごとに変わり、もう一度尋ねれば左右が入れ替わることもよくあります。圧縮を比べるには、記事を読み込み、そこに書かれていることを尋ねてください。",
 };
 
 const ko: Partial_ = {
@@ -2810,6 +2900,11 @@ const ko: Partial_ = {
 
   "chat.nothing.cta":
     "증명되는 것으로 시도",
+
+  "chat.lopsided.title":
+    "한쪽은 거절하고 한쪽은 답했습니다.",
+  "chat.lopsided.body":
+    "두 답 모두 참고 자료에서 나온 것이 아니므로 압축의 문제가 아닙니다. 같은 모델이 같은 질문에 한 번은 답하고 한 번은 거절했습니다 — 실행마다 달라지고, 다시 물으면 좌우가 바뀌는 일도 잦습니다. 압축을 비교하려면 글을 불러오고 그 글이 다루는 것을 물어보세요.",
 };
 
 const DICT: Record<Locale, Partial_> = {
