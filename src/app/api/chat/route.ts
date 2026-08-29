@@ -276,12 +276,31 @@ export async function POST(req: Request) {
   // Only quota errors fall back. A 400 is a bad request and would be equally bad
   // at the substitute; a 413 is the context not fitting, which on this site is
   // the result being demonstrated rather than a fault to route around.
+  const MARKER = "[Not in the reference material.]";
+
+  /**
+   * A reply that is only the marker is not an answer.
+   *
+   * The prompt says the marker is a prefix and never the whole reply, and models
+   * mostly honour that, but one column came back as the bare sentence and
+   * nothing after it. To a reader that is indistinguishable from a refusal, and
+   * it appeared beside a compressed column that had answered — the exact
+   * arrangement that makes the compressor look better than it is.
+   *
+   * It reads as a truncation rather than a decision, so it is worth one more
+   * attempt before being shown. If the second attempt is bare too, the reply is
+   * passed through as the model gave it: inventing text to fill the gap would be
+   * worse than showing an empty answer honestly.
+   */
+  const bare = (a: string) => a.trim().replace(MARKER, "").trim().length === 0;
+
   let out;
   let served = model;
   let fellBackFrom: string | null = null;
 
   try {
     out = await complete(model, system, user, key);
+    if (bare(out.answer)) out = await complete(model, system, user, key);
   } catch (e) {
     const quota = e instanceof ProviderError && (e.status === 429 || e.status === 503);
     const alt = quota && model.fallback ? MODELS[model.fallback] : undefined;
@@ -294,6 +313,7 @@ export async function POST(req: Request) {
 
     try {
       out = await complete(alt, system, user, altKey);
+      if (bare(out.answer)) out = await complete(alt, system, user, altKey);
       served = alt;
       fellBackFrom = model.label;
     } catch (e2) {
