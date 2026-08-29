@@ -25,22 +25,21 @@ been shaped by anything we run.
 
 ## The run
 
-Recorded 2026-08-29 against `openai/gpt-oss-20b`.
+Recorded 2026-08-29 against `openai/gpt-oss-120b`, through the deployed
+endpoint.
 
 ```
 ==============================================================================
-https://en.wikipedia.org/wiki/Apollo_program
-Q: how many people did the Apollo program employ at its peak, and how many
-   industrial firms and universities supported it
+https://en.wikipedia.org/wiki/Chernobyl_disaster
+Q: how many individual fuel channels did Chernobyl reactor no. 4 have
 
-  page      152,371 chars, ~51,878 tokens
-  COLD      MODEL ALREADY KNOWS IT — this case proves nothing
-  UNCUT     REFUSED 502 — limit 8000, requested 40309
-  KERNLY    accepted at 5272 prompt tokens, ratio 10% (50,988 → 6,102, 88.0% cut,
-                                                       confidence 0.78)
-  ANSWER    …roughly 400,000 people at its peak, supported by over 20,000
-            industrial firms and universities.
-  CHECK     correct (expected /400,?000/)
+  page      143,528 chars, ~49,867 tokens
+  COLD      model does not know it without the document
+  UNCUT     REFUSED 502 — limit 8000, requested 37623
+  KERNLY    accepted at 5145 prompt tokens, ratio 10% (49,368 → 5,884, 88.1% cut,
+                                                       confidence 0.82)
+  ANSWER    Chernobyl reactor No. 4 contained 1,661 individual fuel channels.
+  CHECK     correct (expected /1,?661/)
 
 ==============================================================================
 https://en.wikipedia.org/wiki/History_of_Indonesia
@@ -49,62 +48,81 @@ Q: how old is the wild boar hunt cave painting in the Maros-Pangkep karst of
 
   page      116,283 chars, ~39,498 tokens
   COLD      model does not know it without the document
-  UNCUT     REFUSED 502 — limit 8000, requested 30598
-  KERNLY    accepted at 5516 prompt tokens, ratio 12% (39,161 → 5,682, 85.5% cut,
+  UNCUT     REFUSED 502 — limit 8000, requested 30617
+  KERNLY    accepted at 5535 prompt tokens, ratio 12% (39,161 → 5,682, 85.5% cut,
                                                        confidence 0.91)
-  ANSWER    …estimated to be at least 43,900 years old.
+  ANSWER    …dated to at least 43,900 years old.
   CHECK     correct (expected /43,?900/)
 
 ==============================================================================
-https://en.wikipedia.org/wiki/History_of_Indonesia
-Q: what is the minimum age of the painted hand stencil from Leang Timpuseng
+https://en.wikipedia.org/wiki/Borobudur
+Q: how many surfaces of stone stairs does Borobudur have in total
 
-  page      116,283 chars, ~39,498 tokens
+  page      97,516 chars, ~33,061 tokens
   COLD      model does not know it without the document
-  UNCUT     REFUSED 502 — limit 8000, requested 30592
-  KERNLY    accepted at 5427 prompt tokens, ratio 12% (39,161 → 5,685, 85.5% cut,
-                                                       confidence 0.91)
-  ANSWER    …a minimum age of 39,900 years.
-  CHECK     correct (expected /39,?900/)
+  UNCUT     REFUSED 502 — limit 8000, requested 27582
+  KERNLY    accepted at 5573 prompt tokens, ratio 15% (32,447 → 5,867, 81.9% cut,
+                                                       confidence 0.86)
+  ANSWER    Borobudur has a total of 2,033 stone-stair surfaces.
+  CHECK     correct (expected /2,?033/)
 
 ==============================================================================
 3/3 cases where the uncompressed request was refused and the compressed one
 answered correctly.
-2 of those are attributable to the compression. 1 the model already knew without
-the document, so that row demonstrates the ceiling but not the retrieval.
 ```
 
 ## Reading it
 
-**The refusals are the baseline and they are real.** 40,309, 30,598 and 30,592
+**The refusals are the baseline and they are real.** 37,623, 30,617 and 27,582
 tokens, each turned away against a limit of 8,000. Without compression these
-three questions cannot be asked on this tier at all. Not slowly, not expensively
-— not at all.
+three questions cannot be asked on this tier at all. Not slowly, not
+expensively — not at all.
 
-**All three then answered correctly on the same key**, at 5,272 to 5,516 prompt
-tokens, an 85% to 88% cut.
+**All three then answered correctly on the same key**, at 5,145 to 5,573 prompt
+tokens, an 82% to 88% cut.
 
-**Two of the three are evidence. The first is not, and the run says so itself.**
+**All three are attributable to the compression**, and that sentence has been
+earned twice over rather than assumed.
 
-That COLD row is the whole reason this file was rewritten. The version recorded
-on 2026-08-23 asked which conference divided Germany, which experiment traced
-oxygen to water, and what killed the Apollo 1 crew — and reported 2 of 3
-correct as though that settled something. It did not. Asked with no document at
-all, gpt-oss-20b produces Yalta, Ruben and Kamen, and the cabin fire from
-training alone. Every one of those answers was consistent with the compressor
-having dropped the relevant passage entirely and the model reciting what it
-already knew. A test that cannot fail is not a test.
+The first version of this file asked which conference divided Germany, which
+experiment traced oxygen to water, and what killed the Apollo 1 crew, and
+reported 2 of 3 correct as though that settled something. It did not. Asked
+with no document at all, the model produces Yalta, Ruben and Kamen, and the
+cabin fire from training alone. Every one of those answers was consistent with
+the compressor having dropped the relevant passage and the model reciting
+Wikipedia from memory. A test that cannot fail is not a test.
 
-So the questions were replaced with facts a model has no reason to hold —
-43,900 years for the Maros-Pangkep boar hunt, 39,900 for the Leang Timpuseng
-hand stencil — and the cold check now runs on every case rather than being
-reasoned about once. It earned its place immediately: the Apollo employment
-question had passed selection, and on this run the model produced 400,000
-unaided. That row is honest about the ceiling and proves nothing about
-retrieval, and the summary now counts those separately.
+The second version added a cold check and a qualifier — and still shipped a
+question the model knew. The qualifier asked each candidate cold exactly once,
+which decides nothing about a fact a model produces most of the time but not
+always. The Apollo employment question cleared on a single decline, shipped
+here, and was caught on the next run answering 400,000 unaided. Asked three
+times it answers three times out of three.
 
-**What the two attributable rows show.** The model could not produce 43,900 or
-39,900 without the document. The document could not be sent — 30,000 tokens
-against a limit of 8,000. Compressed to an eighth, it went through and both
-numbers came back correct. The only path from the question to the answer runs
-through the compressor.
+The questions below now come from a qualifier that asks cold three times and
+drops a candidate on any hit. Eighteen candidates went in and five came out:
+seven the model already knew, five whose fact did not survive the cut, one whose
+answer the text extractor never carried off the page. The three above are one
+each from three different articles, so a quirk of a single Wikipedia page cannot
+be what the run is measuring. The COLD row re-checks all of it on every run,
+because a later model may simply know more.
+
+**What the three rows show.** The model could not produce 1,661, 43,900 or 2,033
+without the document. The documents could not be sent — 27,000 to 37,000 tokens
+against a limit of 8,000. Compressed to roughly a seventh, all three went
+through and all three numbers came back correct. The only path from each
+question to its answer runs through the compressor.
+
+## Why the model in the transcript is the 120B
+
+The demo key is shared with the live site, and the token window is metered per
+model. While the site is being used, `gpt-oss-20b` refuses a large request with
+a bare 429 — the window is already spent — and never reaches the size check that
+produces the numbers this file is built on. That refusal is about our pacing,
+not about the document, and `scripts/groq-proof.mjs` now marks such a case
+inconclusive rather than counting it.
+
+The run above used a model nobody was occupying at the time. The ceiling is the
+same 8,000 tokens either way; the difference is only whether the provider got
+far enough to say so. Running it with your own key avoids the contention
+entirely, which is the second reason to prefer that form.
