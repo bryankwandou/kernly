@@ -187,6 +187,27 @@ export function keyFor(provider: ProviderId): string | undefined {
  */
 const RETRY_DELAYS_MS = [700, 1900];
 
+/**
+ * Every provider call gets a clock, and the whole request gets a shorter one
+ * than the platform's.
+ *
+ * Neither fetch had a timeout. A provider that accepted the connection and then
+ * went quiet held the route open until Vercel killed the function at sixty
+ * seconds, and the visitor got an HTTP 504 from the platform — a bare gateway
+ * error with nothing in it about what had happened or what to do. Retries and
+ * the fallback model made it likelier, because each one added another
+ * unbounded wait to a budget nobody was counting.
+ *
+ * Fourteen seconds is comfortably longer than these models take to answer a
+ * compressed prompt and short enough that two retries and a fallback still fit
+ * inside the function's own limit. DEADLINE_MS stops the retry loop rather than
+ * the individual call: it is the difference between reporting a slow provider
+ * and being cut off mid-sentence by the platform, and only one of those can
+ * explain itself to a reader.
+ */
+const CALL_TIMEOUT_MS = 14_000;
+const DEADLINE_MS = 42_000;
+
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
@@ -219,6 +240,7 @@ export async function complete(
       ? groq(model, system, user, key)
       : google(model, system, user, key);
 
+  const startedAt = Date.now();
   let last: unknown;
   for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
     try {
@@ -226,6 +248,10 @@ export async function complete(
     } catch (e) {
       last = e;
       if (!retryable(e, model.provider) || attempt === RETRY_DELAYS_MS.length) break;
+      // Retrying past the deadline cannot finish, and the only thing another
+      // attempt buys is the platform killing the function instead of us
+      // returning the error we already have.
+      if (Date.now() - startedAt + RETRY_DELAYS_MS[attempt] > DEADLINE_MS) break;
       await pause(RETRY_DELAYS_MS[attempt]);
     }
   }
@@ -246,6 +272,7 @@ async function groq(
   try {
     res = await fetch(GROQ_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: model.id,
@@ -258,8 +285,8 @@ async function groq(
         ],
       }),
     });
-  } catch {
-    throw new ProviderError("Could not reach Groq.", 502);
+  } catch (e) {
+    throw unreachable("Groq", e);
   }
 
   if (!res.ok) throw await upstream("Groq", res);
@@ -308,6 +335,7 @@ async function google(
   const send = () =>
     fetch(url, {
       method: "POST",
+      signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
       headers: { "Content-Type": "application/json", "X-goog-api-key": key },
       body,
     });
@@ -325,8 +353,8 @@ async function google(
       await new Promise((r) => setTimeout(r, 800));
       res = await send();
     }
-  } catch {
-    throw new ProviderError("Could not reach Google.", 502);
+  } catch (e) {
+    throw unreachable("Google", e);
   }
 
   if (!res.ok) throw await upstream("Google", res);
@@ -345,6 +373,25 @@ async function google(
 }
 
 /* ------------------------------------------------------------------ shared */
+
+/**
+ * A call that never came back, told apart from one that could not go out.
+ *
+ * AbortSignal.timeout rejects with a TimeoutError, and a reader deserves to
+ * know which of the two happened: an unreachable provider is an outage, while a
+ * provider that took longer than we were willing to wait is usually a large
+ * prompt or a busy model, and the answer to that one is to compress further.
+ */
+function unreachable(name: string, e: unknown): ProviderError {
+  const timedOut = e instanceof DOMException && e.name === "TimeoutError";
+  return new ProviderError(
+    timedOut
+      ? `${name} did not answer within ${Math.round(CALL_TIMEOUT_MS / 1000)} seconds. ` +
+          `That is usually a prompt this model is slow to read — compress further, or try another model.`
+      : `Could not reach ${name}.`,
+    timedOut ? 504 : 502,
+  );
+}
 
 async function upstream(name: string, res: Response): Promise<ProviderError> {
   const detail = await res.text().catch(() => "");

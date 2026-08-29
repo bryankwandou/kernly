@@ -159,6 +159,14 @@ const en = {
     "The server did not return a readable reply. On a very large document this is usually the request running out of time before the model answered — compress it further, or send a shorter page.",
   "chat.error.status":
     "The request failed",
+  "chat.voice.start":
+    "Dictate the question",
+  "chat.voice.stop":
+    "Stop dictating",
+  "chat.voice.denied":
+    "The browser is blocking the microphone for this page. Allow it in the address bar and try again.",
+  "chat.voice.failed":
+    "Dictation stopped unexpectedly. Try again, or type the question.",
   "chat.coverage":
     "of the question's rare terms survived",
   "chat.ownCount":
@@ -317,6 +325,14 @@ const id: Partial_ = {
     "Server tidak mengembalikan balasan yang bisa dibaca. Pada dokumen yang sangat besar, biasanya ini berarti permintaannya kehabisan waktu sebelum model sempat menjawab — kompres lebih jauh, atau kirim halaman yang lebih pendek.",
   "chat.error.status":
     "Permintaan gagal",
+  "chat.voice.start":
+    "Diktekan pertanyaannya",
+  "chat.voice.stop":
+    "Hentikan dikte",
+  "chat.voice.denied":
+    "Peramban memblokir mikrofon untuk halaman ini. Izinkan lewat bilah alamat, lalu coba lagi.",
+  "chat.voice.failed":
+    "Dikte berhenti tak terduga. Coba lagi, atau ketikkan pertanyaannya.",
   "chat.coverage":
     "istilah langka pertanyaan yang selamat",
   "chat.ownCount":
