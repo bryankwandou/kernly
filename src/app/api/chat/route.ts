@@ -161,11 +161,36 @@ export async function POST(req: Request) {
   // model to say where its answer came from. A visitor can then see for
   // themselves when the compressed column has fallen back on prior knowledge,
   // which is a compression failure worth seeing rather than one worth hiding.
+  // Whether any material was supplied at all changes what the rules should say.
+  //
+  // With a document loaded, the marker earns its place: it is how a reader tells
+  // an answer the compression carried from one the model already knew, which is
+  // the difference the two columns exist to show. With the box empty there is no
+  // reference material for an answer to be outside of, and demanding the model
+  // announce that its knowledge is "not in the reference material" is both
+  // meaningless and the thing that makes this read like a support bot rather
+  // than somewhere you can simply ask a question.
+  const grounded = context.trim().length > 0;
+
   const system = [
     "Answer the question directly and concretely.",
-    "Reference material may be supplied. When it answers the question, use it and prefer it over what you already know.",
-    "When it does not, open with the exact sentence [Not in the reference material.] and then still answer the question from your own knowledge.",
-    "That marker is a prefix, never the whole reply.",
+    ...(grounded
+      ? [
+          "Reference material has been supplied. When it answers the question, use it and prefer it over what you already know.",
+          "When it does not, open with the exact sentence [Not in the reference material.] and then still answer the question from your own knowledge.",
+          "That marker is a prefix, never the whole reply.",
+          // "When it does not answer the question" was read by some models as
+          // "when it does not answer the question completely", and Gemini Flash
+          // Lite then marked two replies in three that had plainly come out of
+          // the material. That error flatters this page — a false marker on the
+          // uncompressed column makes the compressed one look like the only
+          // side that worked — which is exactly the kind of error to be least
+          // willing to leave in place.
+          "The marker is about origin, not completeness. Use it only when the material contributed nothing at all to your answer. If any part of what you write came from the material, do not use the marker, even where the material was thin, partial, or left most of the question to you.",
+        ]
+      : [
+          "No reference material was supplied, so answer from your own knowledge as you normally would, with no marker and no preamble about material.",
+        ]),
     // The escape hatch this used to offer — "if you genuinely do not know, say
     // what you do not know and why" — was written for honesty and read as
     // permission. GPT-OSS ignored it and answered; Qwen took it every time,
@@ -187,7 +212,14 @@ export async function POST(req: Request) {
     // is what fabrication looks like from the inside, and a model can be asked
     // to notice it.
     "The test: can you state one checkable fact about them — a dated role, a named work, a place? If not, you do not know them. A description assembled only from plausible categories, with nothing in it anyone could verify, is fabrication however fluent it reads, and no caveat rescues it.",
-    "Never assemble a biography, history or description for a name you do not recognise. Treat a name you half-recognise the same way: say what you are confident of, name the rest as unknown, and do not fill the gap.",
+    "Never assemble a biography, history or description for a name you do not recognise.",
+    // The counterweight, added because the rule above overshot. Written only as
+    // a prohibition it made the model timid about people it plainly knows —
+    // asked what a well-known Indonesian YouTuber was worth, it declined
+    // outright rather than giving the range it clearly had. Not knowing a name
+    // is the narrow exception here, not the default posture.
+    "When you do recognise the name, answer properly and at length: who they are, what they are known for, dates and figures where you have them. Caution belongs to names you do not know, and applying it to names you do know withholds an answer you actually have.",
+    "For a name you partly recognise, give what you are confident of and mark the rest as uncertain — that is different from refusing.",
     "An approximate answer is wanted for anything general — a statistic, a date, a quantity, how something works. A rough figure, a range or a typical case beats a refusal; give the estimate and say how firm it is.",
     "Only say you cannot answer when you have nothing at all on the subject. Being unsure is not the same as having nothing.",
     // The line above, without the two below, produced invented biographies.
@@ -222,7 +254,9 @@ export async function POST(req: Request) {
     // it to decide whether to show the badge, and a translated marker would be
     // silently unrecognised. The badge the reader actually sees is drawn from
     // the interface dictionary, so nobody reads the English.
-    "Write the [Not in the reference material.] marker in English exactly as given, whatever language the rest of the answer is in.",
+    ...(grounded
+      ? ["Write the [Not in the reference material.] marker in English exactly as given, whatever language the rest of the answer is in."]
+      : []),
   ].join(" ");
 
   const user = sent
