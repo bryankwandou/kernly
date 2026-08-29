@@ -14,7 +14,8 @@
     "eval": "node scripts/eval.mjs",
     "proof": "node scripts/devnet-proof.mjs",
     "proof:groq": "node scripts/groq-proof.mjs",
-    "qualify:presets": "node scripts/qualify-presets.mjs"
+    "qualify:presets": "node scripts/qualify-presets.mjs",
+    "check:symmetry": "node scripts/refusal-symmetry.mjs"
   },
   "dependencies": {
     "@kernly/core": "*",
