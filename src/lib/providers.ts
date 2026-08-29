@@ -348,10 +348,38 @@ async function google(
 
 async function upstream(name: string, res: Response): Promise<ProviderError> {
   const detail = await res.text().catch(() => "");
-  // A rate limit on a shared demo key is the ordinary case rather than an
-  // anomaly, and deserves a sentence a visitor can act on instead of a raw
-  // upstream dump.
+
   if (res.status === 429) {
+    // Groq sends 429 for two different things and only one of them is about
+    // this request.
+    //
+    // "Request too large for model ... on tokens per minute (TPM): Limit 8000,
+    // Requested 40308" means the material cannot be sent at any pace, on any
+    // schedule, until something shrinks it. That refusal is the entire baseline
+    // this project argues from, and the two numbers are what make it checkable.
+    //
+    // "Rate limit reached ... try again in 34s" means somebody — often our own
+    // previous call — just used the window. It says nothing about size.
+    //
+    // Flattening both into one friendly sentence destroyed the numbers, and the
+    // proof script was left reporting a refusal it could not substantiate:
+    // three cases where the compressed answer was correct and the uncompressed
+    // baseline had to be recorded as inconclusive. The numbers are the
+    // evidence, so when the upstream body carries them they are passed through
+    // verbatim.
+    const limit = Number(/Limit (\d+)/.exec(detail)?.[1]) || null;
+    const requested = Number(/Requested (\d+)/.exec(detail)?.[1]) || null;
+    if (limit !== null && requested !== null && requested > limit) {
+      return new ProviderError(
+        `${name} refused this request for its size: Limit ${limit}, Requested ${requested} tokens. ` +
+          `The material does not fit the per-minute token budget on this key, so it cannot be sent ` +
+          `uncompressed however long you wait.`,
+        429,
+      );
+    }
+    // A rate limit on a shared demo key is the ordinary case rather than an
+    // anomaly, and deserves a sentence a visitor can act on instead of a raw
+    // upstream dump.
     return new ProviderError(
       `${name} has no quota left on the shared demo key for this model. On Groq that is the ` +
         `8,000-token minute window and clears within a minute; on Google it is usually the ` +

@@ -173,6 +173,7 @@ Question: ${question}`
       message: msg,
       limit: Number(/Limit (\d+)/.exec(msg)?.[1]) || null,
       requested: Number(/Requested (\d+)/.exec(msg)?.[1]) || null,
+      tooLarge: tooLarge(msg),
     };
   }
   return {
@@ -202,9 +203,32 @@ async function askViaSite(material, question) {
       message: msg,
       limit: Number(/Limit (\d+)/.exec(msg)?.[1]) || null,
       requested: Number(/Requested (\d+)/.exec(msg)?.[1]) || null,
+      tooLarge: tooLarge(msg),
     };
   }
   return { ok: true, answer: json.answer ?? "", promptTokens: json.promptTokens ?? null };
+}
+
+/**
+ * Was this request turned away for being too big, or merely too soon?
+ *
+ * Groq answers both with HTTP 429 and the distinction is the whole baseline of
+ * this file. "Request too large for model ... on tokens per minute (TPM): Limit
+ * 8000, Requested 40308" says the document cannot be sent on this tier at any
+ * pace. "Rate limit reached ... please try again in 34s" says only that the
+ * previous call in this script used the budget, which is a fact about the
+ * harness and not about the document.
+ *
+ * Counting both as the baseline is what this script did, and it would have
+ * reported a run as proof on a refusal it had caused itself. The size refusal
+ * names two numbers and the requested one exceeds the limit; a bare rate limit
+ * names neither. So the numbers are the test, and a refusal that cannot show
+ * them is retried after the window clears rather than written down as evidence.
+ */
+function tooLarge(msg) {
+  const limit = Number(/Limit (\d+)/.exec(msg)?.[1]) || null;
+  const requested = Number(/Requested (\d+)/.exec(msg)?.[1]) || null;
+  return limit !== null && requested !== null && requested > limit;
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -249,11 +273,27 @@ for (const c of cases) {
   await wait(3000);
 
   // Uncompressed, next. The refusal is the baseline and it has to be real.
-  const full = await askGroq(text, c.question);
+  let full = await askGroq(text, c.question);
+
+  // A refusal that names no numbers is a rate limit, and a rate limit here is
+  // almost always this script's own previous call still occupying the window.
+  // Waiting it out and asking again is the difference between measuring the
+  // document and measuring the harness. Once only: if the second attempt is
+  // still bare, something other than pacing is going on and the row says so
+  // rather than quietly claiming a size refusal it cannot evidence.
+  if (!full.ok && !full.tooLarge) {
+    console.log(`  UNCUT     ${full.status} with no size given — waiting 65s and asking once more`);
+    await wait(65_000);
+    full = await askGroq(text, c.question);
+  }
+
   if (full.ok) {
     console.log(`  UNCUT     accepted at ${full.promptTokens} prompt tokens`);
-  } else {
+  } else if (full.tooLarge) {
     console.log(`  UNCUT     REFUSED ${full.status} — limit ${full.limit}, requested ${full.requested}`);
+  } else {
+    console.log(`  UNCUT     INCONCLUSIVE ${full.status} — ${full.message.slice(0, 80)}`);
+    console.log(`  UNCUT     not a size refusal, so this case is not counted`);
   }
 
   // A refused call spends nothing, so this pause only needs to clear the clock
@@ -298,7 +338,10 @@ for (const c of cases) {
     if (c.expect) {
       const hit = c.expect.test(kern.answer);
       console.log(`  CHECK     ${hit ? "correct" : "WRONG"} (expected /${c.expect.source}/)`);
-      if (hit && !full.ok) passed += 1;
+      // Only a refusal that named a size counts. A case whose uncompressed
+      // call was merely rate limited proves nothing about whether the document
+      // fits, however correct the compressed answer turned out to be.
+      if (hit && full.tooLarge) passed += 1;
     }
   }
   console.log();
