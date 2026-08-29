@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://kernly.vercel.app"),
   title: {
     default: "Kernly — keep the kernel, drop the chaff",
-    template: "%s Â· Kernly",
+    template: "%s · Kernly",
   },
   description:
     "A deterministic context compressor for LLM agents. Cuts prompt tokens without a GPU, tells you when not to trust the result, and anchors every saving on Solana so the number is checkable rather than claimed.",
