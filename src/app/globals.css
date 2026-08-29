@@ -10,6 +10,23 @@
  * Colour therefore means something everywhere it appears.
  */
 :root {
+  /**
+   * Declared, and declared in every branch, because a page that stays silent
+   * about this does not get to decide how it looks.
+   *
+   * Two things read it. Native widgets — the language and model selects, the
+   * scrollbars, focus rings — are painted by the browser and follow the
+   * operating system unless told otherwise, so on a dark OS the light theme
+   * arrived with dark dropdowns embedded in it.
+   *
+   * The larger one is that Chrome and Edge will force-darken a page that
+   * declares no colour scheme when the reader has auto dark mode switched on.
+   * That is what "the light theme does not work, it stays dark" turns out to
+   * be: not our toggle failing, but the browser overruling a page that never
+   * said what it was. Naming the scheme is the documented way out of it.
+   */
+  color-scheme: light;
+
   --ink: #0b0d0c;
   --paper: #faf9f6;
   --kernel: #e8a33d;
@@ -24,8 +41,13 @@
   --panel: #ffffff;
 }
 
+/* Guarded, so an explicit light choice is not re-darkened on a dark OS. The
+   attribute rules below already outrank this on specificity, but relying on
+   ordering for something a reader can see is a thin guarantee. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
     --bg: #0b0d0c;
     --fg: #f2efe9;
     --muted: #9b948a;
@@ -35,6 +57,8 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
+
   --bg: #0b0d0c;
   --fg: #f2efe9;
   --muted: #9b948a;
@@ -43,6 +67,8 @@
 }
 
 :root[data-theme="light"] {
+  color-scheme: light;
+
   --bg: #faf9f6;
   --fg: #0b0d0c;
   --muted: #77716a;
