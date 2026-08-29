@@ -6,6 +6,7 @@ import { compress, estimate } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
 import { useI18n } from "./I18n";
 import { Answer } from "./Answer";
+import { VoiceInput } from "./Voice";
 import type { Key } from "@/lib/i18n";
 
 /**
@@ -294,6 +295,11 @@ export function Chat() {
   const [sampleId, setSampleId] = useState<string>(DEFAULT.id);
   const [context, setContext] = useState(DEFAULT.text);
   const [question, setQuestion] = useState(DEFAULT.query);
+  // What the field held before the current dictation run. Interim speech
+  // results arrive repeatedly and each one supersedes the last, so without a
+  // fixed base every partial phrase would be appended and the field would fill
+  // with the same half-sentence over and over.
+  const dictationBase = useRef(DEFAULT.query);
   // 40 percent sits inside the band the harness measured as safe. Defaulting
   // lower would make the escalation warning the common case, which is honest
   // about the setting and dishonest about the tool.
@@ -316,12 +322,14 @@ export function Chat() {
     setSampleId(id);
     setContext(s.text);
     setQuestion(s.query);
+    dictationBase.current = s.query;
     setSource(null);
     setTurns([]);
   };
 
   const loadPreset = async (p: (typeof PRESETS)[number]) => {
     setQuestion(p.question);
+    dictationBase.current = p.question;
     // Handed over rather than read back from state: setQuestion has not landed
     // at this point, and the ratio search below scores blocks against the
     // query. Reading state here would size the compression against whatever the
@@ -387,6 +395,7 @@ export function Chat() {
       { id, question: q, full: null, kernly: null, fullError: null, kernlyError: null, pending: true },
     ]);
     setQuestion("");
+    dictationBase.current = "";
     setBusy(true);
 
     // The interface language rides along, so the answer comes back in the
@@ -646,7 +655,13 @@ export function Chat() {
         <div className="sticky bottom-4 flex gap-2 rounded-xl border border-[var(--line)] bg-[color-mix(in_oklab,var(--panel)_92%,transparent)] p-2 backdrop-blur-md">
           <input
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={(e) => {
+              setQuestion(e.target.value);
+              // Typing ends the dictation run: the next spoken phrase should
+              // continue from what is on screen, not from what was there when
+              // the microphone was last opened.
+              dictationBase.current = e.target.value;
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -655,6 +670,19 @@ export function Chat() {
             }}
             placeholder={t("chat.placeholder")}
             className="min-w-0 flex-1 bg-transparent px-3 py-2 text-[14.5px] outline-none"
+          />
+          {/* Dictation appends to whatever is already typed, rather than
+              replacing it, so a half-typed question can be finished by voice
+              and a mis-heard word can be fixed by hand without starting over.
+              Interim results overwrite only the run they belong to, which is
+              what the ref below tracks. */}
+          <VoiceInput
+            disabled={busy}
+            onTranscript={(text, final) => {
+              const base = dictationBase.current;
+              setQuestion(`${base}${base && !base.endsWith(" ") ? " " : ""}${text}`);
+              if (final) dictationBase.current = `${base}${base && !base.endsWith(" ") ? " " : ""}${text}`;
+            }}
           />
           <button
             onClick={() => void send()}
