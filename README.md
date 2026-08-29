@@ -64,12 +64,14 @@ trust, and all four are reproducible from this repository.
 - **[PROOF.md](PROOF.md)** is the on-chain loop demonstrated end to end on
   devnet, with two transaction signatures producing an identical digest minutes
   apart. Run it with `npm run proof`.
-- **[GROQ-PROOF.md](GROQ-PROOF.md)** takes three long Wikipedia articles to a
-  free-tier Groq key, which refuses all three uncompressed at 27,000 to 54,000
-  tokens against a limit of 8,000, and answers two of the three once Kernly has
-  cut them by 82 to 90 percent. The third is wrong, and the gate had already
-  flagged it. Run it with `npm run proof:groq`, or set `GROQ_API_KEY` to cut
-  this project out of the path entirely and call Groq yourself.
+- **[GROQ-PROOF.md](GROQ-PROOF.md)** takes long Wikipedia articles to a
+  free-tier Groq key, which refuses all three uncompressed at 30,000 to 40,000
+  tokens against a limit of 8,000, and answers all three once Kernly has cut
+  them by 85 to 88 percent. Each case is asked cold first, with no document, and
+  only the cases the model fails cold count as evidence — on the recorded run
+  that is two of the three, and the file says which one does not qualify and
+  why. Run it with `npm run proof:groq`, or set `GROQ_API_KEY` to cut this
+  project out of the path entirely and call Groq yourself.
 - **[AUDIT.md](AUDIT.md)** is an adversarial review of the product written
   against it rather than for it, covering the business model, the competitive
   position and the places the design is currently thin.
