@@ -797,6 +797,32 @@ function Verdict({
   // in the page's opening paragraph, which is where it already lives and where
   // it was read past.
   if (split(full.answer).outside && split(kern.answer).outside) {
+    // One side declined outright while the other answered.
+    //
+    // The notice below says both columns answered from the model's own
+    // knowledge, and on the run that prompted this that was simply untrue: the
+    // uncompressed column had refused and said nothing, while the compressed one
+    // listed ten car brands. Describing a refusal as "answered from memory"
+    // misreads the screen a visitor is looking at, and it misreads it in the
+    // direction that flatters the compressor.
+    //
+    // Length is a coarse signal but a reliable one here — a refusal is a
+    // sentence, an answer is a paragraph — and it does not need to be precise,
+    // because the point is only to stop calling a refusal an answer.
+    const fullLen = split(full.answer).body.trim().length;
+    const kernLen = split(kern.answer).body.trim().length;
+    const lopsided =
+      Math.min(fullLen, kernLen) < 180 && Math.max(fullLen, kernLen) > Math.min(fullLen, kernLen) * 2.5;
+
+    if (lopsided) {
+      return (
+        <div className="rounded-lg border border-[var(--line)] bg-[color-mix(in_oklab,var(--fg)_4%,transparent)] px-4 py-3 text-[13px] leading-relaxed">
+          <strong className="font-semibold">{t("chat.lopsided.title")}</strong>{" "}
+          <span className="text-[var(--muted)]">{t("chat.lopsided.body")}</span>
+        </div>
+      );
+    }
+
     return (
       <div className="rounded-lg border border-[var(--line)] bg-[color-mix(in_oklab,var(--fg)_4%,transparent)] px-4 py-3 text-[13px] leading-relaxed">
         <strong className="font-semibold">{t("chat.nothing.title")}</strong>{" "}
