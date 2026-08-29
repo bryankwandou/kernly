@@ -806,13 +806,27 @@ function Verdict({
     // misreads the screen a visitor is looking at, and it misreads it in the
     // direction that flatters the compressor.
     //
-    // Length is a coarse signal but a reliable one here — a refusal is a
-    // sentence, an answer is a paragraph — and it does not need to be precise,
-    // because the point is only to stop calling a refusal an answer.
+    // Length is a coarse signal but a reliable one here — a refusal is short and
+    // an answer is a paragraph — and it does not need to be precise, because the
+    // point is only to stop calling a refusal an answer.
+    //
+    // The first cut used 180 characters as the ceiling for "short" and missed
+    // the very case it was written for. These refusals are not terse: Qwen
+    // declines by recounting what the material does contain — the checkout
+    // outage, the date, the timeout misconfiguration — and arrives at about 325
+    // characters without answering anything. A verbose refusal is still a
+    // refusal.
+    //
+    // Calibrated against measured replies rather than guessed at. When both
+    // columns genuinely answer they land within a third of each other: 1263 vs
+    // 1352, 1306 vs 1170, 1380 vs 1064 over three runs. The screenshot case was
+    // 325 against roughly 1200, a ratio of 3.7. A 600-character ceiling with a
+    // 2.5 ratio separates those cleanly with room on both sides.
     const fullLen = split(full.answer).body.trim().length;
     const kernLen = split(kern.answer).body.trim().length;
-    const lopsided =
-      Math.min(fullLen, kernLen) < 180 && Math.max(fullLen, kernLen) > Math.min(fullLen, kernLen) * 2.5;
+    const shorter = Math.min(fullLen, kernLen);
+    const longer = Math.max(fullLen, kernLen);
+    const lopsided = shorter < 600 && longer > shorter * 2.5;
 
     if (lopsided) {
       return (
