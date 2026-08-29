@@ -261,31 +261,44 @@ for (const c of cases) {
   const tokensIn = estimate(text);
   console.log(`  page      ${text.length.toLocaleString()} chars, ~${tokensIn.toLocaleString()} tokens`);
 
-  // Cold first: no document at all. If the model produces the answer here, the
+  // The uncompressed attempt goes first, and the ordering is not cosmetic.
+  //
+  // Groq decides in two stages. Against a clean minute window it weighs the
+  // request and answers 413 with "Limit 8000, Requested 37618" — a refusal
+  // about the size of this document, which is the baseline this file exists to
+  // record. Against a window something else has already touched it answers 429
+  // and stops there, never reaching the size check, and that refusal is about
+  // our pacing rather than the document.
+  //
+  // This call used to run third, after the cold ask and behind the previous
+  // case's compressed call. So the run kept producing bare 429s and the
+  // baseline had to be written down as inconclusive — three cases where the
+  // compressed answer was correct and the comparison could not be made, purely
+  // because the harness had spent the window before asking the question that
+  // needed it clean.
+  let full = await askGroq(text, c.question);
+
+  // Still bare means the window had genuinely not cleared. Wait it out and ask
+  // again, twice, because a full minute is the documented width of that window
+  // and one retry landing early is not evidence of anything. Past that,
+  // something other than pacing is going on and the row says so rather than
+  // quietly claiming a size refusal it cannot substantiate.
+  for (let retry = 0; retry < 2 && !full.ok && !full.tooLarge; retry += 1) {
+    console.log(`  UNCUT     ${full.status} with no size given — waiting 65s and asking again`);
+    await wait(65_000);
+    full = await askGroq(text, c.question);
+  }
+
+  // Cold next: no document at all. If the model produces the answer here, the
   // rest of this case proves nothing, and saying so in the output is cheaper
-  // than a reader having to think of the objection themselves.
+  // than a reader having to think of the objection themselves. It is a hundred
+  // tokens and can sit anywhere; the baseline could not.
   const cold = await askGroq("", c.question);
   const knewCold = cold.ok && c.expect && c.expect.test(cold.answer ?? "");
   if (knewCold) alreadyKnown += 1;
   console.log(
     `  COLD      ${knewCold ? "MODEL ALREADY KNOWS IT — this case proves nothing" : "model does not know it without the document"}`,
   );
-  await wait(3000);
-
-  // Uncompressed, next. The refusal is the baseline and it has to be real.
-  let full = await askGroq(text, c.question);
-
-  // A refusal that names no numbers is a rate limit, and a rate limit here is
-  // almost always this script's own previous call still occupying the window.
-  // Waiting it out and asking again is the difference between measuring the
-  // document and measuring the harness. Once only: if the second attempt is
-  // still bare, something other than pacing is going on and the row says so
-  // rather than quietly claiming a size refusal it cannot evidence.
-  if (!full.ok && !full.tooLarge) {
-    console.log(`  UNCUT     ${full.status} with no size given — waiting 65s and asking once more`);
-    await wait(65_000);
-    full = await askGroq(text, c.question);
-  }
 
   if (full.ok) {
     console.log(`  UNCUT     accepted at ${full.promptTokens} prompt tokens`);
