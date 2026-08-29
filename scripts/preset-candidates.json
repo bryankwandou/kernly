@@ -18,34 +18,16 @@
     "expect": "36,?200"
   },
   {
-    "id": "apollo-lm-hours",
-    "url": "https://en.wikipedia.org/wiki/Apollo_program",
-    "question": "how many hours of lunar surface stay did the initial lunar module model allow",
-    "expect": "\b34\b"
-  },
-  {
     "id": "apollo-vacuum-chamber",
     "url": "https://en.wikipedia.org/wiki/Apollo_program",
     "question": "up to what altitude in feet could the Apollo vacuum chambers simulate atmospheric pressure",
     "expect": "250,?000"
   },
   {
-    "id": "apollo-saturn-ib-payload",
-    "url": "https://en.wikipedia.org/wiki/Apollo_program",
-    "question": "how many pounds could the Saturn IB send into low Earth orbit",
-    "expect": "40,?000"
-  },
-  {
     "id": "photo-chloroplast-density",
     "url": "https://en.wikipedia.org/wiki/Photosynthesis",
     "question": "how many chloroplasts can the mesophyll contain per square millimetre of leaf",
     "expect": "450,?000"
-  },
-  {
-    "id": "photo-carbon-tons",
-    "url": "https://en.wikipedia.org/wiki/Photosynthesis",
-    "question": "how many billion tons of carbon do photosynthetic organisms convert into biomass each year",
-    "expect": "100.{0,4}115|91.{0,4}104"
   },
   {
     "id": "indonesia-leang-tedongnge",
@@ -64,5 +46,65 @@
     "url": "https://en.wikipedia.org/wiki/History_of_Indonesia",
     "question": "what is the minimum age of the painted hand stencil from Leang Timpuseng",
     "expect": "39,?900"
+  },
+  {
+    "id": "panama-roosevelt-medals",
+    "url": "https://en.wikipedia.org/wiki/Panama_Canal",
+    "question": "how many Roosevelt Medals were ultimately issued to workers on the Panama Canal",
+    "expect": "7,?189"
+  },
+  {
+    "id": "panama-2015-transits",
+    "url": "https://en.wikipedia.org/wiki/Panama_Canal",
+    "question": "how many transits did the Panama Canal carry in 2015",
+    "expect": "13,?874"
+  },
+  {
+    "id": "chernobyl-checherov",
+    "url": "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+    "question": "what radiation level in roentgens per hour did Konstantin Checherov measure inside an open hatch at Chernobyl in June",
+    "expect": "11,?400"
+  },
+  {
+    "id": "chernobyl-basement-water",
+    "url": "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+    "question": "how many tonnes of water were pumped out of the Chernobyl reactor basement before the operation finished on 8 May",
+    "expect": "20,?000"
+  },
+  {
+    "id": "chernobyl-fuel-channels",
+    "url": "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+    "question": "how many individual fuel channels did Chernobyl reactor no. 4 have",
+    "expect": "1,?661"
+  },
+  {
+    "id": "borobudur-1908-budget",
+    "url": "https://en.wikipedia.org/wiki/Borobudur",
+    "question": "what additional budget in guilders was approved for the Borobudur restoration proposal submitted in 1908",
+    "expect": "34,?600"
+  },
+  {
+    "id": "borobudur-stair-surfaces",
+    "url": "https://en.wikipedia.org/wiki/Borobudur",
+    "question": "how many surfaces of stone stairs does Borobudur have in total",
+    "expect": "2,?033"
+  },
+  {
+    "id": "borobudur-1974-tourists",
+    "url": "https://en.wikipedia.org/wiki/Borobudur",
+    "question": "how many tourists visited Borobudur in 1974",
+    "expect": "260,?000"
+  },
+  {
+    "id": "krakatoa-perth",
+    "url": "https://en.wikipedia.org/wiki/Krakatoa",
+    "question": "how far away in kilometres was the Krakatoa explosion heard in Perth, Western Australia",
+    "expect": "3,?110"
+  },
+  {
+    "id": "tambora-pumice-density",
+    "url": "https://en.wikipedia.org/wiki/Mount_Tambora",
+    "question": "what was the density of the Mount Tambora pumice in kilograms per cubic metre",
+    "expect": "636[^0-9]{0,8}kg"
   }
 ]

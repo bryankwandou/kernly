@@ -56,12 +56,34 @@ const LANGUAGES: Record<string, string> = {
 };
 
 function languageRule(locale: string | null): string {
-  // Falling back to the question's own language rather than to English. A
-  // visitor who never touched the language picker but typed in Thai has told
-  // you what they read, and defaulting to English would ignore it.
-  return locale && LANGUAGES[locale]
-    ? `Reply in ${LANGUAGES[locale]}, regardless of what language the reference material is written in.`
-    : "Reply in the same language the question was asked in, regardless of what language the reference material is written in.";
+  // The question decides, and the picker is the tiebreak.
+  //
+  // This was the other way round and it was wrong in the ordinary case. The
+  // picker in the header sets the language of the interface — the labels, the
+  // buttons, the verdict — and a great many people leave it on English while
+  // typing questions in their own language. Handing the model the picker's
+  // value as an order produced exactly what you would expect: a question typed
+  // in Indonesian, answered in English, on a page whose whole purpose is to be
+  // read closely by the person who asked.
+  //
+  // Which language a question is written in is something these models identify
+  // reliably, so the instruction defers to them and keeps the picker for the
+  // case they cannot call — a bare name, a number, three words that could be
+  // either language. There the picker is the best evidence available of what
+  // the visitor reads.
+  //
+  // The reference material never decides. It is frequently in a different
+  // language from both, and an English Wikipedia article is not a reason to
+  // answer an Indonesian question in English.
+  const fallback =
+    locale && LANGUAGES[locale]
+      ? `If the question is too short to tell, reply in ${LANGUAGES[locale]}.`
+      : "";
+  return (
+    "Reply in the same language the question was asked in. " +
+    fallback +
+    " The language of the reference material never decides this."
+  ).replace(/\s+/g, " ");
 }
 
 function bad(message: string, status = 400) {

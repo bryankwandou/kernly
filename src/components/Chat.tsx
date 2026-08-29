@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { compress, estimate } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
 import { useI18n } from "./I18n";
+import { Answer } from "./Answer";
 
 /**
  * The side-by-side chat.
@@ -60,23 +61,23 @@ const ALL_MODELS = MODEL_GROUPS.flatMap((g) => g.models);
  * relevant passage entirely and the reply still came back correct, carrying the
  * marker that says it came from memory. A demo that cannot fail is not evidence.
  *
- * These three were selected by scripts/qualify-presets.mjs, which keeps only
- * questions that fail one test and pass another: the model must NOT answer it
- * cold, and MUST answer it from the compressed material. Nine candidates were
- * measured and six were thrown out — four because the fact did not survive the
- * cut, two because the model produced it from memory anyway.
+ * The replacement set then repeated the mistake in miniature. Its qualifier
+ * asked each question cold exactly once, and one ask decides nothing about a
+ * fact the model produces most of the time but not always: the Apollo
+ * employment question cleared it on a single decline, shipped here, and was
+ * then caught by the proof script answering 400,000 unaided. Asked three times
+ * it answers three times out of three.
  *
- * Three is what qualified, so three is what ships. Padding this list back to
- * four with a question that failed would be the original mistake again.
+ * These come from a qualifier that asks cold three times and drops the
+ * candidate on any hit. Eighteen went in and five came out — seven the model
+ * already knew, five whose fact did not survive the cut, one the text extractor
+ * never carried off the page.
+ *
+ * Five qualified, so five ship, across three articles. The list is whatever
+ * survived the test; padding it back to a round number with a question that
+ * failed would be the original mistake again.
  */
 const PRESETS = [
-  {
-    id: "apollo",
-    label: "Apollo program",
-    url: "https://en.wikipedia.org/wiki/Apollo_program",
-    question:
-      "how many people did the Apollo program employ at its peak, and how many industrial firms and universities supported it",
-  },
   {
     id: "maros",
     label: "Sejarah Indonesia",
@@ -90,6 +91,25 @@ const PRESETS = [
     url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
     question:
       "what is the minimum age of the painted hand stencil from Leang Timpuseng",
+  },
+  {
+    id: "borobudur",
+    label: "Borobudur",
+    url: "https://en.wikipedia.org/wiki/Borobudur",
+    question: "how many surfaces of stone stairs does Borobudur have in total",
+  },
+  {
+    id: "chernobyl-channels",
+    label: "Chernobyl — reaktor",
+    url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+    question: "how many individual fuel channels did Chernobyl reactor no. 4 have",
+  },
+  {
+    id: "chernobyl-water",
+    label: "Chernobyl — ruang bawah",
+    url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
+    question:
+      "how many tonnes of water were pumped out of the Chernobyl reactor basement before the operation finished on 8 May",
   },
 ];
 
@@ -946,9 +966,11 @@ function Column({
         <p className="rounded-lg border border-[color-mix(in_oklab,var(--signal)_35%,transparent)] bg-[color-mix(in_oklab,var(--signal)_9%,transparent)] p-3 text-[12.5px] leading-relaxed">
           {error}
         </p>
+      ) : parsed?.body ? (
+        <Answer text={parsed.body} />
       ) : (
-        <p className="whitespace-pre-wrap text-[14px] leading-[1.65]">
-          {parsed?.body || <span className="text-[var(--muted)]">{t("chat.noreply")}</span>}
+        <p className="text-[14px] leading-[1.65] text-[var(--muted)]">
+          {t("chat.noreply")}
         </p>
       )}
 

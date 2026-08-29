@@ -55,19 +55,30 @@ const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
  * had carried anything. It was consistent with the compressor dropping every
  * relevant passage and the model reciting Wikipedia from memory.
  *
- * These three were selected by scripts/qualify-presets.mjs on the same rule the
- * demo presets now follow: the model must fail the question cold and answer it
- * from the compressed material. The COLD row below re-checks that on every run
- * rather than trusting the selection, because a later model may simply know
- * more, and a question that proved something in August can quietly stop proving
- * it.
+ * Then the replacement set made the same mistake in a smaller way. The Apollo
+ * employment question was selected by a qualifier that asked it cold exactly
+ * once, and one ask is a coin toss on a fact the model half-produces: it shipped
+ * here, and the very next run of this file caught the model reciting 400,000
+ * with no document in front of it. Asked three times it produces the number
+ * three times out of three. It had always known it.
+ *
+ * These three come from a qualifier that now asks cold three times and throws
+ * the candidate out on any hit. Eighteen candidates went in and five came out —
+ * seven the model already knew, five whose fact did not survive the cut, one
+ * whose answer the text extractor never carried off the page. The three below
+ * are one each from three different articles, so a quirk of a single Wikipedia
+ * page cannot be what the run is measuring.
+ *
+ * The COLD row still re-checks all of it on every run rather than trusting the
+ * selection, because a later model may simply know more, and a question that
+ * proved something in August can quietly stop proving it.
  */
 const CASES = [
   {
-    url: "https://en.wikipedia.org/wiki/Apollo_program",
+    url: "https://en.wikipedia.org/wiki/Chernobyl_disaster",
     question:
-      "how many people did the Apollo program employ at its peak, and how many industrial firms and universities supported it",
-    expect: /400,?000/,
+      "how many individual fuel channels did Chernobyl reactor no. 4 have",
+    expect: /1,?661/,
   },
   {
     url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
@@ -76,10 +87,10 @@ const CASES = [
     expect: /43,?900/,
   },
   {
-    url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    url: "https://en.wikipedia.org/wiki/Borobudur",
     question:
-      "what is the minimum age of the painted hand stencil from Leang Timpuseng",
-    expect: /39,?900/,
+      "how many surfaces of stone stairs does Borobudur have in total",
+    expect: /2,?033/,
   },
 ];
 
