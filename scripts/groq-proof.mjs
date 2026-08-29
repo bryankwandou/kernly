@@ -44,21 +44,42 @@ const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
  * rather than its opening paragraph, because an answer in the first two hundred
  * words survives any compressor and proves nothing about selection.
  */
+/**
+ * Questions whose correct answer can only have come from the document.
+ *
+ * The three this file used to run — the conference that divided Germany, the
+ * experiment tracing oxygen to water, what killed the Apollo 1 crew — were all
+ * answerable with no document at all. Asked cold, gpt-oss-20b produces Yalta,
+ * Ruben and Kamen, and the cabin fire from training alone. So "2 of 3 answered
+ * correctly on the compressed context" was never evidence that the compression
+ * had carried anything. It was consistent with the compressor dropping every
+ * relevant passage and the model reciting Wikipedia from memory.
+ *
+ * These three were selected by scripts/qualify-presets.mjs on the same rule the
+ * demo presets now follow: the model must fail the question cold and answer it
+ * from the compressed material. The COLD row below re-checks that on every run
+ * rather than trusting the selection, because a later model may simply know
+ * more, and a question that proved something in August can quietly stop proving
+ * it.
+ */
 const CASES = [
   {
-    url: "https://en.wikipedia.org/wiki/World_War_II",
-    question: "which conference agreed to divide Germany into occupation zones after the war",
-    expect: /yalta/i,
-  },
-  {
-    url: "https://en.wikipedia.org/wiki/Photosynthesis",
-    question: "which experiment showed the oxygen released comes from water rather than carbon dioxide",
-    expect: /ruben|kamen|hill/i,
-  },
-  {
     url: "https://en.wikipedia.org/wiki/Apollo_program",
-    question: "what killed the three astronauts of the first crewed Apollo mission",
-    expect: /fire|cabin/i,
+    question:
+      "how many people did the Apollo program employ at its peak, and how many industrial firms and universities supported it",
+    expect: /400,?000/,
+  },
+  {
+    url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    question:
+      "how old is the wild boar hunt cave painting in the Maros-Pangkep karst of Sulawesi",
+    expect: /43,?900/,
+  },
+  {
+    url: "https://en.wikipedia.org/wiki/History_of_Indonesia",
+    question:
+      "what is the minimum age of the painted hand stencil from Leang Timpuseng",
+    expect: /39,?900/,
   },
 ];
 
@@ -112,7 +133,23 @@ async function askGroq(material, question) {
       temperature: 0.2,
       messages: [
         { role: "system", content: SYSTEM },
-        { role: "user", content: `Reference material:\n\n${material}\n\n---\n\nQuestion: ${question}` },
+        {
+          role: "user",
+          // With no material, ask the bare question. An empty "Reference
+          // material:" heading is a different prompt from the one a person
+          // asking cold would send, and this row exists to establish what the
+          // model knows unaided — it has to be an honest version of that
+          // question rather than a hollowed-out version of this one.
+          content: material
+            ? `Reference material:
+
+${material}
+
+---
+
+Question: ${question}`
+            : question,
+        },
       ],
     }),
   });
@@ -177,6 +214,7 @@ if (DIRECT) {
 }
 
 let passed = 0;
+let alreadyKnown = 0;
 
 for (const c of cases) {
   console.log("=".repeat(78));
@@ -188,7 +226,18 @@ for (const c of cases) {
   const tokensIn = estimate(text);
   console.log(`  page      ${text.length.toLocaleString()} chars, ~${tokensIn.toLocaleString()} tokens`);
 
-  // Uncompressed, first. The refusal is the baseline and it has to be real.
+  // Cold first: no document at all. If the model produces the answer here, the
+  // rest of this case proves nothing, and saying so in the output is cheaper
+  // than a reader having to think of the objection themselves.
+  const cold = await askGroq("", c.question);
+  const knewCold = cold.ok && c.expect && c.expect.test(cold.answer ?? "");
+  if (knewCold) alreadyKnown += 1;
+  console.log(
+    `  COLD      ${knewCold ? "MODEL ALREADY KNOWS IT — this case proves nothing" : "model does not know it without the document"}`,
+  );
+  await wait(3000);
+
+  // Uncompressed, next. The refusal is the baseline and it has to be real.
   const full = await askGroq(text, c.question);
   if (full.ok) {
     console.log(`  UNCUT     accepted at ${full.promptTokens} prompt tokens`);
@@ -260,4 +309,15 @@ if (cases.length > 1) {
     `${passed}/${cases.length} cases where the uncompressed request was refused ` +
       `and the compressed one answered correctly.`,
   );
+  // Correct and attributable are different counts, and collapsing them is the
+  // error this file used to make. A case the model answers cold is correct
+  // whatever the compressor did with the passage, so it belongs outside the
+  // number that carries the claim.
+  if (alreadyKnown > 0) {
+    console.log(
+      `${passed - alreadyKnown} of those are attributable to the compression. ` +
+        `${alreadyKnown} the model already knew without the document, so that row ` +
+        `demonstrates the ceiling but not the retrieval.`,
+    );
+  }
 }
