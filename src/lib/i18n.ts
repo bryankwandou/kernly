@@ -151,6 +151,14 @@ const en = {
     "Not from the reference material",
   "chat.noreply":
     "No reply.",
+  // The gateway can fail before any of our code runs — a function that ran out
+  // of time on a very large document, a platform error page. Those replies are
+  // not JSON, and parsing them threw a raw "Unexpected token 'A'" onto the
+  // screen where an explanation belonged.
+  "chat.error.gateway":
+    "The server did not return a readable reply. On a very large document this is usually the request running out of time before the model answered — compress it further, or send a shorter page.",
+  "chat.error.status":
+    "The request failed",
   "chat.coverage":
     "of the question's rare terms survived",
   "chat.ownCount":
@@ -305,6 +313,10 @@ const id: Partial_ = {
     "Bukan dari bahan rujukan",
   "chat.noreply":
     "Tidak ada balasan.",
+  "chat.error.gateway":
+    "Server tidak mengembalikan balasan yang bisa dibaca. Pada dokumen yang sangat besar, biasanya ini berarti permintaannya kehabisan waktu sebelum model sempat menjawab — kompres lebih jauh, atau kirim halaman yang lebih pendek.",
+  "chat.error.status":
+    "Permintaan gagal",
   "chat.coverage":
     "istilah langka pertanyaan yang selamat",
   "chat.ownCount":

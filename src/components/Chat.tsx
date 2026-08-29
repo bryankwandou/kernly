@@ -6,6 +6,7 @@ import { compress, estimate } from "@kernly/core";
 import { SAMPLES } from "@/lib/samples";
 import { useI18n } from "./I18n";
 import { Answer } from "./Answer";
+import type { Key } from "@/lib/i18n";
 
 /**
  * The side-by-side chat.
@@ -153,14 +154,46 @@ type Turn = {
   pending: boolean;
 };
 
-async function ask(payload: Record<string, unknown>): Promise<Reply> {
+/**
+ * A failure that never reached our route still has to read as a sentence.
+ *
+ * This parsed the response as JSON unconditionally, which holds right up until
+ * something upstream of the route answers instead: a serverless function that
+ * ran out of time chewing through a hundred-thousand-character document, a
+ * platform error page. Those bodies are HTML or plain text, JSON.parse throws
+ * on the first character, and the thrown parser message went straight into the
+ * answer column — a visitor comparing two replies was shown
+ * `Unexpected token 'A', "An error o"... is not valid JSON` where the
+ * explanation belonged.
+ *
+ * The status code is the thing worth keeping from a response like that, so the
+ * body is read as text and only then parsed, and a body that is not JSON
+ * becomes the sentence the situation actually calls for.
+ */
+async function ask(
+  payload: Record<string, unknown>,
+  t: (key: Key) => string,
+): Promise<Reply> {
   const res = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json?.error ?? `Request failed (${res.status})`);
+
+  const raw = await res.text();
+  let json: (Reply & { error?: string }) | null = null;
+  try {
+    json = JSON.parse(raw) as Reply & { error?: string };
+  } catch {
+    json = null;
+  }
+
+  if (json === null) {
+    throw new Error(`${t("chat.error.gateway")} (HTTP ${res.status})`);
+  }
+  if (!res.ok) {
+    throw new Error(json.error ?? `${t("chat.error.status")} (HTTP ${res.status})`);
+  }
   return json as Reply;
 }
 
@@ -363,8 +396,8 @@ export function Chat() {
     // Both runs go out together. Sequencing them would make the compressed
     // side look faster purely because the provider had warmed up.
     const [full, kern] = await Promise.allSettled([
-      ask({ ...payload, mode: "full" }),
-      ask({ ...payload, mode: "kernly" }),
+      ask({ ...payload, mode: "full" }, t),
+      ask({ ...payload, mode: "kernly" }, t),
     ]);
 
     setTurns((t) =>
